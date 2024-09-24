@@ -1,0 +1,24 @@
+.btn{
+    border: 1px solid black;
+    width: 120px;
+}
+
+.home{
+    overflow-y: hidden;
+}
+
+.active-order{
+    background-color: #e5e7eb;
+    border-bottom: 0cap;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.dashboard-top div:hover{
+   border-top-left-radius: 10px;
+   border-top-right-radius: 10px;
+}
+
+.menu-icon{
+    height: 25px;
+}
