@@ -5,6 +5,9 @@ import Navbar from './components/navbar';
 import Home from './screens/home';
 import Admin from "./screens/admin";
 import OpenHouseForm from "./components/forms/openHouseForm";
+import Login from "./components/login";
+import Register from "./components/register";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   
@@ -15,6 +18,16 @@ function App() {
         <Router>
           <Navbar/>
           <Routes>
+            <Route
+              exact
+              path="/login"
+              element={<Login/>}
+            />
+            <Route
+              exact
+              path="/register"
+              element={<Register/>}
+            />
             <Route
               exact
               path="/"
@@ -32,6 +45,7 @@ function App() {
             ></Route>
           </Routes>
           <Toaster />
+          <ToastContainer />
         </Router>
       {/* </GlobalContextProvider> */}
     </>
