@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function profileForm( {formData, handleSubmit, handleChange} ) {
+function ProfileForm( {formData, handleSubmit, handleChange} ) {
 
   return (
     <div className=" mx-5 p-6 border border-gray-300 rounded-lg bg-white overflow-y-scroll h-full">
@@ -81,4 +81,4 @@ function profileForm( {formData, handleSubmit, handleChange} ) {
   );
 }
 
-export default profileForm;
+export default ProfileForm;

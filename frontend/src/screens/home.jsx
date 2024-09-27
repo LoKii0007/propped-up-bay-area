@@ -7,7 +7,7 @@ import PostRemoval from "../components/forms/postRemoval";
 import Profile from "../components/profile";
 
 const Home = () => {
-  const [activeView, setActiveView] = useState("dashboard");
+  const [activeView, setActiveView] = useState("dashboard")
 
   return (
     <>

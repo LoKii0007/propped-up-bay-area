@@ -5,34 +5,25 @@ import Navbar from './components/navbar';
 import Home from './screens/home';
 import Admin from "./screens/admin";
 import OpenHouseForm from "./components/forms/openHouseForm";
+import SignUp from "./screens/signUp";
+import AdminDashboard from "./components/clientDetails";
 
 function App() {
-  
+
 
   return (
     <>
       {/* <GlobalContextProvider> */}
-        <Router>
-          <Navbar/>
-          <Routes>
-            <Route
-              exact
-              path="/"
-              element={<Home/>}
-            ></Route>
-            <Route
-              exact
-              path="/admin"
-              element={<Admin/>}
-            ></Route>
-            <Route
-              exact
-              path="/openHouseForm"
-              element={<OpenHouseForm/>}
-            ></Route>
-          </Routes>
-          <Toaster />
-        </Router>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route exact path="/admin" element={<Admin />} />
+          <Route exact path="/signup" element={<SignUp />} />
+          <Route exact path="/login" element={<OpenHouseForm />} />
+        </Routes>
+        <Toaster />
+      </Router>
       {/* </GlobalContextProvider> */}
     </>
   )
