@@ -62,3 +62,34 @@ export const zones = [
       resetPrice : 50
     },
   ]
+
+  export const users = [
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+    },
+    {
+      id: "2",
+      username: "JaneDoe",
+      email: "janedoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+    },
+    {
+      id: "3",
+      username: "lokesh",
+      email: "lokesh@gmail.com",
+      phone: "081234567890",
+      isSubscribed: false,
+    },
+    {
+      id: "4",
+      username: "santosh",
+      email: "santosh@gmail.com",
+      phone: "081234567890",
+      isSubscribed: false,
+    },
+  ]

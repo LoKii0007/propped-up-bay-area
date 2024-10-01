@@ -5,6 +5,7 @@ import Sidebar from "../components/sidebar"
 import Order from "../components/order";
 import PostRemoval from "../components/forms/postRemoval";
 import Profile from "../components/profile";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard")
@@ -23,8 +24,13 @@ const Home = () => {
           {activeView === "profile" && <Profile/>}
         </div>
       </div>
+
+      {/* <div className="lottie">
+         <DotLottieReact loop autoplay  src="/hamster.json" />
+      </div> */}
     </>
   );
+  
 };
 
 export default Home

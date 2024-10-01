@@ -3,10 +3,11 @@ import AdminSidebar from '../components/adminSidebar'
 import Dashboard from '../components/dashboard'
 import ClientDetails from '../components/clientDetails'
 import Salesreport from '../components/salesreport'
-
+import { users } from '../data/staticData'
 function Admin() {
 
   const [activeView, setActiveView] = useState("clients")
+  const filteredUsers = users.filter(user => user.isSubscribed)
 
   return (
     <>
@@ -16,9 +17,9 @@ function Admin() {
         </div>
 
         <div className="active-content mt-5 mx-5 w-svw">
-          {activeView === "clients" && <ClientDetails />}
+          {activeView === "clients" && <ClientDetails users={users}  />}
           {activeView === "order requests" && <Dashboard/>}
-          {activeView === "subscription customers" && <Dashboard  />}
+          {activeView === "subscription customers" && <ClientDetails users={filteredUsers}  />}
           {activeView === "sales report" && <Salesreport />}
         </div>
       </div>
