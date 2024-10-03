@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react"
 import "../css/form.css"
-import InputAddress from "../ui/inputAddress"
 import { zones } from "../data/staticData"
 import InputDate from "../ui/inputDate"
+import InputAddress from "../ui/inputAddress";
 
 const OpenHouseForm = () => {
 
