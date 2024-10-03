@@ -1,23 +1,23 @@
 import React, { useState } from 'react'
-import ProfileForm from '../forms/profileForm'
+import ProfileForm from './profileForm';
 
-function Profile() {
+function SignUpForm() {
 
   const [formData, setFormData] = useState({
     id: '25411',
-    username: 'peggyang',
-    firstName: 'Peggy',
-    lastName: 'ang',
-    profilePhoto: 'default-photo.png',
-    company: 'signalsign',
+    username: '',
+    firstName: '',
+    lastName: '',
+    profilePhoto: '',
+    company: '',
     caDreLicense: '',
-    address: '2042 High Street',
-    city: 'Oakland',
-    state: 'California',
-    zipCode: '94601',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
     workPhone: '',
-    mobilePhone: '2331131113',
-    email: 'peggyyang1819@gmail.com',
+    mobilePhone: '',
+    email: '',
     receiveEmailNotifications: true,
     receiveTextNotifications: true,
   });
@@ -43,4 +43,4 @@ function Profile() {
   )
 }
 
-export default Profile
+export default SignUpForm

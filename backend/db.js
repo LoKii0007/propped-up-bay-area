@@ -1,16 +1,21 @@
-const mongoose = require("mongoose")
-require('dotenv').config()
+const mongoose = require("mongoose");
+require('dotenv').config();
 
-const MONGO_URL = process.env.MONGO_URL
-console.log( 'url', MONGO_URL)
+const MONGODB_URL = process.env.MONGODB_URL;
 
-const Connection = async ()=>{
-    try {
-        await mongoose.connect(MONGO_URL)
-        console.log('Connected to MongoDB')
-    } catch (error) {
-        console.log('error connecting to mongodb : ', error)
-    }
+if (!MONGODB_URL) {
+  console.error('MONGODB_URL is not defined in the environment variables');
+  process.exit(1);
 }
+
+const Connection = async () => {
+  try {
+    await mongoose.connect(MONGODB_URL);
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error.message);
+    process.exit(1);
+  }
+};
 
 module.exports = Connection

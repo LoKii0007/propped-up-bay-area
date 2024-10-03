@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import InputAddress from "../ui/InputAddress";
-import { zones } from "../../data/staticData";
+import InputAddress from "../ui/inputAddress"
+import { zones } from "../data/staticData";
 import InputDate from "../ui/inputDate";
 
 function PostOrder() {

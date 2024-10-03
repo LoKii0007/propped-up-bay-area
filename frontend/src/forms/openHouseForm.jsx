@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
-import "../../css/form.css"
-import InputAddress from "../ui/InputAddress"
-import { zones } from "../../data/staticData"
+import "../css/form.css"
+import InputAddress from "../ui/inputAddress"
+import { zones } from "../data/staticData"
 import InputDate from "../ui/inputDate"
 
 const OpenHouseForm = () => {
@@ -198,7 +198,7 @@ const OpenHouseForm = () => {
 
   return (
     <>
-      <form onClick={handleSubmit} className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-6 bg-white">
+      <form onSubmit={handleSubmit} className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-6 bg-white">
         {/* Name Section */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col">

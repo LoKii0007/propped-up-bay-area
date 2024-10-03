@@ -25,7 +25,7 @@ function ClientDetails({users}) {
 
   return (
     <>
-      <div className="dashboard mx-5 px-10 py-5 flex flex-col h-full bg-white rounded-md shadow-md ">
+      <div className="dashboard px-10 py-5 flex flex-col h-full ">
         <div className="relative bg-gray-100 mt-4 mb-6">
           <input
             name="searchBox"

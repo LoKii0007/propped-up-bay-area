@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import OpenHouseForm from "./forms/openHouseForm";
-import PostOrder from "./forms/postOrder";
-import PostRemoval from "./forms/postRemoval";
+import OpenHouseForm from "../forms/openHouseForm";
+import PostOrder from "../forms/postOrder"
 
 function Order() {
   const [activeForm, setActiveForm] = useState();

@@ -1,13 +1,20 @@
 import React from 'react'
-import Dropdown from './dropdown'
+import Dropdown from '../ui/dropdown'
+import { useNavigate } from 'react-router-dom'
 
 function Navbar() {
+
+  const navigate = useNavigate()
+  function handleNavigate(){
+    navigate('/')
+  }
+
   return (
     <>
       <nav className='w-screen top-0 h-[8vh] bg-white shadow-md flex items-center justify-between px-12' >
-         <div className="nav-left">
+         <button onClick={handleNavigate} className="nav-left">
             logo
-         </div>
+         </button>
          <div className="nav-right">
             <Dropdown/>
          </div>

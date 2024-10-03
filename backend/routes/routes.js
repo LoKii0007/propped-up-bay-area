@@ -1,6 +1,14 @@
 const express = require('express')
 const { paymentSession } = require('../controller/paymentServer')
+const { signUp, login } = require('../controller/auth')
 const Routes = express.Router()
+
+
+// -----------------------------
+// auth route
+// -----------------------------
+Routes.post('/auth/signUp', signUp)
+Routes.post('/auth/login', login)
 
 
 // -----------------------------

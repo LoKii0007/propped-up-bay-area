@@ -3,9 +3,9 @@ import "../css/home.css"
 import Dashboard from "../components/dashboard";
 import Sidebar from "../components/sidebar"
 import Order from "../components/order";
-import PostRemoval from "../components/forms/postRemoval";
-import Profile from "../components/profile";
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import PostRemoval from "../forms/postRemoval";
+import Profile from "../components/profile"
+import CardDetails from "../components/cardDetails";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard")
@@ -22,12 +22,9 @@ const Home = () => {
           {activeView === "order" && <Order/>}
           {activeView === "removal" && <PostRemoval/>}
           {activeView === "profile" && <Profile/>}
+          {activeView === "payment info" && <CardDetails/>}
         </div>
       </div>
-
-      {/* <div className="lottie">
-         <DotLottieReact loop autoplay  src="/hamster.json" />
-      </div> */}
     </>
   );
   

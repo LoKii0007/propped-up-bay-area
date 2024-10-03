@@ -8,10 +8,8 @@
 }
 
 .active-order{
-    background-color: #e5e7eb;
-    border-bottom: 0cap;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    background-color: #4C9A2A;
+    color: white;
 }
 
 .dashboard-top div:hover{
