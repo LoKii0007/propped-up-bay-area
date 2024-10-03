@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react"
 import { zones } from "../data/staticData";
-import InputDate from "../ui/inputDate";
-import InputAddress from "../ui/inputAddress";
 
 function PostOrder() {
 
@@ -202,24 +200,111 @@ function PostOrder() {
           </span>
         </div>
 
-        {/* Date nedded Section */}
-        <InputDate labelText="Date needed by" formDataText="neededByDate" formData={formData.neededByDate} handleInputChange={handleInputChange} />
+        {/* Date needed Section */}
+        <div className="flex flex-col">
+          <label className="font-medium text-sm">Date needed by</label>
+          <input
+            type="date"
+            name="neededByDate"
+            value={formData.neededByDate}
+            onChange={handleInputChange}
+            className="border border-gray-300 p-2 rounded"
+          />
+        </div>
 
         {/*listing Address Section */}
-        <InputAddress
-          formDataText="listingAddress"
-          labelText="Listing Address"
-          formData={formData.listingAddress}
-          handleAddressChange={handleAddressChange}
-        /> 
+        <div className="flex flex-col">
+          <label className="font-medium text-sm">Listing Address</label>
+          <input
+            type="text"
+            name="streetAddress"
+            placeholder="Street Address"
+            value={formData.listingAddress.streetAddress}
+            onChange={(e) => handleAddressChange(e, "listingAddress")}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <input
+            type="text"
+            name="streetAddress2"
+            placeholder="Street Address Line 2"
+            value={formData.listingAddress.streetAddress2}
+            onChange={(e) => handleAddressChange(e, "listingAddress")}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <div className="flex flex-col md:flex-row gap-4 mt-2">
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={formData.listingAddress.city}
+              onChange={(e) => handleAddressChange(e, "listingAddress")}
+              className="border border-gray-300 p-2 rounded"
+            />
+            <input
+              type="text"
+              name="state"
+              placeholder="State / Province"
+              value={formData.listingAddress.state}
+              onChange={(e) => handleAddressChange(e, "listingAddress")}
+              className="border border-gray-300 p-2 rounded"
+            />
+          </div>
+          <input
+            type="text"
+            name="postalCode"
+            placeholder="Postal / Zip Code"
+            value={formData.listingAddress.postalCode}
+            onChange={(e) => handleAddressChange(e, "listingAddress")}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+        </div>
 
         {/*billing Address Section */}
-         <InputAddress
-          formDataText="billingAddress"
-          labelText="Billing Address"
-          formData={formData.billingAddress}
-          handleAddressChange={handleAddressChange}
-        /> 
+        <div className="flex flex-col">
+          <label className="font-medium text-sm">Billing Address</label>
+          <input
+            type="text"
+            name="streetAddress"
+            placeholder="Street Address"
+            value={formData.billingAddress.streetAddress}
+            onChange={(e) => handleAddressChange(e, "billingAddress")}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <input
+            type="text"
+            name="streetAddress2"
+            placeholder="Street Address Line 2"
+            value={formData.billingAddress.streetAddress2}
+            onChange={(e) => handleAddressChange(e, "billingAddress")}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <div className="flex flex-col md:flex-row gap-4 mt-2">
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={formData.billingAddress.city}
+              onChange={(e) => handleAddressChange(e, "billingAddress")}
+              className="border border-gray-300 p-2 rounded"
+            />
+            <input
+              type="text"
+              name="state"
+              placeholder="State / Province"
+              value={formData.billingAddress.state}
+              onChange={(e) => handleAddressChange(e, "billingAddress")}
+              className="border border-gray-300 p-2 rounded"
+            />
+          </div>
+          <input
+            type="text"
+            name="postalCode"
+            placeholder="Postal / Zip Code"
+            value={formData.billingAddress.postalCode}
+            onChange={(e) => handleAddressChange(e, "billingAddress")}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+        </div>
 
         {/* Required Zone Section */}
         <div className="flex flex-col">

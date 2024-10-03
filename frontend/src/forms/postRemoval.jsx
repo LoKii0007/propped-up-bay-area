@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import InputAddress from "../ui/inputAddress";
-import InputDate from "../ui/inputDate";
+import React, { useState, useEffect } from "react"
 
 function PostRemoval() {
   const [formData, setFormData] = useState({
@@ -18,10 +16,6 @@ function PostRemoval() {
     additionalInstructions: ""
   });
 
-
-  // ----------------------------------
-  // handling inputs
-  //  ---------------------------------
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -30,12 +24,12 @@ function PostRemoval() {
     });
   };
 
-  const handleAddressChange = (e, addressType) => {
+  const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [addressType]: {
-        ...formData[addressType],
+      propertyAddress: {
+        ...formData.propertyAddress,
         [name]: value,
       },
     });
@@ -99,15 +93,63 @@ function PostRemoval() {
         </div>
 
         {/*property Address Section */}
-        <InputAddress
-          formDataText="propertyAddress"
-          labelText="Property Address"
-          formData={formData.propertyAddress}
-          handleAddressChange={handleAddressChange}
-        />
+        <div className="flex flex-col">
+          <label className="font-medium text-sm">Property Address</label>
+          <input
+            type="text"
+            name="streetAddress"
+            placeholder="Street Address"
+            value={formData.propertyAddress.streetAddress}
+            onChange={handleAddressChange}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <input
+            type="text"
+            name="streetAddress2"
+            placeholder="Street Address Line 2"
+            value={formData.propertyAddress.streetAddress2}
+            onChange={handleAddressChange}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <div className="flex flex-col md:flex-row gap-4 mt-2">
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={formData.propertyAddress.city}
+              onChange={handleAddressChange}
+              className="border border-gray-300 p-2 rounded"
+            />
+            <input
+              type="text"
+              name="state"
+              placeholder="State / Province"
+              value={formData.propertyAddress.state}
+              onChange={handleAddressChange}
+              className="border border-gray-300 p-2 rounded"
+            />
+          </div>
+          <input
+            type="text"
+            name="postalCode"
+            placeholder="Postal / Zip Code"
+            value={formData.propertyAddress.postalCode}
+            onChange={handleAddressChange}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+        </div>
 
-        {/* Date nedded Section */}
-        <InputDate formData={formData.neededByDate} labelText={"Needed By Date"} formDataText={"neededByDate"} handleInputChange={handleInputChange} />
+        {/* Date needed Section */}
+        <div className="flex flex-col">
+          <label className="font-medium text-sm">Needed By Date</label>
+          <input
+            type="date"
+            name="neededByDate"
+            value={formData.neededByDate}
+            onChange={handleInputChange}
+            className="border border-gray-300 p-2 rounded"
+          />
+        </div>
 
         {/* Additional Instructions Section */}
         <div className="flex flex-col">

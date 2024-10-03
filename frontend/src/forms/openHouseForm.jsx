@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react"
 import "../css/form.css"
 import { zones } from "../data/staticData"
-import InputDate from "../ui/inputDate"
-import InputAddress from "../ui/inputAddress";
 
 const OpenHouseForm = () => {
 
@@ -117,11 +115,11 @@ const OpenHouseForm = () => {
       const startOfWeek = new Date(currentDate);
       startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
       startOfWeek.setHours(0, 0, 0, 0);
-      
+
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
       endOfWeek.setHours(23, 59, 59, 999);
-  
+
       return date >= startOfWeek && date <= endOfWeek;
     }
 
@@ -258,7 +256,15 @@ const OpenHouseForm = () => {
 
         {/* Date of First Event Section */}
         <div className="flex flex-col">
-          <InputDate labelText="Date of First Event" formDataText="firstEventDate" formData={formData.firstEventDate} handleInputChange={handleInputChange} />
+          <label className="font-medium text-sm">Date of First Event <span className="text-red-500">*</span></label>
+          <input
+            type="date"
+            name="firstEventDate"
+            value={formData.firstEventDate}
+            onChange={handleInputChange}
+            required
+            className="border border-gray-300 p-2 rounded"
+          />
           <span className="text-xs text-gray-500">
             $25 Rush fee gets applied for same day orders and orders on Friday
             after 4 pm
@@ -299,7 +305,7 @@ const OpenHouseForm = () => {
         {/* Event Address Section */}
         <div className="flex flex-col">
           <label className="font-medium text-sm">
-            Event Address (First Event) <span className="text-red-500" >*</span>
+            Event Address (First Event) <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -308,7 +314,7 @@ const OpenHouseForm = () => {
             value={formData.firstEventAddress.streetAddress}
             onChange={(e) => handleAddressChange(e, "firstEventAddress")}
             required
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 p-2 rounded mt-2"
           />
           <input
             type="text"
@@ -482,7 +488,57 @@ const OpenHouseForm = () => {
         </div>
 
         {/* Print Address Section */}
-        <InputAddress formDataText='printAddress' formData={formData.printAddress} handleAddressChange={handleAddressChange} labelText='Address to be printed' />
+        <div className="flex flex-col">
+          <label className="font-medium text-sm">
+            Address to be printed <span className="text-red-500" >*</span>
+          </label>
+          <input
+            type="text"
+            name="streetAddress"
+            placeholder="Street Address"
+            value={formData.printAddress.streetAddress}
+            onChange={(e) => handleAddressChange(e, "printAddress")}
+            required
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <input
+            type="text"
+            name="streetAddress2"
+            placeholder="Street Address Line 2"
+            value={formData.printAddress.streetAddress2}
+            onChange={(e) => handleAddressChange(e, "printAddress")}
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+          <div className="flex flex-col md:flex-row gap-4 mt-2">
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={formData.printAddress.city}
+              onChange={(e) => handleAddressChange(e, "printAddress")}
+              required
+              className="border border-gray-300 p-2 rounded"
+            />
+            <input
+              type="text"
+              name="state"
+              placeholder="State / Province"
+              value={formData.printAddress.state}
+              onChange={(e) => handleAddressChange(e, "printAddress")}
+              required
+              className="border border-gray-300 p-2 rounded"
+            />
+          </div>
+          <input
+            type="text"
+            name="postalCode"
+            placeholder="Postal / Zip Code"
+            value={formData.printAddress.postalCode}
+            onChange={(e) => handleAddressChange(e, "printAddress")}
+            required
+            className="border border-gray-300 p-2 rounded mt-2"
+          />
+        </div>
 
         {/* Additional Instructions Section */}
         <div className="flex flex-col">
