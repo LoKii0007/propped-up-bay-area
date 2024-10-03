@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import InputAddress from "../ui/InputAddress";
+import InputAddress from "../ui/inputAddress";
 import InputDate from "../ui/inputDate";
 
 function PostRemoval() {
