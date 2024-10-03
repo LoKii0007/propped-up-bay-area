@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import InputAddress from "../ui/inputAddress"
+import React, { useState, useEffect } from "react"
 import { zones } from "../data/staticData";
 import InputDate from "../ui/inputDate";
+import InputAddress from "../ui/inputAddress";
 
 function PostOrder() {
 
@@ -211,15 +211,15 @@ function PostOrder() {
           labelText="Listing Address"
           formData={formData.listingAddress}
           handleAddressChange={handleAddressChange}
-        />
+        /> 
 
         {/*billing Address Section */}
-        <InputAddress
+         <InputAddress
           formDataText="billingAddress"
           labelText="Billing Address"
           formData={formData.billingAddress}
           handleAddressChange={handleAddressChange}
-        />
+        /> 
 
         {/* Required Zone Section */}
         <div className="flex flex-col">
