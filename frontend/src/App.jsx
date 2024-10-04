@@ -11,13 +11,15 @@ import { useEffect } from "react";
 
 function App() {
 
-  const location = window.location
-  console.log(location)
+  const location = useLocation()
+
+  useEffect(()=>{
+    console.log(location.pathname)
+  }, [location])
 
   return (
     <>
       <AuthProvider>
-        {/* <Router> */}
           {location.pathname !== '/signup' && location.pathname !== '/login' && location.pathname !== '/admin' && <Navbar />}
           <Routes>
             <Route path="/" element={<Home />} />
@@ -26,7 +28,6 @@ function App() {
             <Route path="/login" element={<Login />} />
           </Routes>
           <Toaster />
-        {/* </Router> */}
       </AuthProvider>
     </>
   )

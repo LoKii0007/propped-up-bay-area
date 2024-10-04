@@ -49,7 +49,7 @@ const AdminSidebar = ({ setActiveView, activeView }) => {
           </div>
 
           {menu?.slice(0, 5).map((data, index) => (
-            <button key={index} onClick={() => setActiveView(data.name.toLocaleLowerCase())} className={` ${activeView === data.name.toLocaleLowerCase() ? 'bg-[#4C9A2A] text-white font-semibold' : 'text-[#737791] font-medium'} text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-[14px] px-5 w-full`}>
+            <button key={index} onClick={() => setActiveView(data.name.toLowerCase())} className={` ${activeView === data.name.toLowerCase() ? 'bg-[#4C9A2A] text-white font-semibold' : 'text-[#737791] font-medium'} text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-[14px] px-5 w-full`}>
               <img className="menu-icon w-4 h-4 " src={data.img} ></img>
               {data.name}
             </button>
@@ -58,7 +58,7 @@ const AdminSidebar = ({ setActiveView, activeView }) => {
 
         <div className="adminSidebar-bottom">
           {menu?.slice(5, 9).map((data, index) => (
-            <button key={index} onClick={() => setActiveView(data.name.toLocaleLowerCase())} className={` ${activeView === data.name.toLocaleLowerCase() ? 'bg-[#4C9A2A] text-white font-semibold' : 'text-[#737791] font-medium'} text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-[14px] px-5 w-full`}>
+            <button key={index} onClick={() => setActiveView(data.name.toLowerCase())} className={` ${activeView === data.name.toLowerCase() ? 'bg-[#4C9A2A] text-white font-semibold' : 'text-[#737791] font-medium'} text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-[14px] px-5 w-full`}>
               <img className="menu-icon w-4 h-4 " src={data.img} ></img>
               {data.name}
             </button>

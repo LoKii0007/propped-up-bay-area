@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import html2pdf from 'html2pdf.js'
 
 function PostRemoval() {
   const [formData, setFormData] = useState({
@@ -35,21 +36,25 @@ function PostRemoval() {
     });
   };
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log(formData);
+    console.log(formData)
+
+    const pdf = document.getElementById('pdf')
+    html2pdf(pdf)
   }
 
   return (
     <>
       <form
+        id="pdf"
         onSubmit={handleSubmit}
         className="open-house-form h-full bg-white shadow-md rounded-lg mx-5 gap-3 p-10 flex flex-col space-y-6 overflow-y-scroll"
       >
         {/* Name Section */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col">
-            <label className="font-medium text-sm">
+            <label className="font-medium text-sm ">
               First Name <span className="text-red-500">*</span>
             </label>
             <input

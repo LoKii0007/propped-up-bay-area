@@ -5,10 +5,11 @@ import Sidebar from "../components/sidebar"
 import Order from "../components/order";
 import PostRemoval from "../forms/postRemoval";
 import Profile from "../components/profile"
-import CardDetails from "../components/cardDetails";
+import CardDetails from "../components/cardDetails"
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard")
+
 
   return (
     <>
@@ -23,8 +24,10 @@ const Home = () => {
           {activeView === "removal" && <PostRemoval/>}
           {activeView === "profile" && <Profile/>}
           {activeView === "payment info" && <CardDetails/>}
+          
         </div>
       </div>
+
     </>
   );
   

@@ -16,6 +16,7 @@ function Admin() {
 
   const [activeView, setActiveView] = useState("clients")
   const filteredUsers = users.filter(user => user.isSubscribed)
+  console.log(filteredUsers)
   const [admin , setAdmin] = useState(sampleAdmin)
 
   if(!admin){
@@ -43,7 +44,7 @@ function Admin() {
           <div className="active-bottom m-7 bg-[#FAFBFC] rounded-[20px]">
           {activeView === "clients" && <ClientDetails users={users}  />}
           {activeView === "order requests" && <Dashboard/>}
-          {activeView === "subscription customers" && <ClientDetails users={filteredUsers}  />}
+          {activeView === "subscription" && <ClientDetails users={filteredUsers}  />}
           {activeView === "sales report" && <Salesreport />}
           </div>
         </div>

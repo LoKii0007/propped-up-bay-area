@@ -189,9 +189,57 @@ const OpenHouseForm = () => {
   }, [formData.requiredZone, formData.pickSign, formData.additionalSignQuantity, formData.printAddressSign, formData.twilightTourSlot, rushFee, currentTime])
 
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     console.log(formData)
+    const res = await postOrder(formData)
+    if(res.status === 200){
+      toast.success('Order placed successfully')
+      // Clear form data
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        firstEventDate: "",
+        firstEventStartTime: "",
+        firstEventEndTime: "",
+        firstEventAddress: {
+          streetAddress: "",
+          streetAddress2: "",
+          city: "",
+          state: "",
+          postalCode: "",
+        },
+        requiredZone: {
+          name: "",
+          text: "",
+          price: 0,
+          resetPrice: 0
+        },
+        pickSign: false,
+        additionalSignQuantity: 0,
+        twilightTourSlot: "",
+        printAddressSign: false,
+        printAddress: {
+          streetAddress: "",
+          streetAddress2: "",
+          city: "",
+          state: "",
+          postalCode: "",
+        },
+        additionalInstructions: "",
+        total: 0,
+      });
+
+      // Reset rush fee
+      setRushFee(0);
+
+      // Optionally, scroll to top of form
+      window.scrollTo(0, 0)
+      return
+    }
+    toast.error('Error placing order')
   }
 
   return (

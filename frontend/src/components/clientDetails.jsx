@@ -39,24 +39,24 @@ function ClientDetails({users}) {
             {searchTerm ? "" : "Search"}
           </label>
         </div>
-        <div className="dashboard-bottom w-full border-2">
-          <div className="order-top bg-gray-100 grid grid-cols-4 ">
+        <div className="dashboard-bottom w-full">
+          <div className="order-top bg-[#F7F8FA] border-[1px] border-[#EFF0F4] rounded-md grid grid-cols-4 ">
             <div className="px-5 py-2 text-center">OrderId</div>
             <div className="px-5 py-2 text-center">Username</div>
             <div className="px-5 py-2 text-center">Email</div>
             <div className="px-5 py-2 text-center">Phone</div>
           </div>
-          <div className="order-bottom flex flex-col gap-1">
+          <div className="order-bottom flex flex-col">
             {filteredUsers.length > 0 ?
               filteredUsers.map((user, index) => (
                 <div key={index} >
-                  <div className="grid grid-cols-4">
+                  <div className="grid grid-cols-4 bg-white py-5 border-b-[1px]">
                     <div className="px-5 text-center">{user.id}</div>
                     <div className="px-5 text-center">{user.username}</div>
                     <div className="px-5 text-center">{user.email}</div>
                     <div className="px-5 text-center">{user.phone}</div>
                   </div>
-                  {index !== filteredUsers?.length - 1 && <div className="bg-gray-300 h-[1px] w-full " ></div>}
+                  {/* {index !== filteredUsers?.length - 1 && <div className="bg-gray-300 h-[1px] w-full " ></div>} */}
                 </div>
               )) : (
                 <div className="text-center text-gray-500 p-12">No matching customers found.</div>
