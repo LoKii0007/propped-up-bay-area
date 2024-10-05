@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react"
-import html2pdf from 'html2pdf.js'
 
 function PostRemoval() {
   const [formData, setFormData] = useState({
@@ -40,8 +39,6 @@ function PostRemoval() {
     e.preventDefault();
     console.log(formData)
 
-    const pdf = document.getElementById('pdf')
-    html2pdf(pdf)
   }
 
   return (

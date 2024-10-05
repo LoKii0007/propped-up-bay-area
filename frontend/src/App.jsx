@@ -8,6 +8,7 @@ import Register from "./auth/register"
 import Login from "./auth/login";
 import { AuthProvider } from "./context/AuthContext";
 import { useEffect } from "react";
+import InvoiceDownload from "./screens/invoiceDownload";
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
           {location.pathname !== '/signup' && location.pathname !== '/login' && location.pathname !== '/admin' && <Navbar />}
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/invoiceDownload" element={<InvoiceDownload />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/signup" element={<Register />} />
             <Route path="/login" element={<Login />} />
