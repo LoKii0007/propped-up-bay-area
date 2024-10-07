@@ -1,11 +1,11 @@
 import React from 'react';
 
-const OpenHouseInvoice = () => {
+const OpenHouseInvoice = ({data}) => {
     return (
-        <div id='openHousePdf' className="max-w-[790px] mx-auto bg-white border border-gray-300">
+        <div id='openHouse' className="max-w-[790px] mx-auto bg-white border border-gray-300">
             <div className="bg-green-800 text-white flex py-4 px-10 justify-between">
                 <h1 className="text-2xl font-bold">INVOICE</h1>
-                <h2 className="text-lg">PSS001028</h2>
+                <h2 className="text-lg">{data.formData.id}</h2>
             </div>
 
             <div className='p-8 pt-0' >
@@ -45,7 +45,7 @@ const OpenHouseInvoice = () => {
                         <div className='text-left' >
                             <h4 className="font-bold ">Payer Information</h4>
                             <p>HERMAN CHAN</p>
-                            <p>hermankchan@gmail.com</p>
+                            <p>{data?.formData?.email}</p>
                             <div className="border-t border-gray-300 my-2"></div>
 
                             <h4 className='font-bold' >Transaction ID</h4>

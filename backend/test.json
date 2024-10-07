@@ -1,0 +1,46 @@
+{
+    "userId": "650effe7f4baba531d6b7b15",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "johndoe@example.com",
+    "phone": "123-456-7890",
+    
+    "firstEventDate": "2024-10-15T10:00:00Z",
+    "firstEventStartTime": "10:00",
+    "firstEventEndTime": "12:00",
+    
+    "firstEventAddress": {
+      "streetAddress": "1234 Elm Street",
+      "streetAddress2": "Apt 101",
+      "city": "Springfield",
+      "state": "IL",
+      "postalCode": "62701"
+    },
+    
+    "requiredZone": {
+      "name": "Zone A",
+      "text": "Premium Zone",
+      "price": 150,
+      "resetPrice": 20
+    },
+    
+    "pickSign": true,
+    "additionalSignQuantity": 3,
+    
+    "twilightTourSlot": "18:00 - 20:00",
+    
+    "printAddressSign": false,
+    
+    "printAddress": {
+      "streetAddress": "5678 Oak Street",
+      "streetAddress2": "Suite 202",
+      "city": "Rivertown",
+      "state": "CA",
+      "postalCode": "90210"
+    },
+    
+    "additionalInstructions": "Please ensure the signs are placed near the entrance.",
+    
+    "total": 250
+  }
+  

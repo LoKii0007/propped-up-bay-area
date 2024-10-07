@@ -1,28 +1,31 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const formschema = new mongoose.Schema({
+const formSchema = new mongoose.Schema({
     formType: {
-        enum : [
-            'openHouse',
-            'postOrder',
-            'postRemoval'
+        type: String,
+        enum: [
+            'openHouseForm',
+            'postOrderForm',
+            'postRemovalForm'
         ],
-        required : true
-    }, 
+        required: true
+    },
     userId: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
         ref: 'Users'
-    } , 
-    formData: Object, 
+    },
+    formData: Object,
     createdAt: {
-        Date
+        type: Date,
+        default: Date.now
     },
     updatedAt: {
-        Date
+        type: Date,
+        default: Date.now
     }
-}, { discriminatorKey: 'formType' })
+}, { discriminatorKey: 'formType' });
 
-const form = mongoose.model('Form', formschema)
+// const Form = mongoose.model('Form', formSchema);
 
-module.exports = form
+// module.exports = {Form}

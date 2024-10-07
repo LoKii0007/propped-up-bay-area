@@ -21,7 +21,7 @@ function App() {
   return (
     <>
       <AuthProvider>
-          {location.pathname !== '/signup' && location.pathname !== '/login' && location.pathname !== '/admin' && <Navbar />}
+          {/* {location.pathname !== '/signup' && location.pathname !== '/login' && location.pathname !== '/admin' && <Navbar />} */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/invoiceDownload" element={<InvoiceDownload />} />

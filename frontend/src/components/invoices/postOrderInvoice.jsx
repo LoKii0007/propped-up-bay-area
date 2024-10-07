@@ -6,7 +6,7 @@ function PostOrderInvoice({data}) {
 
     return (
         <>
-            <div id='postOrderPdf' className="max-w-[790px] mx-auto bg-white border border-gray-300">
+            <div id='postOrder' className="max-w-[790px] mx-auto bg-white border border-gray-300">
                 <div className="bg-green-800 text-white flex py-4 px-10 justify-between">
                     <h1 className="text-2xl font-bold">INVOICE</h1>
                     <h2 className="text-lg">PSS001028</h2>
