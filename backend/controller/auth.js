@@ -29,11 +29,19 @@ const signUp = async (req, res) => {
     await user.save();
 
     // Create and send JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET)
+
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Only set secure flag in production
+      sameSite: 'Lax',
+      // maxAge: 3600000, 
+    });
+
     res.status(201).json({ token : token, user : user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'signup Server error' });
   }
 }
 
@@ -53,12 +61,18 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Create and send JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET)
+
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Only set secure flag in production
+      sameSite: 'Lax',
+      // maxAge: 3600000, 
+    });
     res.status(200).json({ token : token, user : user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'login Server error' });
   }
 }
 

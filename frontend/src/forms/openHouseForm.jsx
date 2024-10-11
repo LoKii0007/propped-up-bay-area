@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react"
 import "../css/form.css"
 import { zones } from "../data/staticData"
+import axios from "axios";
+import { openhouseOrder } from "../api/orders";
+import toast from "react-hot-toast";
 
 const OpenHouseForm = () => {
 
@@ -192,7 +195,7 @@ const OpenHouseForm = () => {
   async function handleSubmit(e) {
     e.preventDefault()
     console.log(formData)
-    const res = await postOrder(formData)
+    const res = await openhouseOrder(formData)
     if(res.status === 200){
       toast.success('Order placed successfully')
       // Clear form data
@@ -242,9 +245,68 @@ const OpenHouseForm = () => {
     toast.error('Error placing order')
   }
 
+
+  const apiKey = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID ;
+  const sheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
+  const range = 'Sheet1!A1'
+
+  const handleSheets = async (e) => {
+    e.preventDefault()
+    const formattedData = [
+      formData.firstName,
+      formData.lastName,
+      formData.email,
+      formData.phone,
+      formData.firstEventDate,
+      formData.firstEventStartTime,
+      formData.firstEventEndTime,
+      formData.firstEventAddress.streetAddress,
+      formData.firstEventAddress.streetAddress2,
+      formData.firstEventAddress.city,
+      formData.firstEventAddress.state,
+      formData.firstEventAddress.postalCode,
+      formData.requiredZone.name,
+      formData.requiredZone.text,
+      formData.requiredZone.price,
+      formData.requiredZone.resetPrice,
+      formData.pickSign,
+      formData.additionalSignQuantity,
+      formData.twilightTourSlot,
+      formData.printAddressSign,
+      formData.printAddress.streetAddress,
+      formData.printAddress.streetAddress2,
+      formData.printAddress.city,
+      formData.printAddress.state,
+      formData.printAddress.postalCode,
+      formData.additionalInstructions,
+      formData.total,
+    ]
+
+    try {
+      await axios.post(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:append`,
+        {
+          range: range,
+          majorDimension: 'ROWS',
+          values: [formattedData],
+        },
+        {
+          params: {
+            valueInputOption: 'RAW',
+            key: apiKey,
+          },
+        }
+      );
+      alert('Data saved successfully!');
+    } catch (error) {
+      console.error('Error saving data:', error);
+      alert('Error saving data!');
+    }
+  };
+
   return (
     <>
-      <form onSubmit={handleSubmit} className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-6 bg-white">
+      <form onSubmit={handleSubmit} className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-3 bg-white">
         {/* Name Section */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col">

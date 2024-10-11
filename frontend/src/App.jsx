@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import './App.css'
 import { Toaster } from 'react-hot-toast'
 import Navbar from './components/navbar'
@@ -9,18 +9,23 @@ import Login from "./auth/login";
 import { AuthProvider } from "./context/AuthContext";
 import { useEffect } from "react";
 import InvoiceDownload from "./screens/invoiceDownload";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
 
   const location = useLocation()
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(location.pathname)
   }, [location])
 
+  const GOOGLE_OAUTH_CLIENT_ID =  import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
+  console.log('GOOGLE_OAUTH_CLIENT_ID', GOOGLE_OAUTH_CLIENT_ID)
+
   return (
     <>
-      <AuthProvider>
+      <GoogleOAuthProvider clientId={GOOGLE_OAUTH_CLIENT_ID} >
+        <AuthProvider>
           {/* {location.pathname !== '/signup' && location.pathname !== '/login' && location.pathname !== '/admin' && <Navbar />} */}
           <Routes>
             <Route path="/" element={<Home />} />
@@ -30,7 +35,8 @@ function App() {
             <Route path="/login" element={<Login />} />
           </Routes>
           <Toaster />
-      </AuthProvider>
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </>
   )
 }

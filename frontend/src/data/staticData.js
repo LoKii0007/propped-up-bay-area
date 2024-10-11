@@ -70,6 +70,79 @@ export const zones = [
       email: "johndoe@gmail.com",
       phone: "081234567890",
       isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
+    },
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
+    },
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
+    },
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
+    },
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
+    },
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
+    },
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
+    },
+    {
+      id: "1",
+      username: "JohnDoe",
+      email: "johndoe@gmail.com",
+      phone: "081234567890",
+      isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
     },
     {
       id: "2",
@@ -77,6 +150,9 @@ export const zones = [
       email: "janedoe@gmail.com",
       phone: "081234567890",
       isSubscribed: true,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
     },
     {
       id: "3",
@@ -84,6 +160,9 @@ export const zones = [
       email: "lokesh@gmail.com",
       phone: "081234567890",
       isSubscribed: false,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
     },
     {
       id: "4",
@@ -91,5 +170,8 @@ export const zones = [
       email: "santosh@gmail.com",
       phone: "081234567890",
       isSubscribed: false,
+      spent : 1000,
+      orders : 12,
+      img : 'user.png'
     },
   ]

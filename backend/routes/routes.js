@@ -1,7 +1,8 @@
 const express = require('express')
-const { paymentSession } = require('../controller/paymentServer')
+const { stripePayment, stripeWebhook, stripeSubscription } = require('../controller/paymentServer')
 const { signUp, login } = require('../controller/auth')
 const { postRemovalApi, openHouseOrderApi, postOrderApi } = require('../controller/orders')
+const verifyUser = require('../utilities/middleware')
 const Routes = express.Router()
 
 
@@ -15,9 +16,9 @@ Routes.post('/auth/login', login)
 //? -----------------------------
 //? orders route
 //? -----------------------------
-Routes.post('/api/orders/openHouseOrder', openHouseOrderApi)
-Routes.post('/api/orders/postOrder', postOrderApi)
-Routes.post('/api/orders/postRemoval', postRemovalApi)
+Routes.post('/api/orders/openHouseOrder', verifyUser , openHouseOrderApi)
+Routes.post('/api/orders/postOrder',verifyUser, postOrderApi)
+Routes.post('/api/orders/postRemoval',verifyUser, postRemovalApi)
 
 
 //? -----------------------------
@@ -28,6 +29,9 @@ Routes.post('/api/orders/postRemoval', postRemovalApi)
 //? -----------------------------
 //? payment route
 //? -----------------------------
-Routes.post('/create-checkout-session', paymentSession)
+Routes.post('/openHouse/create-checkout-session', stripePayment)
+Routes.post('/postOrder/create-checkout-session', stripeSubscription)
+Routes.post('/webhook',express.raw({type: 'application/json'}), stripeWebhook)
+
 
 module.exports = Routes
