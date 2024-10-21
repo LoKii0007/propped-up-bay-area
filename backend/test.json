@@ -1,5 +1,6 @@
 {
     "userId": "650effe7f4baba531d6b7b15",
+    "type" : "openHouse",
     "firstName": "John",
     "lastName": "Doe",
     "email": "johndoe@example.com",

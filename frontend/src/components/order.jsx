@@ -3,7 +3,7 @@ import OpenHouseForm from "../forms/openHouseForm";
 import PostOrder from "../forms/postOrder"
 
 function Order() {
-  const [activeForm, setActiveForm] = useState();
+  const [activeForm, setActiveForm] = useState('openHouseForm');
 
   return (
     <>

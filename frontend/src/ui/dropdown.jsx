@@ -7,13 +7,13 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Dropdown() {
 
-  const {currentUser} = useContext(AuthContext)
+  const { currentUser } = useContext(AuthContext)
   console.log(currentUser?.displayName)
-  const navigate = useNavigate()  
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const {setCurrentUser, setUserLoggedIn} = useContext(AuthContext)
+  const { setCurrentUser, setUserLoggedIn } = useContext(AuthContext)
 
-  async function handleSignOut(e){
+  async function handleSignOut(e) {
     e.preventDefault()
     setLoading(true)
     try {
@@ -26,12 +26,12 @@ export default function Dropdown() {
       console.log('error in sign out : ', error)
       toast.error(error.message)
     }
-    finally{
+    finally {
       setLoading(false)
     }
   }
 
-  function handleSignIn(e){
+  function handleSignIn(e) {
     e.preventDefault()
     navigate('/signup')
   }
@@ -39,7 +39,7 @@ export default function Dropdown() {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+        <MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
           Welcome , {currentUser ? currentUser?.firstName : 'Guest'}
           <ChevronDownIcon aria-hidden="true" className="-mr-1 h-5 w-5 text-gray-400" />
         </MenuButton>
@@ -67,28 +67,28 @@ export default function Dropdown() {
             </a>
           </MenuItem>
 
-          {currentUser ? 
-          <form onSubmit={handleSignOut}>
-          <MenuItem>
-            <button
-              type="submit"
-              className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-            >
-              {loading ? 'signing out...' : 'Sign out'}
-            </button>
-          </MenuItem>
-        </form> :
-        <form onSubmit={handleSignIn}>  
-        <MenuItem>
-          <button
-            type="submit"
-            className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-          >
-            Sign in
-          </button>
-        </MenuItem>
-      </form>
-        }
+          {currentUser ?
+            <form onSubmit={handleSignOut}>
+              <MenuItem>
+                <button
+                  type="submit"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                >
+                  {loading ? 'signing out...' : 'Sign out'}
+                </button>
+              </MenuItem>
+            </form> :
+            <form onSubmit={handleSignIn}>
+              <MenuItem>
+                <button
+                  type="submit"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                >
+                  Sign in
+                </button>
+              </MenuItem>
+            </form>
+          }
 
         </div>
       </MenuItems>

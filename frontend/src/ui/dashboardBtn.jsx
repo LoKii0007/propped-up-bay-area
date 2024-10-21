@@ -6,8 +6,8 @@ function DashboardBtn({orderType, handleOrderType, filter, text}) {
       <button
         onClick={() => handleOrderType(filter)}
         className={` ${
-          orderType === filter ? "active-order" : 'bg-[#A5CC94]'
-        } text-center rounded-full px-1 py-4 dashboard-btn`}
+          orderType === filter ? "bg-[#444242] text-white" : 'bg-gray-100'
+        } text-center rounded-[4px] p-2 dashboard-btn`}
       >
         {text}
       </button>

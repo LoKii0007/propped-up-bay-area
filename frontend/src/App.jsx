@@ -10,6 +10,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { useEffect } from "react";
 import InvoiceDownload from "./screens/invoiceDownload";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GlobalContextProvider } from "./context/GlobalContext";
 
 function App() {
 
@@ -19,22 +20,23 @@ function App() {
     console.log(location.pathname)
   }, [location])
 
-  const GOOGLE_OAUTH_CLIENT_ID =  import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
+  const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
   console.log('GOOGLE_OAUTH_CLIENT_ID', GOOGLE_OAUTH_CLIENT_ID)
 
   return (
     <>
       <GoogleOAuthProvider clientId={GOOGLE_OAUTH_CLIENT_ID} >
         <AuthProvider>
-          {/* {location.pathname !== '/signup' && location.pathname !== '/login' && location.pathname !== '/admin' && <Navbar />} */}
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/invoiceDownload" element={<InvoiceDownload />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/signup" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
-          <Toaster />
+          <GlobalContextProvider>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/invoiceDownload" element={<InvoiceDownload />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/signup" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+            </Routes>
+            <Toaster />
+          </GlobalContextProvider>
         </AuthProvider>
       </GoogleOAuthProvider>
     </>

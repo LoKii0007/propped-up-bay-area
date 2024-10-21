@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
 import "../css/home.css"
-import Dashboard from "../components/dashboard";
 import Sidebar from "../components/sidebar"
 import Order from "../components/order";
 import PostRemoval from "../forms/postRemoval";
@@ -8,6 +7,7 @@ import Profile from "../components/profile"
 import CardDetails from "../components/cardDetails"
 import axios from 'axios'
 import { AuthContext } from "../context/AuthContext";
+import OrderRequests from "../components/orderRequests";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard")
@@ -27,18 +27,18 @@ const Home = () => {
   return (
     <>
       <div className="home w-[100vw] flex h-screen ">
-        <div className="sidebar min-w-[300px] w-2/12 px-10 flex flex-col justify-between gap-5 bg-white ">
+        <div className="sidebar min-w-fit w-2/12 px-10 flex flex-col justify-between gap-5 bg-white ">
           <Sidebar activeView={activeView} setActiveView={setActiveView} />
         </div>
 
         <div className="active-content w-full overflow-y-auto h-full ">
 
-          <div className="active-top bg-[#F4FFF0] w-full flex px-12 py-10 justify-between items-center sticky top-0 ">
+          <div className="active-top bg-[#F4FFF0] w-full flex px-12 py-10 justify-between items-center sticky top-0 shadow-sm ">
             <div className="home-left font-bold text-3xl ">Home</div>
             <div className="home-right">welcome { currentUser ? currentUser?.email : 'Guest'}</div>
           </div>
           <div className="active-bottom h-full">
-            {activeView === "dashboard" && <Dashboard />}
+            {activeView === "dashboard" && <OrderRequests />}
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval />}
             {activeView === "profile" && <Profile />}
