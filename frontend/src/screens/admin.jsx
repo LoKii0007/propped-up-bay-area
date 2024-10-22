@@ -9,6 +9,9 @@ import Dropdown from '../ui/dropdown'
 import OrderRequests from '../components/orderRequests'
 import AdminSettings from '../components/adminSettings'
 import { UseGlobal } from '../context/GlobalContext'
+import { useNavigate } from 'react-router-dom'
+
+
 function Admin() {
 
   const sampleAdmin = {
@@ -18,6 +21,7 @@ function Admin() {
     fullName: "Admin"
   }
 
+  const navigate = useNavigate()
   const {breadCrumb, setBreadCrumb, isInfo, setIsInfo} = UseGlobal()
   const [activeView, setActiveView] = useState("clients")
   const filteredUsers = users.filter(user => user.isSubscribed)
@@ -56,7 +60,7 @@ function Admin() {
               {breadCrumb}
             </div>
             <div className='flex gap-8 items-center'>
-              <button className='flex items-center text-xl justify-center font-bold bg-[#34CAA5] text-white px-6 py-2 rounded-md' >
+              <button onClick={()=>navigate('/')} className='flex items-center text-xl justify-center font-bold bg-[#34CAA5] text-white px-6 py-2 rounded-md' >
                 + New Client
               </button>
               <Dropdown />

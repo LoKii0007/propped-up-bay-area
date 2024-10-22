@@ -9,7 +9,7 @@ function ActionsDropdown({}) {
     <>
       <Menu as="div" className="relative inline-block py-1">
         <div>
-          <MenuButton className="inline-flex capitalize w-full justify-center gap-x-1.5 border-[1px] rounded-md px-3 py-2 text-sm font-semibold text-[#718096] hover:bg-gray-50">
+          <MenuButton className="inline-flex capitalize w-full justify-center gap-x-1.5 border-[1px] border-[#34CAA5] rounded-md px-3 py-2 text-sm font-semibold text-[#718096] hover:bg-gray-50">
             More actions
             <ChevronDownIcon
               aria-hidden="true"

@@ -1,9 +1,11 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import ActionsDropdown from "../ui/ActionsDropdown";
 import ChangeStatusModal from "../ui/ChangeStatusModal";
 
 function OrderInfo({ order }) {
-    const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const isAdmin = false
+
   return (
     <>
       <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto">
@@ -11,10 +13,14 @@ function OrderInfo({ order }) {
           <button className="text-[#718096] border px-4 py-2 rounded-lg hover:bg-gray-100">
             User Details
           </button>
-          <div className="flex space-x-4">{/* <ActionsDropdown /> */}
-          <button onClick={()=>setModalOpen(true)} className="text-[#718096] border px-4 py-2 rounded-lg hover:bg-gray-100">
-            Change Status
-          </button>
+          <div className="flex space-x-4">
+            {/* <ActionsDropdown /> */}
+            { isAdmin && <button
+              onClick={() => setModalOpen(true)}
+              className="text-[#718096] border-[#34CAA5] border px-4 py-2 rounded-lg hover:bg-gray-100"
+            >
+              Change Status
+            </button> }
           </div>
         </div>
 
