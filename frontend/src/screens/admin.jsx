@@ -44,7 +44,7 @@ function Admin() {
   return (
     <>
       <div className="home w-[100vw] flex">
-        <div className="sidebar min-w-fit w-3/12 px-10 flex flex-col justify-between gap-5 bg-white">
+        <div className="sidebar min-w-fit w-3/12 border-r px-10 flex flex-col justify-between gap-5 bg-white">
           <AdminSidebar activeView={activeView} setActiveView={setActiveView} />
         </div>
 

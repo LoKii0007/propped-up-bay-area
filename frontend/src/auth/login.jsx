@@ -17,12 +17,18 @@ function Login() {
     try {
       const res = await loginUser(email, password);
       if (res.status === 200) {
-        setCurrentUser(res.data.user)
+        //? navigate to signup details if profile completed is false
+        if(!res.data.user.profileCompleted){
+          navigate('/signup/details', {state : {user : res.data.user }}) 
+          return
+        }
+        
+        setCurrentUser(res.data.user) //? setting up current user
         localStorage.setItem('authToken', res.data.token)
         console.log(localStorage.getItem('authToken'))
         setUserLoggedIn(true);
-        toast.success("User logged in Successfully");
-        navigate("/");
+        toast.success("User logged in Successfully")
+        navigate("/"); //? navigate to home page
       } else {
         toast.error(res.message);
       }

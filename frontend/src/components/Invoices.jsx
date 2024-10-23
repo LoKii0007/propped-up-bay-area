@@ -10,7 +10,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import RowHeading from "../ui/rowHeading";
 import Pagination from "./pagination";
 import { UseGlobal } from "../context/GlobalContext";
-import InvoiceDownload from "../screens/invoiceDownload";
+import InvoiceDownload from "./invoiceDownload";
 
 const date = new Date();
 

@@ -194,8 +194,9 @@ const OpenHouseForm = () => {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    console.log(formData)
-    const res = await openhouseOrder(formData)
+    const data = {...formData, type : 'openHouse'}
+    console.log(data)
+    const res = await openhouseOrder(data)
     if(res.status === 200){
       toast.success('Order placed successfully')
       // Clear form data
@@ -306,7 +307,7 @@ const OpenHouseForm = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-3 bg-white">
+      <form onSubmit={handleSubmit} className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-3 ">
         {/* Name Section */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col">

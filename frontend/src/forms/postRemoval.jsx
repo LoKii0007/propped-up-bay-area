@@ -46,7 +46,7 @@ function PostRemoval() {
       <form
         id="pdf"
         onSubmit={handleSubmit}
-        className="open-house-form h-full bg-white shadow-md rounded-lg mx-5 gap-3 p-10 flex flex-col space-y-6 overflow-y-scroll"
+        className="open-house-form h-full bg-white mx-5 gap-3 p-10 flex flex-col space-y-6 overflow-y-scroll"
       >
         {/* Name Section */}
         <div className="flex flex-col md:flex-row gap-4">

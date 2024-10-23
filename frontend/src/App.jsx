@@ -8,9 +8,9 @@ import Register from "./auth/register"
 import Login from "./auth/login";
 import { AuthProvider } from "./context/AuthContext";
 import { useEffect } from "react";
-import InvoiceDownload from "./screens/invoiceDownload";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GlobalContextProvider } from "./context/GlobalContext";
+import SignUpDetails from "./auth/signupDetails";
 
 function App() {
 
@@ -30,9 +30,9 @@ function App() {
           <GlobalContextProvider>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/invoiceDownload" element={<InvoiceDownload />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/signup" element={<Register />} />
+              <Route path="/signup/details" element={<SignUpDetails />} />
               <Route path="/login" element={<Login />} />
             </Routes>
             <Toaster />

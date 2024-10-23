@@ -1,34 +1,40 @@
-import React, {useState} from "react";
-import Dropdown from "../ui/dropdown";
-import SignOutModal from "../ui/signOutModal";
-import { UseGlobal } from "../context/GlobalContext";
+import React, {useState} from "react"
+import SignOutModal from "../ui/signOutModal"
+import { UseGlobal } from "../context/GlobalContext"
 
 const Sidebar = ({ setActiveView, activeView }) => {
   const menu = [
     {
       name: "Dashboard",
-      img: "/monitor.png",
+      svg : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-table-of-contents"><path d="M16 12H3"/><path d="M16 18H3"/><path d="M16 6H3"/><path d="M21 12h.01"/><path d="M21 18h.01"/><path d="M21 6h.01"/></svg>
     },
     {
       name: "Order",
-      img: "/plus.png",
+      svg : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
     },
     {
       name: "Removal",
-      img: "/trash.png",
+      svg : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw-off"><path d="M21 8L18.74 5.74A9.75 9.75 0 0 0 12 3C11 3 10.03 3.16 9.13 3.47"/><path d="M8 16H3v5"/><path d="M3 12C3 9.51 4 7.26 5.64 5.64"/><path d="m3 16 2.26 2.26A9.75 9.75 0 0 0 12 21c2.49 0 4.74-1 6.36-2.64"/><path d="M21 12c0 1-.16 1.97-.47 2.87"/><path d="M21 3v5h-5"/><path d="M22 22 2 2"/></svg>
     },
     {
       name: "Profile",
-      img: "/user.png",
+      svg: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user-round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
     },
     {
       name: "Payment Info",
-      img: "/credit-card.png",
+      svg : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
     },
   ]
 
   const [modalOpen, setModalOpen] = useState(false)
   const {setBreadCrumb, isInfo, setIsInfo, breadCrumb} = UseGlobal()
+
+  function handleView(data){
+    let view = data.name.toLowerCase()
+    setActiveView(view)
+    if(breadCrumb !== view) setBreadCrumb(data.name)
+    if(isInfo) setIsInfo(false)
+  }
 
   return (
     <>
@@ -42,31 +48,35 @@ const Sidebar = ({ setActiveView, activeView }) => {
           {menu?.slice(0, 3).map((data, index) => (
             <button
               key={index}
-              onClick={() => setActiveView(data.name.toLowerCase())}
+              onClick={() => handleView(data)}
               className={` ${
                 activeView === data.name.toLowerCase()
-                  ? "bg-[#4C9A2A] text-white font-semibold"
+                  ? "bg-[#638856] text-white font-semibold"
                   : "text-[#737791] font-medium"
               } text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-[14px] px-5 w-full`}
             >
-              <img className="menu-icon w-4 h-4 " src={data.img}></img>
+              <div className="icon">
+                {data.svg}
+              </div>
               {data.name}
             </button>
           ))}
         </div>
 
-        <div className="sidebar-bottom">
+        <div className="sidebar-bottom pb-6 ">
           {menu?.slice(3, menu.length).map((data, index) => (
             <button
               key={index}
-              onClick={() => setActiveView(data.name.toLowerCase())}
+              onClick={() => handleView(data)}
               className={` ${
                 activeView === data.name.toLowerCase()
-                  ? "bg-[#4C9A2A] text-white font-semibold"
+                  ? "bg-[#638856] text-white font-semibold"
                   : "text-[#737791] font-medium"
               } text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-[14px] px-5 w-full`}
             >
-              <img className="menu-icon w-4 h-4 " src={data.img}></img>
+              <div className="icon">
+                {data.svg}
+              </div>
               {data.name}
             </button>
           ))}

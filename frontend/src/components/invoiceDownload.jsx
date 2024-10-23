@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { InvoiceTypes } from '../components/Invoices'
-import OpenHouseInvoice from '../components/invoices/openHouseInvoice'
+import { InvoiceTypes } from './Invoices'
+import OpenHouseInvoice from './invoices/openHouseInvoice'
 import { useLocation, useParams } from 'react-router-dom'
-import PostOrderInvoice from '../components/invoices/postOrderInvoice'
+import PostOrderInvoice from './invoices/postOrderInvoice'
 import html2pdf from 'html2pdf.js'
 import toast from 'react-hot-toast'
 

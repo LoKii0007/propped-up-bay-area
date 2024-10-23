@@ -31,12 +31,12 @@ function Register() {
 
     const res = await registerUser(userData);
     if (res.status === 201) {
-      toast.success("User registered successfully");
+      toast.success("User registered successfully")
       setCurrentUser(res.data.user)
-      setUserLoggedIn(true);
-      navigate("/");
+      setUserLoggedIn(true)
+      navigate("/signup/details", {state : {user : res.data.user}})
     } else {
-      toast.error('something went wrong');
+      toast.error('something went wrong')
     }
     setLoading(false)
   }
@@ -50,7 +50,7 @@ function Register() {
             {/* Image section */}
             <div className="hidden md:flex md:w-1/2">
               <img
-                className=" h-full w-full"
+                className=" h-full md:min-w-[340px] "
                 src="/signup-bg.png"  // Replace with the path to your image
                 alt="House"
               />

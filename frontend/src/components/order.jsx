@@ -7,21 +7,21 @@ function Order() {
 
   return (
     <>
-      <div className="order flex flex-col bg-white gap-2 py-5 shadow-md rounded-lg ">
-        <div className="order-top grid grid-cols-2 border-b-2 mx-10 px-2">
+      <div className="order flex flex-col rounded-md gap-2 py-5">
+        <div className="order-top grid grid-cols-2 mx-10 px-2">
           <button
             onClick={() => setActiveForm("openHouseForm")}
             className={` ${
-              activeForm === "openHouseForm" && "active-order"
-            } pt-4 pb-8 hover:bg-gray-100 ease duration-500`}
+              activeForm === "openHouseForm" ? "bg-[#638856] text-white " : 'text-[#A1A1A1] bg-[#D9D9D9] '
+            } py-6 rounded-l-lg text-2xl font-bold `}
           >
             Open House Order
           </button>
           <button
             onClick={() => setActiveForm("postOrder")}
             className={` ${
-              activeForm === "postOrder" && "active-order"
-            } pt-4 pb-8 hover:bg-gray-100 ease duration-500`}
+              activeForm === "postOrder" ? "bg-[#638856] text-white" : 'text-[#A1A1A1] bg-[#D9D9D9]'
+            } py-6 rounded-r-lg text-2xl font-bold`}
           >
             Post Order
           </button>

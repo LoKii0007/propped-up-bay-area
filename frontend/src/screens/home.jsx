@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../css/home.css";
 import Sidebar from "../components/sidebar";
 import Order from "../components/order";
@@ -9,11 +9,14 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import OrderRequests from "../components/orderRequests";
 import { UseGlobal } from "../context/GlobalContext";
+import ClieentOrders from "../components/ClientOrders";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard");
   const { currentUser } = useContext(AuthContext);
   const {breadCrumb, setBreadCrumb, isInfo, setIsInfo} = UseGlobal()
+  const navigate = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -32,10 +35,17 @@ const Home = () => {
     if(breadCrumb !== activeView) setBreadCrumb(activeView)
   }
 
+
+  useEffect(()=>{
+    if(!currentUser){
+      navigate('/signup')
+    }
+  }, [])
+
   return (
     <>
       <div className="home w-[100vw] flex h-screen ">
-        <div className="sidebar min-w-fit w-3/12 px-10 flex flex-col items-center justify-between gap-5 bg-white ">
+        <div className="sidebar min-w-fit w-3/12 px-10 border-r flex flex-col items-center justify-between gap-5 bg-white ">
           <Sidebar activeView={activeView} setActiveView={setActiveView} />
         </div>
 
@@ -66,7 +76,7 @@ const Home = () => {
             </div>
           </div>
           <div className="active-bottom h-[87vh] overflow-y-auto p-7">
-            {activeView === "dashboard" && <OrderRequests />}
+            {activeView === "dashboard" && <ClieentOrders/> }
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval />}
             {activeView === "profile" && <Profile />}

@@ -13,6 +13,16 @@ export const registerUser = async (userData) => {
     }
 }
 
+export const signUpDetails = async (userData) => {
+    try {
+        const res = await axios.post(`${baseUrl}/auth/signUp`, userData, { withCredentials: true })
+        return res
+    } catch (error) {
+        console.log('Error in signupDetails api: ', error)
+        return ({res : {status : 500 }})
+    }
+}
+
 export const loginUser = async (email, password) => {
     try {
         const res = await axios.post(`${baseUrl}/auth/login`, {email, password} , { withCredentials: true })
