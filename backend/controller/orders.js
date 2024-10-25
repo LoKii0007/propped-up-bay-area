@@ -48,11 +48,12 @@ const verifyTotal = (data) => {
 };
 
 //? ---------------------------
-//? ------- openHouseOrderApi
+//? -------create openHouseOrderApi
 //? ---------------------------
-const openHouseOrderApi = async (req, res) => {
+const createOpenHouseOrderApi = async (req, res) => {
   try {
     const {
+      type,
       firstName,
       lastName,
       email,
@@ -71,10 +72,11 @@ const openHouseOrderApi = async (req, res) => {
       total
     } = req.body;
 
-    //TODO: Validate total if needed
+    //TODO: Validate total
 
     const order = await openHouseSchema.create({
       userId: req.user.userId,
+      type,
       firstName,
       lastName,
       email,
@@ -118,23 +120,100 @@ const openHouseOrderApi = async (req, res) => {
 };
 
 
-
 //? ---------------------------
-//? -------postOrderApi
+//? -------get openHouseOrderApi
 //? ---------------------------
-const postOrderApi = async (req, res) =>{
+const getOpenHouseOrderApi = async (req, res)=>{
   try {
-    console.log('removal : ', req.body)
-    const order = await postOrderSchema.create(req.body)
-    res.status(200).json({ order: order, message: "order created" })
+    const orders = await openHouseSchema.find({userId : req.user.userId})
+    console.log('orders:',orders)
+    if(!orders){
+      console.log('no order found')
+      return res.status(400).json({message:'no order found'})
+    }
+    return res.status(200).json({orders})
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.log('error in get openhouseapi', error.message)
+    return res.status(500).json({message : 'error in get openhouseapi', error:error.message})
   }
 }
 
+//? ---------------------------
+//? -------get postOrder API
+//? ---------------------------
+const getPostOrderApi = async (req, res)=>{
+  try {
+    const orders = await postOrderSchema.findById(req.user.userId)
+    if(!orders){
+      console.log('no order found')
+      return res.status(400).json({message:'no order found'})
+    }
+    return res.status(200).json({orders})
+  } catch (error) {
+    console.log('error in get openhouseapi', error.message)
+    return res.status(200).json({message : 'error in get openhouseapi', error:error.message})
+  }
+}
 
 //? ---------------------------
-//? -------postRemovalApi
+//? -------create postOrderApi
+//? ---------------------------
+const createPostOrderApi = async (req, res) => {
+  try {
+    // Destructure form data from request body
+    const {
+      type,
+      firstName,
+      lastName,
+      email,
+      phone,
+      neededByDate,
+      listingAddress,
+      billingAddress,
+      requiredZone,
+      additionalInstructions,
+      total,
+      postColor,
+      flyerBox,
+      lighting,
+      numberOfPosts,
+      riders,
+    } = req.body;
+
+    //TODO: Validate total
+    // Create a new form document with the provided data and user ID from middleware
+    const newForm = new postOrderSchema({
+      userId: req.user.userId,
+      type,
+      firstName,
+      lastName,
+      email,
+      phone,
+      neededByDate,
+      listingAddress,
+      billingAddress,
+      requiredZone,
+      additionalInstructions,
+      total,
+      postColor,
+      flyerBox,
+      lighting,
+      numberOfPosts,
+      riders,
+    });
+
+    // Save the form to the database
+    const savedForm = await newForm.save();
+    res.status(201).json(savedForm);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error creating form", error });
+  }
+};
+
+
+//? ---------------------------
+//? -------create postRemovalApi
 //? ---------------------------
 const postRemovalApi = async (req, res) =>{
   try {
@@ -148,7 +227,7 @@ const postRemovalApi = async (req, res) =>{
 
 
 //? ---------------------------
-//? -------upadteOrderApi
+//? -------update Orders Api
 //? ---------------------------
 const upadteOrderApi = async(req, res) => {
   try {
@@ -210,4 +289,4 @@ const upadteOrderApi = async(req, res) => {
   }
 }
 
-module.exports = { openHouseOrderApi  , postRemovalApi , postOrderApi, upadteOrderApi }
+module.exports = { createOpenHouseOrderApi , getOpenHouseOrderApi, getPostOrderApi , postRemovalApi , createPostOrderApi, upadteOrderApi }

@@ -10,6 +10,11 @@ export default {
     // },
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('daisyui'),
+  ],
+  daisyui: {
+    themes: ['light'], // Disable DaisyUI themes
+  },
 }
 

@@ -7,6 +7,7 @@ import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
 import { sampleOrder } from "../data/staticData";
 import toast from "react-hot-toast";
+import { getOpenHouseOrder } from "../api/orders";
 
 function ClieentOrders() {
   const orders = [
@@ -50,7 +51,22 @@ function ClieentOrders() {
       amount: "1000",
       isSubscribed: true,
     },
-  ];
+  ]
+
+  //? ----------------------------------
+  //? loading orders
+  //?  ---------------------------------
+  async function handleOrders(){
+    let orders = []
+    const res = await getOpenHouseOrder()
+    // const res2 = await 
+    orders.push(res.data.orders)
+    console.log('res : ', res.data.orders)
+  }
+
+  useEffect(()=>{
+    handleOrders()
+  }, [])
 
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
@@ -182,6 +198,14 @@ function ClieentOrders() {
 //     resetPagination(filtered)  
 //   }
 
+  //? -------------------------
+  //? filter - date range
+  //?--------------------------
+  function handleClearFilter(){
+    setFilteredOrders(orders)
+    resetPagination(orders) // pagination reset
+  }
+
   //? --------------------
   //? user click
   //?---------------------
@@ -189,6 +213,13 @@ function ClieentOrders() {
     setBreadCrumb("Order details"); //updating breadcrumb
     setIsInfo(true); //changing view
   }
+
+    //? --------------------
+  //? upadting render
+  //?---------------------
+  useEffect(()=>{
+
+  }, [filteredOrders])
 
   return (
     <>
@@ -220,7 +251,7 @@ function ClieentOrders() {
                   />
                 </div>
               </div>
-              <div className="filter-right mx-auto grid grid-cols-4 gap-5 w-2/3">
+              <div className="filter-right mx-auto grid grid-cols-5 gap-3 w-2/3">
                 <OrderTypeDropdown
                   filterType={orderType}
                   handleOrderType={handleOrderType}
@@ -242,6 +273,10 @@ function ClieentOrders() {
                 <button onClick={handleDateFilter} className="font-semibold">
                   <div className="icon"></div>
                   Filter
+                </button>
+                <button onClick={handleClearFilter} className="font-semibold">
+                  <div className="icon"></div>
+                  clear
                 </button>
               </div>
             </div>

@@ -3,14 +3,13 @@ import "../css/home.css";
 import Sidebar from "../components/sidebar";
 import Order from "../components/order";
 import PostRemoval from "../forms/postRemoval";
-import Profile from "../components/profile";
 import CardDetails from "../components/cardDetails";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
-import OrderRequests from "../components/orderRequests";
 import { UseGlobal } from "../context/GlobalContext";
 import ClieentOrders from "../components/ClientOrders";
 import { useNavigate } from "react-router-dom";
+import EditProfileForm from "../components/profile";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard");
@@ -35,12 +34,17 @@ const Home = () => {
     if(breadCrumb !== activeView) setBreadCrumb(activeView)
   }
 
-
+//? ------------------------------
+//? updating render on currentuser
+//? ------------------------------
   useEffect(()=>{
     if(!currentUser){
       navigate('/signup')
     }
-  }, [])
+    else if(!currentUser.profileCompleted){
+      navigate('/signup/details')
+    }
+  }, [currentUser])
 
   return (
     <>
@@ -79,7 +83,7 @@ const Home = () => {
             {activeView === "dashboard" && <ClieentOrders/> }
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval />}
-            {activeView === "profile" && <Profile />}
+            {activeView === "profile" && <EditProfileForm />}
             {activeView === "payment info" && <CardDetails />}
           </div>
         </div>

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const baseUrl = 'http://localhost:5000'
-// const baseUrl = 'https://propped-up-bay-area.onrender.com'
+// const baseUrl = 'http://localhost:5000'
+const baseUrl = 'https://propped-up-bay-area.onrender.com'
 
 export const registerUser = async (userData) => {
     try {
@@ -15,7 +15,7 @@ export const registerUser = async (userData) => {
 
 export const signUpDetails = async (userData) => {
     try {
-        const res = await axios.post(`${baseUrl}/auth/signUp`, userData, { withCredentials: true })
+        const res = await axios.post(`${baseUrl}/auth/signUp/details`, userData, { withCredentials: true })
         return res
     } catch (error) {
         console.log('Error in signupDetails api: ', error)

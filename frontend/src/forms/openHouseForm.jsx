@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react"
-import "../css/form.css"
-import { zones } from "../data/staticData"
+import React, { useEffect, useState } from "react";
+import "../css/form.css";
+import { zones } from "../data/staticData";
 import axios from "axios";
 import { openhouseOrder } from "../api/orders";
 import toast from "react-hot-toast";
 
 const OpenHouseForm = () => {
-
-  const [formData, setFormData] = useState({
+  const initialState = {
     firstName: "",
     lastName: "",
     email: "",
@@ -26,7 +25,7 @@ const OpenHouseForm = () => {
       name: "",
       text: "",
       price: 0,
-      resetPrice: 0
+      resetPrice: 0,
     },
     pickSign: false,
     additionalSignQuantity: 0,
@@ -41,31 +40,33 @@ const OpenHouseForm = () => {
     },
     additionalInstructions: "",
     total: 0,
-  })
+  };
+
+  const [formData, setFormData] = useState(initialState);
 
   const additionalPrices = {
     signReset: 5,
     AddressPrint: 10,
     TwilightHour: 25,
-    RushFee: 25
-  }
+    RushFee: 25,
+  };
 
-  const [rushFee, setRushFee] = useState(0)
-  const [currentTime, setCurrentTime] = useState(new Date().getHours())
+  const [rushFee, setRushFee] = useState(0);
+  const [currentTime, setCurrentTime] = useState(new Date().getHours());
 
   // ----------------------------------
-  // handling inputs 
+  // handling inputs
   //  ---------------------------------
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
-    if (name === 'firstEventDate') {
+    });
+    if (name === "firstEventDate") {
       checkRushFee(value);
     }
-  }
+  };
 
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
@@ -84,7 +85,7 @@ const OpenHouseForm = () => {
         [name]: value,
       },
     });
-  }
+  };
 
   const handleZoneChange = (e) => {
     const selectedIndex = e.target.value;
@@ -92,24 +93,24 @@ const OpenHouseForm = () => {
     if (selectedIndex === "") {
       setFormData({
         ...formData,
-        requiredZone: { name: '', text: '', price: 0, resetPrice: 0 }
+        requiredZone: { name: "", text: "", price: 0, resetPrice: 0 },
       });
     } else {
       setFormData({
         ...formData,
-        requiredZone: zones[selectedIndex]
+        requiredZone: zones[selectedIndex],
       });
     }
-  }
+  };
 
   // ----------------------------------
-  // rush fee according to day 
+  // rush fee according to day
   //  ---------------------------------
   const checkRushFee = (selectedDate) => {
-    const currentDate = new Date()
-    const eventDate = new Date(selectedDate)
-    console.log('eventDate : ', eventDate)
-    const isToday = currentDate.toDateString() === eventDate.toDateString()
+    const currentDate = new Date();
+    const eventDate = new Date(selectedDate);
+    console.log("eventDate : ", eventDate);
+    const isToday = currentDate.toDateString() === eventDate.toDateString();
 
     let applyRushFee = false;
 
@@ -124,135 +125,122 @@ const OpenHouseForm = () => {
       endOfWeek.setHours(23, 59, 59, 999);
 
       return date >= startOfWeek && date <= endOfWeek;
-    }
+    };
 
     if (isSameWeek(eventDate)) {
       // ordering on friday after 4pm for friday, saturday, sunday
       if (currentDate.getDay() == 5 && currentTime >= 16) {
-        if ((eventDate.getDay() === 5 || eventDate.getDay() === 6 || eventDate.getDay() === 0)) {
-          applyRushFee = true
+        if (
+          eventDate.getDay() === 5 ||
+          eventDate.getDay() === 6 ||
+          eventDate.getDay() === 0
+        ) {
+          applyRushFee = true;
         }
       }
 
       // ordering on saturday after 4pm for saturday, sunday
       if (currentDate.getDay() == 6 && currentTime >= 16) {
         if (eventDate.getDay() === 6 || eventDate.getDay() === 0) {
-          applyRushFee = true
+          applyRushFee = true;
         }
       }
 
-      // ordering on sunday after 4pm 
+      // ordering on sunday after 4pm
       if (currentDate.getDay() == 0 && currentTime >= 16 && isToday) {
-        applyRushFee = true
+        applyRushFee = true;
       }
     }
 
-    console.log('week : ', isSameWeek(eventDate))
+    console.log("week : ", isSameWeek(eventDate));
 
     setRushFee(applyRushFee ? additionalPrices.RushFee : 0);
-  }
-
+  };
 
   // ----------------------------------
   // updating timer check for loopholes
   //  ---------------------------------
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().getHours())
-    }, 1000 * 30)
+      setCurrentTime(new Date().getHours());
+    }, 1000 * 30);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (formData.firstEventDate) {
-      checkRushFee(formData.firstEventDate)
+      checkRushFee(formData.firstEventDate);
     }
-  }, [currentTime, formData.firstEventDate])
-
+  }, [currentTime, formData.firstEventDate]);
 
   // ----------------------------------
-  // calculating total price 
+  // calculating total price
   //  ---------------------------------
   function handleTotal() {
-    let newTotal = formData.requiredZone.price + rushFee
-    if (formData.pickSign) newTotal += formData.requiredZone.resetPrice
-    if (formData.additionalSignQuantity > 0) newTotal += additionalPrices.signReset * formData.additionalSignQuantity
-    if (formData.printAddressSign) newTotal += additionalPrices.AddressPrint * formData.additionalSignQuantity
-    if (formData.twilightTourSlot === 'slot1' || formData.twilightTourSlot === 'slot2') newTotal += additionalPrices.TwilightHour
-    console.log('newtotal', newTotal)
-    return newTotal
+    let newTotal = formData.requiredZone.price + rushFee;
+    if (formData.pickSign) newTotal += formData.requiredZone.resetPrice;
+    if (formData.additionalSignQuantity > 0)
+      newTotal += additionalPrices.signReset * formData.additionalSignQuantity;
+    if (formData.printAddressSign)
+      newTotal +=
+        additionalPrices.AddressPrint * formData.additionalSignQuantity;
+    if (
+      formData.twilightTourSlot === "slot1" ||
+      formData.twilightTourSlot === "slot2"
+    )
+      newTotal += additionalPrices.TwilightHour;
+    console.log("newtotal", newTotal);
+    return newTotal;
   }
 
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
-      total: handleTotal()
-    }))
-  }, [formData.requiredZone, formData.pickSign, formData.additionalSignQuantity, formData.printAddressSign, formData.twilightTourSlot, rushFee, currentTime])
+      total: handleTotal(),
+    }));
+  }, [
+    formData.requiredZone,
+    formData.pickSign,
+    formData.additionalSignQuantity,
+    formData.printAddressSign,
+    formData.twilightTourSlot,
+    rushFee,
+    currentTime,
+  ]);
 
 
+  //? ----------------------------------
+  //? form submission
+  //?  ---------------------------------
   async function handleSubmit(e) {
-    e.preventDefault()
-    const data = {...formData, type : 'openHouse'}
-    console.log(data)
-    const res = await openhouseOrder(data)
-    if(res.status === 200){
-      toast.success('Order placed successfully')
-      // Clear form data
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        firstEventDate: "",
-        firstEventStartTime: "",
-        firstEventEndTime: "",
-        firstEventAddress: {
-          streetAddress: "",
-          streetAddress2: "",
-          city: "",
-          state: "",
-          postalCode: "",
-        },
-        requiredZone: {
-          name: "",
-          text: "",
-          price: 0,
-          resetPrice: 0
-        },
-        pickSign: false,
-        additionalSignQuantity: 0,
-        twilightTourSlot: "",
-        printAddressSign: false,
-        printAddress: {
-          streetAddress: "",
-          streetAddress2: "",
-          city: "",
-          state: "",
-          postalCode: "",
-        },
-        additionalInstructions: "",
-        total: 0,
-      });
-
-      // Reset rush fee
-      setRushFee(0);
-
-      // Optionally, scroll to top of form
-      window.scrollTo(0, 0)
-      return
+    e.preventDefault();
+    const data = { ...formData, type: "openHouse" };
+    // console.log(data);
+    const res = await openhouseOrder(data);
+    if (res.status === 200) {
+      toast.success("Order placed successfully");
+      setFormData(initialState);   // Clear form data
+      setRushFee(0);  // Reset rush fee
+      window.scrollTo(0, 0); // scroll to top of form
+      return;
     }
-    toast.error('Error placing order')
+    toast.error("Error placing order");
   }
 
+  //? ----------------------------------
+  //? updating render
+  //?  ---------------------------------
+  useEffect(()=>{
 
-  const apiKey = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID ;
+  }, [formData])
+
+  const apiKey = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID;
   const sheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
-  const range = 'Sheet1!A1'
+  const range = "Sheet1!A1";
 
   const handleSheets = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     const formattedData = [
       formData.firstName,
       formData.lastName,
@@ -281,37 +269,42 @@ const OpenHouseForm = () => {
       formData.printAddress.postalCode,
       formData.additionalInstructions,
       formData.total,
-    ]
+    ];
 
     try {
       await axios.post(
         `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:append`,
         {
           range: range,
-          majorDimension: 'ROWS',
+          majorDimension: "ROWS",
           values: [formattedData],
         },
         {
           params: {
-            valueInputOption: 'RAW',
+            valueInputOption: "RAW",
             key: apiKey,
           },
         }
       );
-      alert('Data saved successfully!');
+      alert("Data saved successfully!");
     } catch (error) {
-      console.error('Error saving data:', error);
-      alert('Error saving data!');
+      console.error("Error saving data:", error);
+      alert("Error saving data!");
     }
   };
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-3 ">
+      <form
+        onSubmit={handleSubmit}
+        className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-3 "
+      >
         {/* Name Section */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col">
-            <label className="font-medium text-sm">First Name <span className="text-red-500" >*</span></label>
+            <label className="font-medium text-sm">
+              First Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               name="firstName"
@@ -322,7 +315,9 @@ const OpenHouseForm = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="font-medium text-sm">Last Name <span className="text-red-500" >*</span></label>
+            <label className="font-medium text-sm">
+              Last Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               name="lastName"
@@ -336,7 +331,9 @@ const OpenHouseForm = () => {
 
         {/* Email Section */}
         <div className="flex flex-col">
-          <label className="font-medium text-sm">Email <span className="text-red-500" >*</span></label>
+          <label className="font-medium text-sm">
+            Email <span className="text-red-500">*</span>
+          </label>
           <input
             type="email"
             name="email"
@@ -350,7 +347,9 @@ const OpenHouseForm = () => {
 
         {/* Phone Section */}
         <div className="flex flex-col">
-          <label className="font-medium text-sm">Phone Number <span className="text-red-500" >*</span></label>
+          <label className="font-medium text-sm">
+            Phone Number <span className="text-red-500">*</span>
+          </label>
           <input
             type="tel"
             name="phone"
@@ -367,7 +366,9 @@ const OpenHouseForm = () => {
 
         {/* Date of First Event Section */}
         <div className="flex flex-col">
-          <label className="font-medium text-sm">Date of First Event <span className="text-red-500">*</span></label>
+          <label className="font-medium text-sm">
+            Date of First Event <span className="text-red-500">*</span>
+          </label>
           <input
             type="date"
             name="firstEventDate"
@@ -390,7 +391,9 @@ const OpenHouseForm = () => {
         {/* Time of First Event and End Time Section */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col">
-            <label className="font-medium text-sm">Time of First Event <span className="text-red-500" >*</span></label>
+            <label className="font-medium text-sm">
+              Time of First Event <span className="text-red-500">*</span>
+            </label>
             <input
               type="time"
               name="firstEventStartTime"
@@ -401,7 +404,9 @@ const OpenHouseForm = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="font-medium text-sm">End Time of Event <span className="text-red-500" >*</span></label>
+            <label className="font-medium text-sm">
+              End Time of Event <span className="text-red-500">*</span>
+            </label>
             <input
               type="time"
               name="firstEventEndTime"
@@ -469,11 +474,20 @@ const OpenHouseForm = () => {
         {/* Required Zone Section */}
         <div className="flex flex-col">
           <label className="font-medium text-sm">
-            Please select your required zone (1 event, includes up to 6 signs) <span className="text-red-500" >*</span>
+            Please select your required zone (1 event, includes up to 6 signs){" "}
+            <span className="text-red-500">*</span>
           </label>
           <select
             name="requiredZone"
-            value={zones.findIndex(zone => zone.name === formData.requiredZone.name) !== -1 ? zones.findIndex(zone => zone.name === formData.requiredZone.name) : ""}
+            value={
+              zones.findIndex(
+                (zone) => zone.name === formData.requiredZone.name
+              ) !== -1
+                ? zones.findIndex(
+                    (zone) => zone.name === formData.requiredZone.name
+                  )
+                : ""
+            }
             onChange={handleZoneChange}
             required
             className="border border-gray-300 p-2 rounded"
@@ -488,7 +502,7 @@ const OpenHouseForm = () => {
         </div>
 
         {/* additional info on Required Zone Section */}
-        {formData.requiredZone.name !== '' && (
+        {formData.requiredZone.name !== "" && (
           <div className="flex items-start gap-2 flex-col">
             <label className="font-medium text-sm">
               {formData.requiredZone.name} Sign pickup and re-setup
@@ -503,7 +517,8 @@ const OpenHouseForm = () => {
               />
               <span className="text-sm text-gray-500">
                 Yes, I would like the signs to be picked up and re-set at the
-                conclusion of each day for an additional ${formData.requiredZone.resetPrice} charge
+                conclusion of each day for an additional $
+                {formData.requiredZone.resetPrice} charge
               </span>
             </div>
             <div className="pt-4">
@@ -554,7 +569,8 @@ const OpenHouseForm = () => {
         <div className="flex flex-col gap-1">
           <label className="font-medium text-sm">
             Twilight Tours - $25 (This is to be added to the regular price of
-            open house signs any time there’s a broker tour) <span className="text-red-500" >*</span>
+            open house signs any time there’s a broker tour){" "}
+            <span className="text-red-500">*</span>
           </label>
           <div className="flex items-center">
             <input
@@ -601,7 +617,7 @@ const OpenHouseForm = () => {
         {/* Print Address Section */}
         <div className="flex flex-col">
           <label className="font-medium text-sm">
-            Address to be printed <span className="text-red-500" >*</span>
+            Address to be printed <span className="text-red-500">*</span>
           </label>
           <input
             type="text"

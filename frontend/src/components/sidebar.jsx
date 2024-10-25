@@ -38,8 +38,8 @@ const Sidebar = ({ setActiveView, activeView }) => {
 
   return (
     <>
-      <div className="admin-board flex flex-col py-1 items-center justify-between h-full gap-2 ">
-        <div className="sidebar-top">
+      <div className="admin-board w-full flex flex-col py-1 items-center justify-between h-full gap-2 ">
+        <div className="sidebar-top w-full ">
           <div className="logo flex items-center gap-2 py-10 w-full justify-center">
             <img src="/logo.png" alt="logo" />
             <p className="text-[20px] font-bold">Propped Up</p>
@@ -63,7 +63,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
           ))}
         </div>
 
-        <div className="sidebar-bottom pb-6 ">
+        <div className="sidebar-bottom pb-6 w-full ">
           {menu?.slice(3, menu.length).map((data, index) => (
             <button
               key={index}

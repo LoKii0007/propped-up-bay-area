@@ -63,11 +63,13 @@ function Admin() {
               <button onClick={()=>navigate('/')} className='flex items-center text-xl justify-center font-bold bg-[#34CAA5] text-white px-6 py-2 rounded-md' >
                 + New Client
               </button>
-              <Dropdown />
+              <Dropdown setActiveView={setActiveView} />
+              {/* <div>Welcomw Guest</div> */}
             </div>
           </div>
           <div className='p-7 bg-white h-[87vh] ' >
             <div className="active-bottom h-full overflow-y-auto ">
+              {activeView === "dashboard" && <Salesreport />}
               {activeView === "clients" && <ClientDetails users={users} />}
               {activeView === "order requests" && <OrderRequests />}
               {activeView === "subscription" && <ClientDetails users={filteredUsers} />}

@@ -17,7 +17,15 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        // If googleId is not present, require password; otherwise, not required
+        return !this.googleId;
+      },
+    },
+    googleId: {
+      type: String, 
+      unique: true,
+      sparse: true, // Allows it to be optional and unique across entries
     },
     role: { 
       type: String, 
@@ -34,7 +42,7 @@ const userSchema = new mongoose.Schema(
     },
   },
   { timestamps: true }
-)
+);
 
 const User = mongoose.model("Users", userSchema);
 

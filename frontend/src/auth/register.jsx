@@ -19,9 +19,6 @@ function Register() {
   async function handleRegister(e) {
     e.preventDefault();
     setLoading(true)
-    // if(!agreeTerms) {
-    //   return
-    // }
     const userData = {
       firstName: fname,
       lastName: lname,
@@ -30,7 +27,11 @@ function Register() {
     }
 
     const res = await registerUser(userData);
-    if (res.status === 201) {
+    if(res.status === 400){
+      toast.error("user with the email already exist");
+      return;
+    }
+    else if (res.status === 201) {
       toast.success("User registered successfully")
       setCurrentUser(res.data.user)
       setUserLoggedIn(true)
@@ -107,6 +108,7 @@ function Register() {
                 </div>
 
                 <button
+                  disabled={loading}
                   type="submit"
                   className="w-full py-2 bg-[#4C9A2A] text-white font-semibold rounded-md hover:bg-green-600 focus:ring focus:ring-green-200"
                 >

@@ -17,12 +17,11 @@ const SignUpDetails = () => {
     receiveTextNotifications: false,
   };
 
-  const [formData, setFormData] = useState(initialState);
-
-  const location = useLocation();
-  const user = location.state;
-  console.log(user);
+  // const location = useLocation();
   const navigate = useNavigate();
+
+  // const user = location.state;
+  const [formData, setFormData] = useState(initialState);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -36,30 +35,20 @@ const SignUpDetails = () => {
   //? form submission
   //?---------------------------------
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = { ...formData, userId: user._id }; //adding userId to formdata
-    console.log(data);
-    const res = await signUpDetails();
-    if (res.status !== 200) {
-      toast.error("something went wrong, try again");
-      //   formData = {...initialState,userId: '' }
+    e.preventDefault()
+    console.log(formData)
+    const res = await signUpDetails(formData);
+    if (res.status !== 201) {
+      toast.error("something went wrong, try again")
       return;
     }
     toast.success("submitted succesfully");
-    formData = { ...initialState, userId: "" }; // cleanup of form
+    setFormData(initialState) // cleanup of form
     navigate("/"); // navigating to homepage
-  };
+  }
 
-  //?---------------------------------
-  //? if user not found in location
-  //?---------------------------------
-  //   if (!user) {
-  //     toast.error("something went wrong trying again");
-  //     // const res =
-  //     // return;
-  //   }
 
-  useEffect(() => {}, [user]);
+  // useEffect(() => {}, [user]);
 
   return (
     <div className="max-w-3xl mx-auto p-8 overflow-y-auto ">

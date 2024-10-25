@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react"
 import { zones } from "../data/staticData";
+import { postOrder } from "../api/orders";
+import toast from "react-hot-toast";
 
 function PostOrder() {
 
-  const [formData, setFormData] = useState({
+  const initialState = {
+    type:'postOrder',
     firstName: "",
     lastName: "",
     email: "",
@@ -42,7 +45,10 @@ function PostOrder() {
       openSun: 0,
       doNotDisturb: 0,
     }
-  });
+  }
+
+  const [formData, setFormData] = useState(initialState);
+  const [loading , setLoadnig] = useState(false)
 
   const additionalPrices = {
     flyerBox: 10,
@@ -51,9 +57,9 @@ function PostOrder() {
     post: 15,
   };
 
-  // ----------------------------------
-  // handling inputs
-  //  ---------------------------------
+  //? ----------------------------------
+  //? handling inputs
+  //?  ---------------------------------
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -99,9 +105,9 @@ function PostOrder() {
     }));
   };
 
-  // ----------------------------------
-  // calculating total price
-  //  ---------------------------------
+  //? ----------------------------------
+  //? calculating total price
+  //?  ---------------------------------
   function handleTotal() {
     let newTotal = 0
     if (formData.flyerBox) { newTotal += additionalPrices.flyerBox }
@@ -124,10 +130,25 @@ function PostOrder() {
     }));
   }, [formData.requiredZone, formData.flyerBox, formData.lighting, formData.postOrder, formData.riders, formData.numberOfPosts]);
 
-  function handleSubmit(e) {
+
+  //? ----------------------------------
+  //? form submission
+  //?  ---------------------------------
+  async function handleSubmit(e) {
     e.preventDefault();
     console.log(formData);
+    const res = await postOrder(formData) //calling api
+    if(res.status!== 201){
+      toast.error('something went wrong') // on error
+      return
+    }
+    toast.success('Order placed successfully')
+    setFormData(initialState) //clear form
   }
+
+  useEffect(()=>{
+
+  }, [formData])
 
   return (
     <>
@@ -518,10 +539,11 @@ function PostOrder() {
 
         {/* Submit Button */}
         <button
+          disabled={loading}
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Submit
+          {loading ? 'submitting...' : 'Submit'}
         </button>
       </form>
     </>
