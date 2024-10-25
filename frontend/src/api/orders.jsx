@@ -1,7 +1,7 @@
 import axios from "axios"
 
 // const baseUrl = 'http://localhost:5000/api/orders'
-const baseUrl = 'https://propped-up-bay-area-1.onrender.com'
+const baseUrl = 'https://propped-up-bay-area-1.onrender.com/api/orders'
 // const authToken = localStorage.getItem('authToken')
 
 export const getOrders = async () => {
