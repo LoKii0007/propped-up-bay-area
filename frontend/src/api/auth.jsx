@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // const baseUrl = 'http://localhost:5000'
-const baseUrl = 'https://propped-up-bay-area.onrender.com'
+const baseUrl = 'https://propped-up-bay-area-1.onrender.com'
 
 export const registerUser = async (userData) => {
     try {
