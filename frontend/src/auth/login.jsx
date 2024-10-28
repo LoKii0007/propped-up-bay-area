@@ -35,7 +35,7 @@ function Login() {
       if (res.status === 200) {
         //? navigate to signup details if profile completed is false
         if (!res.data.user.profileCompleted) {
-          navigate("/signup/details", { state: { user: res.data.user } });
+          navigate("/signup/details");
           return;
         }
         setCurrentUser(res.data.user); //? setting up current user
@@ -109,7 +109,7 @@ function Login() {
               </form>
               <div className="grid grid-cols-3 text-[12px] ">
                 <div className="justify-center items-center flex w-full ">
-                  <div className="h-[1px] w-3/4 bg-gray-300 "></div>
+                <div className="h-[1px] w-3/4 bg-gray-300 "></div>
                 </div>
                 <p className="text-center">Or Login with</p>
                 <div className="justify-center items-center flex w-full ">

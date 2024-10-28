@@ -110,7 +110,7 @@ const AdminLogin = () => {
                 </div>
                 <div className="mt-8">
                   <button
-                    className="bg-black w-full text-[13px] text-white py-[16px] px-4 rounded-lg hover:bg-gray-800 focus:outline-none focus:shadow-outline flex items-center justify-center"
+                    className="bg-gray-400 w-full text-[13px] text-white py-[16px] px-4 rounded-lg hover:bg-gray-800 focus:outline-none focus:shadow-outline flex items-center justify-center"
                     type="submit"
                     disabled={loading}
                   >

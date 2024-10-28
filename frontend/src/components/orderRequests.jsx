@@ -22,30 +22,38 @@ function OrderRequests() {
   const [modalOpen, setModalOpen] = useState(false);
   const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
   const [completeOrder, setCompleteOrder] = useState('')
+  const [loading, setLoading] = useState(false)
 
 
   //? ----------------------------------
   //? loading initial orders
   //? ---------------------------------
   async function handleOrders() {
-    const res = await getAllOrders({page:1, limit:20})
-    if(res.status === 401){
-      toast.error(`${res.data.message} || 'Unauthorized'`)
-      return
+    setLoading(true)
+    try {
+      const res = await getAllOrders({page:1, limit:20})
+      if(res.status === 401){
+        toast.error(`${res.data.message} || 'Unauthorized'`)
+        return
+      }
+      if(res.status === 500 ){
+        toast.error(`${res.data.message} || 'error fetching orders'`)
+        return
+      }
+      if(res.status === 404){
+        toast.custom(`${res.data.message} || 'no orders found'`)
+        return
+      }
+      const allOrders = res.data.orders
+      console.log(allOrders)
+      setOrders(allOrders);
+      setFilteredOrders(allOrders);
+      setTotalPages(Math.ceil(allOrders.length / displayCount)); 
+    } catch (error) {
+      toast.error('something went wrong . Please try again')
+    }finally{
+      setLoading(false)
     }
-    if(res.status === 500 ){
-      toast.error(`${res.data.message} || 'error fetching orders'`)
-      return
-    }
-    if(res.status === 404){
-      toast.custom(`${res.data.message} || 'no orders found'`)
-      return
-    }
-    const allOrders = res.data.orders
-    console.log(allOrders)
-    setOrders(allOrders);
-    setFilteredOrders(allOrders);
-    setTotalPages(Math.ceil(allOrders.length / displayCount));
   }
 
   //? ----------------------------------
@@ -304,8 +312,8 @@ function OrderRequests() {
                     </div>
                   ))
               ) : (
-                <div className=" text-gray-500 p-12">
-                  You don't have any orders yet.
+                <div className=" text-gray-500 p-12 text-center">
+                  {loading ? 'loading...' : "You don't have any orders yet."}
                 </div>
               )}
             </div>
