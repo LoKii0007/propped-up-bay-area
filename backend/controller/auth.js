@@ -188,8 +188,11 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    if (!password && !googleId) {
+      return res.status(400).json({ message: "Please provide credentials" });
+    }
     if(password){
-      const isMatch = bcrypt.compare(password, user.password); // Check password match
+      const isMatch = await bcrypt.compare(password, user.password); // Check password match
       if (!isMatch) {
         return res.status(400).json({ message: "Invalid credentials" });
       }
