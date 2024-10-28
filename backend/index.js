@@ -10,7 +10,7 @@ const PORT = 5000
 
 Connection()
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://propped-up-bay-area.vercel.app/', 'https://propped-up-bay-area-1.onrender.com' ], 
+    origin: ['http://localhost:5173', 'https://propped-up-bay-area.vercel.app', 'https://propped-up-bay-area-1.onrender.com' ], 
     credentials: true
 }))
 app.use(express.static('public'))
