@@ -4,14 +4,17 @@ import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { registerUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
+import { UseGlobal } from "../context/GlobalContext";
+import axios from "axios";
 
 function SignInwithGoogle() {
   const navigate = useNavigate();
-  const {setCurrentUser} = useAuth()
+  const { setCurrentUser } = useAuth();
+  const { baseUrl } = UseGlobal();
 
   const loginCredentials = async (res) => {
     console.log(res);
-    const decoded = jwtDecode(res.credential);
+    const decoded = jwtDecode(res.credential); // decodeiing google credentials
     if (!decoded) {
       toast.error("some error ocuured");
     }
@@ -21,26 +24,29 @@ function SignInwithGoogle() {
       email: decoded.email,
       googleId: decoded.sub,
     };
-    const response = await registerUser(userData);
-    if (!response) {
-      toast.error("something went wrong!");
+
+    try {
+      const response = await axios.post(`${baseUrl}/auth/signUp`, userData, {
+        withCredentials: true,
+      });
+
+      if (response.status === 201) {
+        setCurrentUser(response.data.user);
+        toast.success("Signup successful! Redirecting...");
+        navigate("/");
+      } else if (response.status === 400) {
+        toast.error("User with this email already exists. Please log in.");
+      } else {
+        toast.error("Signup failed. Please try again.");
+      }
+    } catch (apiError) {
+      toast.error("An error occurred while signing up. Please try again.");
+      console.log("API call error:", apiError);
     }
-    if (response.status === 400) {
-      toast.error("user with the email already exist");
-      return;
-    }
-    if (response.status === 201) {
-      setCurrentUser(response.data.user)
-      navigate("/");
-      return;
-    }
-    toast.error("something went wrong!");
-    console.log(response.data.message);
   };
 
   const loginError = () => {
-    toast.error("something went wrong");
-    console.log("login failed");
+    toast.error("Google signup failed. Please try again.");
   };
 
   return (

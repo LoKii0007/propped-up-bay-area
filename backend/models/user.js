@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: function () {
-        // If googleId is not present, require password; otherwise, not required
         return !this.googleId;
       },
     },
@@ -31,6 +30,18 @@ const userSchema = new mongoose.Schema(
       type: String, 
       enum: ['user', 'superuser', 'admin'], 
       default: 'user' 
+    },
+    totalOrders : {
+      type: Number,
+      default : 0
+    },
+    isSubscribed : {
+      type : Boolean,
+      default : false
+    },
+    totalSpent:{
+      type: Number,
+      default : 0
     },
     profileCompleted: {
       type: Boolean,

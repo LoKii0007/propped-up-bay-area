@@ -21,7 +21,7 @@ function OrderTypeDropdown({handleOrderType, filterType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
-                                className={`${filterType === 'all' && 'bg-slate-300 ' } py-2 `}
+                                className={`${filterType === 'all' && ' text-[#638856] font-semibold ' } py-2 `}
                                     onClick={() => {
                                         handleOrderType('all');
                                         close(); // Closes the dropdown
@@ -34,7 +34,7 @@ function OrderTypeDropdown({handleOrderType, filterType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
-                                    className={`${filterType === 'openHouse' && 'bg-slate-300 ' } py-2 `}
+                                    className={`${filterType === 'openHouse' && 'text-[#638856] font-semibold ' } py-2 `}
                                     onClick={() => {
                                         handleOrderType('openHouse');
                                         close(); // Closes the dropdown
@@ -47,7 +47,7 @@ function OrderTypeDropdown({handleOrderType, filterType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
-                                className={`${filterType === 'postOrder' && 'bg-slate-300 ' } py-2 `}
+                                className={`${filterType === 'postOrder' && 'text-[#638856] font-semibold' } py-2 `}
                                     onClick={() => {
                                         handleOrderType('postOrder');
                                         close(); // Closes the dropdown

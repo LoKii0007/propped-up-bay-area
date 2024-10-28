@@ -7,67 +7,11 @@ import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
 import { sampleOrder } from "../data/staticData";
 import toast from "react-hot-toast";
-import { getOpenHouseOrder } from "../api/orders";
+import { getOpenHouseOrder, getpostOrder } from "../api/orders";
+import { parseDate } from "../helpers/utilities";
 
 function ClieentOrders() {
-  const orders = [
-    {
-      type: "openHouse",
-      id: "1",
-      orderdate: "10-10-23",
-      requestedDate: "20-10-23",
-      status: "Pending",
-      name: "John Doe",
-      amount: "1000",
-      isSubscribed: true,
-    },
-    {
-      id: "2",
-      type: "openHouse",
-      orderdate: "15-1-23",
-      requestedDate: "2-1-23",
-      status: "Installed",
-      name: "Jane Doe",
-      amount: "4000",
-      isSubscribed: true,
-    },
-    {
-      id: "3",
-      type: "postOrder",
-      orderdate: "15-11-23",
-      requestedDate: "25-11-23",
-      status: "Pending",
-      name: "Alice Smith",
-      amount: "1500",
-      isSubscribed: false,
-    },
-    {
-      id: "4",
-      type: "PostRemoval",
-      orderdate: "10-10-23",
-      requestedDate: "20-10-23",
-      status: "Installed",
-      name: "John Doe",
-      amount: "1000",
-      isSubscribed: true,
-    },
-  ]
-
-  //? ----------------------------------
-  //? loading orders
-  //?  ---------------------------------
-  async function handleOrders(){
-    let orders = []
-    const res = await getOpenHouseOrder()
-    // const res2 = await 
-    orders.push(res.data.orders)
-    console.log('res : ', res.data.orders)
-  }
-
-  useEffect(()=>{
-    handleOrders()
-  }, [])
-
+  const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
@@ -76,6 +20,33 @@ function ClieentOrders() {
   const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [completeOrder, setCompleteOrder] = useState('')
+
+  //? ----------------------------------
+  //? loading orders
+  //?  ---------------------------------
+  async function handleOrders() {
+    const [openHouseOrderResponse, postOrderResponse] = await Promise.all([
+      getOpenHouseOrder(),
+      getpostOrder(),
+    ]);
+    // if(openHouseOrderResponse.status !== 200 || postOrderResponse !== 200 ){
+    //   toast.error('something went wrong ')
+    //   return
+    // }
+    const combinedOrders = [
+      ...openHouseOrderResponse.data.orders,
+      ...postOrderResponse.data.orders,
+    ];
+    setOrders(combinedOrders);
+    setFilteredOrders(combinedOrders);
+    setTotalPages(Math.ceil(combinedOrders.length / displayCount));
+    console.log("res : ", filteredOrders);
+  }
+
+  useEffect(() => {
+    handleOrders();
+  }, []);
 
   //? ------------------------
   //? pagination
@@ -118,20 +89,27 @@ function ClieentOrders() {
     );
     setFilteredOrders(filtered); // updating parent
     resetPagination(filtered); // reset pagination
-  }, [searchTerm, displayCount]);
+  }, [searchTerm, displayCount, orders]);
 
   //? -------------------------
   //? filter - order status
   //?--------------------------
   const handleOrderStatus = (type) => {
-    let filtered;
-    if (type === "all") {
-      setOrderStatus(type);
-      setFilteredOrders(orders);
-      filtered = orders;
-    } else {
-      setOrderStatus(type);
+    let filtered = orders;
+    setOrderStatus(type); // updating order status
+
+    if (orderType !== "all") {
+      //  checking for prev filters
       filtered = orders.filter(
+        (order) => order.type.toLowerCase() === orderType.toLowerCase()
+      );
+    }
+
+    if (type === "all") {
+      setFilteredOrders(filtered);
+    } else {
+      // applying the clicked filter
+      filtered = filtered.filter(
         (order) => order.status.toLowerCase() === type.toLowerCase()
       );
       setFilteredOrders(filtered);
@@ -144,14 +122,21 @@ function ClieentOrders() {
   //? filter - order type
   //?--------------------------
   const handleOrderType = (type) => {
-    let filtered;
-    if (type === "all") {
-      setOrderType(type);
-      setFilteredOrders(orders);
-      filtered = orders;
-    } else {
-      setOrderType(type);
+    let filtered = orders;
+    setOrderType(type); // updating order type
+
+    if (orderStatus !== "all") {
+      //  checking for prev filters
       filtered = orders.filter(
+        (order) => order.status.toLowerCase() === orderStatus.toLowerCase()
+      );
+    }
+
+    if (type === "all") {
+      setFilteredOrders(filtered);
+    } else {
+      // applying the clicked filter
+      filtered = filtered.filter(
         (order) => order.type.toLowerCase() === type.toLowerCase()
       );
       setFilteredOrders(filtered);
@@ -163,63 +148,50 @@ function ClieentOrders() {
   //? -------------------------
   //? filter - date range
   //?--------------------------
-  function parseDate(dateStr) {
-    const [day, month, year] = dateStr.split("-");
-    // Prepend '20' to the year to get the full year (assuming dates in 'YY' are after 2000)
-    const fullYear = `20${year}`;
-    return new Date(fullYear, month - 1, day); // month is zero-indexed in JS Date
-  }
-  
   function handleDateFilter() {
     if (!startDate || !endDate) {
       toast.error("please select date range !");
       return;
     }
-  
-    // Convert startDate and endDate to Date objects
-    const start = parseDate(startDate);
-    const end = parseDate(endDate);
-  
+
+    console.log("date : ", startDate);
     const filtered = orders.filter((order) => {
-      const orderDate = parseDate(order.orderdate);
-      return orderDate >= start && orderDate <= end;
+      const orderDate = parseDate(order.requestedDate);
+      return orderDate >= startDate && orderDate <= endDate;
     });
-  
+
     setFilteredOrders(filtered);
     resetPagination(filtered);
   }
-//   function handleDateFilter() {
-//     if(!startDate || !endDate){
-//         toast.error('please select date range !')
-//         return
-//     }
-//     const filtered = orders.filter((order)=> order.orderdate >= startDate && order.orderdate <= endDate )
-//     setFilteredOrders(filtered)
-//     resetPagination(filtered)  
-//   }
 
   //? -------------------------
   //? filter - date range
   //?--------------------------
-  function handleClearFilter(){
-    setFilteredOrders(orders)
-    resetPagination(orders) // pagination reset
+  function handleClearFilter() {
+    setOrderStatus("all");
+    setOrderType("all");
+    setStartDate('')
+    setEndDate('')
+    setFilteredOrders(orders);
+    resetPagination(orders); // pagination reset
   }
 
   //? --------------------
   //? user click
   //?---------------------
-  function handleUserClick() {
-    setBreadCrumb("Order details"); //updating breadcrumb
-    setIsInfo(true); //changing view
+  function handleUserClick(index) {
+    const slectedOrder = filteredOrders[index]
+    if(slectedOrder){
+      setCompleteOrder(filteredOrders[index])
+      setBreadCrumb("Order details"); //updating breadcrumb
+      setIsInfo(true); //changing view
+    }
   }
 
-    //? --------------------
+  //? --------------------
   //? upadting render
   //?---------------------
-  useEffect(()=>{
-
-  }, [filteredOrders])
+  useEffect(() => {}, [filteredOrders, orders, orderType, orderStatus, completeOrder]);
 
   return (
     <>
@@ -354,23 +326,23 @@ function ClieentOrders() {
                   ?.slice(startIndex, endIndex)
                   .map((order, index) => (
                     <div
-                      onClick={handleUserClick}
+                      onClick={()=>handleUserClick(index)}
                       key={index}
                       className="cursor-pointer grid grid-cols-6 w-full p-5 gap-2 "
                     >
-                      <div className="">{order.id}</div>
-                      <div className="">{order.name}</div>
-                      <div className="">{order.orderdate}</div>
-                      <div className="">{order.requestedDate}</div>
-                      <div className="">{order.amount}</div>
+                      <div className="overflow-hidden">{order._id}</div>
+                      <div className="">
+                        {order.firstName} {order.lastName}{" "}
+                      </div>
+                      <div className="">{parseDate(order.requestedDate)}</div>
+                      <div className="">{parseDate(order.requestedDate)}</div>
+                      <div className="">{order.total}</div>
                       <button
                         onClick={() => setModalOpen(true)}
-                        className={`text-left font-semibold ${
-                          order.status === "Pending"
-                            ? "text-[#F6B73C]"
-                            : order.status === "installed"
-                            ? "text-[#4C9A2A]"
-                            : "text-[#4C9A2A]"
+                        className={`text-left font-semibold
+                          ${order.status === "pending" && "text-[#F6B73C]"}
+                          ${order.status === "installed" && "text-[#4C9A2A]"}
+                          ${order.status === "completed" && "text-[#4C9A2A]"}
                         }`}
                       >
                         {order.status}
@@ -398,7 +370,7 @@ function ClieentOrders() {
           </div>
         </div>
       ) : (
-        <OrderInfo order={sampleOrder} />
+        <OrderInfo order={completeOrder} />
       )}
     </>
   );

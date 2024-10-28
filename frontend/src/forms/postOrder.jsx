@@ -11,7 +11,7 @@ function PostOrder() {
     lastName: "",
     email: "",
     phone: "",
-    neededByDate: "",
+    requestedDate: "",
     listingAddress: {
       streetAddress: "",
       streetAddress2: "",
@@ -48,7 +48,7 @@ function PostOrder() {
   }
 
   const [formData, setFormData] = useState(initialState);
-  const [loading , setLoadnig] = useState(false)
+  const [loading , setLoading] = useState(false)
 
   const additionalPrices = {
     flyerBox: 10,
@@ -137,12 +137,14 @@ function PostOrder() {
   async function handleSubmit(e) {
     e.preventDefault();
     console.log(formData);
+    setLoading(true)
     const res = await postOrder(formData) //calling api
     if(res.status!== 201){
       toast.error('something went wrong') // on error
       return
     }
     toast.success('Order placed successfully')
+    setLoading(false)
     setFormData(initialState) //clear form
   }
 
@@ -223,11 +225,11 @@ function PostOrder() {
 
         {/* Date needed Section */}
         <div className="flex flex-col">
-          <label className="font-medium text-sm">Date needed by</label>
+          <label className="font-medium text-sm">Date needed by <span className="text-red-500">*</span></label>
           <input
             type="date"
-            name="neededByDate"
-            value={formData.neededByDate}
+            name="requestedDate"
+            value={formData.requestedDate}
             onChange={handleInputChange}
             className="border border-gray-300 p-2 rounded"
           />
@@ -235,7 +237,7 @@ function PostOrder() {
 
         {/*listing Address Section */}
         <div className="flex flex-col">
-          <label className="font-medium text-sm">Listing Address</label>
+          <label className="font-medium text-sm">Listing Address <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="streetAddress"
@@ -282,7 +284,7 @@ function PostOrder() {
 
         {/*billing Address Section */}
         <div className="flex flex-col">
-          <label className="font-medium text-sm">Billing Address</label>
+          <label className="font-medium text-sm">Billing Address <span className="text-red-500">*</span> </label>
           <input
             type="text"
             name="streetAddress"

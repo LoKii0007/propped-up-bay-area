@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 
@@ -8,10 +7,16 @@ export default function SignOutModal({open, setOpen, text, btnText}) {
 
   const {setCurrentUser} = useAuth()
 
-  function handleSignOut(){
-    setCurrentUser(null)
-    toast.success('logged out ')
-    setOpen(false)
+  function handleSignOut() {
+    setCurrentUser (null);
+  
+    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax;";
+    
+    // Optionally, log out the user from Google if using Google authentication
+    // googleLogout();
+  
+    toast.success('Logged out');
+    setOpen(false);
   }
 
   return (

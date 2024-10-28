@@ -1,58 +1,19 @@
 import React, { useState, useEffect } from "react";
-import DashboardBtn from "../ui/dashboardBtn";
 import Pagination from "./pagination";
-import RowHeading from "../ui/rowHeading"
+import RowHeading from "../ui/rowHeading";
 import OrderTypeDropdown from "../ui/orderTypeDropdown";
 import OrderStatusdropdown from "../ui/orderStatusdropdown";
 import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
 import { sampleOrder } from "../data/staticData";
 import ChangeStatusModal from "../ui/ChangeStatusModal";
+import { getAllOrders } from "../api/orders";
+import toast from "react-hot-toast";
+import { parseDate } from "../helpers/utilities";
 
 function OrderRequests() {
-  const orders = [
-    {
-      type: "openHouse",
-      id: "1",
-      orderdate: "10-10-23",
-      requestedDate: "20-10-23",
-      status: "Pending",
-      name: "John Doe",
-      amount: "1000",
-      isSubscribed: true,
-    },
-    {
-      id: "2",
-      type: "openHouse",
-      orderdate: "15-1-23",
-      requestedDate: "2-1-23",
-      status: "Installed",
-      name: "Jane Doe",
-      amount: "4000",
-      isSubscribed: true,
-    },
-    {
-      id: "3",
-      type: "postOrder",
-      orderdate: "15-11-23",
-      requestedDate: "25-11-23",
-      status: "Pending",
-      name: "Alice Smith",
-      amount: "1500",
-      isSubscribed: false,
-    },
-    {
-      id: "4",
-      type: "PostRemoval",
-      orderdate: "10-10-23",
-      requestedDate: "20-10-23",
-      status: "Installed",
-      name: "John Doe",
-      amount: "1000",
-      isSubscribed: true,
-    },
-  ];
 
+  const [orders, setOrders] = useState([])
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
@@ -60,15 +21,55 @@ function OrderRequests() {
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const [completeOrder, setCompleteOrder] = useState('')
+
+
+  //? ----------------------------------
+  //? loading initial orders
+  //? ---------------------------------
+  async function handleOrders() {
+    const res = await getAllOrders({page:1, limit:20})
+    if(res.status === 401){
+      toast.error(`${res.data.message} || 'Unauthorized'`)
+      return
+    }
+    if(res.status === 500 ){
+      toast.error(`${res.data.message} || 'error fetching orders'`)
+      return
+    }
+    if(res.status === 404){
+      toast.custom(`${res.data.message} || 'no orders found'`)
+      return
+    }
+    const allOrders = res.data.orders
+    console.log(allOrders)
+    setOrders(allOrders);
+    setFilteredOrders(allOrders);
+    setTotalPages(Math.ceil(allOrders.length / displayCount));
+  }
+
+  //? ----------------------------------
+  //? loading next orders
+  //? ---------------------------------
+  async function handleNextOrders(page) {
+    const allOrders = await getAllOrders({page:1, limit:20})
+    setOrders(allOrders);
+    setFilteredOrders(allOrders);
+    setTotalPages(Math.ceil(allOrders.length / displayCount));
+    resetPagination(allOrders)
+    console.log("res : ", allOrders);
+  }
+
+  useEffect(() => {
+    handleOrders();
+  }, []);
 
   //? ------------------------
   //? pagination
   //? ------------------------
-  const [displayCount, setDisplayCount] = useState(3);
+  const [displayCount, setDisplayCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(
-    Math.ceil(orders.length / displayCount)
-  );
+  const [totalPages, setTotalPages] = useState( Math.ceil(orders.length / displayCount));
   const [startPage, setStartPage] = useState(1);
   const startIndex = (currentPage - 1) * displayCount;
   const endIndex = startIndex + displayCount;
@@ -90,6 +91,9 @@ function OrderRequests() {
   };
 
   useEffect(() => {
+    if(orders.length === 0){
+      return
+    }
     const filtered = orders.filter((order) =>
       Object.entries(order).some(([key, value]) => {
         if (typeof value === "string") {
@@ -108,14 +112,21 @@ function OrderRequests() {
   //? filter - order status
   //?--------------------------
   const handleOrderStatus = (type) => {
-    let filtered;
-    if (type === "all") {
-      setOrderStatus(type);
-      setFilteredOrders(orders);
-      filtered = orders;
-    } else {
-      setOrderStatus(type);
+    let filtered = orders;
+    setOrderStatus(type); // updating order status
+
+    if (orderType !== "all") {
+      //  checking for prev filters
       filtered = orders.filter(
+        (order) => order.type.toLowerCase() === orderType.toLowerCase()
+      );
+    }
+
+    if (type === "all") {
+      setFilteredOrders(filtered);
+    } else {
+      // applying the clicked filter
+      filtered = filtered.filter(
         (order) => order.status.toLowerCase() === type.toLowerCase()
       );
       setFilteredOrders(filtered);
@@ -128,14 +139,21 @@ function OrderRequests() {
   //? filter - order type
   //?--------------------------
   const handleOrderType = (type) => {
-    let filtered;
-    if (type === "all") {
-      setOrderType(type);
-      setFilteredOrders(orders);
-      filtered = orders;
-    } else {
-      setOrderType(type);
+    let filtered = orders;
+    setOrderType(type); // updating order type
+
+    if (orderStatus !== "all") {
+      //  checking for prev filters
       filtered = orders.filter(
+        (order) => order.status.toLowerCase() === orderStatus.toLowerCase()
+      );
+    }
+
+    if (type === "all") {
+      setFilteredOrders(orders);
+    } else {
+      // applying the clicked filter
+      filtered = filtered.filter(
         (order) => order.type.toLowerCase() === type.toLowerCase()
       );
       setFilteredOrders(filtered);
@@ -144,12 +162,26 @@ function OrderRequests() {
     resetPagination(filtered); // reset pagination
   };
 
+  function handleUserClick(index) {
+    const slectedOrder = filteredOrders[index]
+    if(slectedOrder){
+      setCompleteOrder(filteredOrders[index])
+      setBreadCrumb("Order details"); //updating breadcrumb
+      setIsInfo(true); //changing view
+    }
+  }
+
   //? --------------------
-  //? user click
+  //? upadting render
   //?---------------------
-  function handleUserClick() {
-    setBreadCrumb("Order details"); //updating breadcrumb
-    setIsInfo(true); //changing view
+  useEffect(() => {}, [filteredOrders, orders, orderType, orderStatus, completeOrder]);
+
+
+    //? --------------------
+  //? updating order status
+  //?---------------------
+  function handleUpdateOrderStatus(){
+
   }
 
   return (
@@ -190,10 +222,6 @@ function OrderRequests() {
                 filterType={orderStatus}
                 handleOrderType={handleOrderStatus}
               />
-              {/* <DashboardBtn orderType={orderType} handleOrderType={handleOrderType} filter="all" text="All" />
-          <DashboardBtn orderType={orderType} handleOrderType={handleOrderType} filter="pending" text="Pending" />
-          <DashboardBtn orderType={orderType} handleOrderType={handleOrderType} filter="installed" text="Installed" /> */}
-              {/* <DashboardBtn orderType={orderType} handleOrderType={handleOrderType} filter="completed" text="Completed" /> */}
               <button className="font-semibold">
                 <img src="" alt="" />
                 Date filters
@@ -207,19 +235,19 @@ function OrderRequests() {
                 <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
-                  filterValue={"id"}
+                  filterValue={"_id"}
                   text="OrderId"
                 />
                 <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
-                  filterValue={"name"}
+                  filterValue={`firstName lastName`}
                   text="Name"
                 />
                 <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
-                  filterValue={"orderdate"}
+                  filterValue={"requestedDate"}
                   text="Order Date"
                 />
                 <RowHeading
@@ -231,7 +259,7 @@ function OrderRequests() {
                 <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
-                  filterValue={"amount"}
+                  filterValue={"totalSpent"}
                   text="Amount"
                 />
                 <RowHeading
@@ -245,20 +273,23 @@ function OrderRequests() {
                 filteredOrders
                   ?.slice(startIndex, endIndex)
                   .map((order, index) => (
-                    <div key={index} className="flex w-full p-5 gap-2 " >
-                      <div  onClick={handleUserClick} className="cursor-pointer grid grid-cols-5 w-5/6 gap-2" >
-                      <div className="">{order.id}</div>
-                        <div className="">{order.name}</div>
-                        <div className="">{order.orderdate}</div>
-                        <div className="">{order.requestedDate}</div>
-                        <div className="">{order.amount}</div>
+                    <div key={index} className="flex w-full p-5 gap-2 ">
+                      <div
+                        onClick={()=>handleUserClick(index)}
+                        className="cursor-pointer grid grid-cols-5 w-5/6 gap-2"
+                      >
+                        <div className="overflow-hidden">{order._id}</div>
+                        <div className="overflow-hidden">{order.firstName} {order.lastName}</div>
+                        <div className="overflow-hidden">{parseDate(order.requestedDate)}</div>
+                        <div className="overflow-hidden">{parseDate(order.requestedDate)}</div>
+                        <div className="overflow-hidden">{order.total}</div>
                       </div>
                       <div>
-                      <button
+                        <button
                           onClick={() => {
-                            setModalOpen(true)
-                            
-                            }}
+                            setModalOpen(true);
+                            handleUpdateOrderStatus(order._id)
+                          }}
                           className={`text-left font-semibold w-1/6 ${
                             order.status === "Pending"
                               ? "text-[#F6B73C]"
@@ -270,26 +301,6 @@ function OrderRequests() {
                           {order.status}
                         </button>
                       </div>
-                      {/* <div className="grid grid-cols-6 p-5 gap-2">
-                        <div className="">{order.id}</div>
-                        <div className="">{order.name}</div>
-                        <div className="">{order.orderdate}</div>
-                        <div className="">{order.requestedDate}</div>
-                        <div className="">{order.amount}</div>
-                        <button
-                          onClick={() => setModalOpen(true)}
-                          className={`text-left font-semibold ${
-                            order.status === "Pending"
-                              ? "text-[#F6B73C]"
-                              : order.status === "installed"
-                              ? "text-[#4C9A2A]"
-                              : "text-[#4C9A2A]"
-                          }`}
-                        >
-                          {order.status}
-                        </button>
-                      </div> */}
-                      {/* {index !== orders?.length - 1 && <div className="bg-gray-300 h-[1px] w-full " ></div>} */}
                     </div>
                   ))
               ) : (
@@ -313,7 +324,7 @@ function OrderRequests() {
           </div>
         </div>
       ) : (
-        <OrderInfo order={sampleOrder} />
+        <OrderInfo order={completeOrder} />
       )}
 
       {/* -------------modal---------------  */}

@@ -1,39 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import SignInwithGoogle from "./signInWithGoogle";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 import ProppedUpLogo from "../ui/proppedUpLogo";
+import Cookies from "js-cookie";
+import LoginWithGoogle from "./LoginWithGoogle";
+import axios from "axios";
+import { UseGlobal } from "../context/GlobalContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { setCurrentUser, setUserLoggedIn } = useAuth()
+  const { setCurrentUser, setUserLoggedIn, currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const {baseUrl} = UseGlobal()
+
+  useEffect(() => {
+    const token = Cookies.get("authToken");
+    console.log("token ", token);
+    if (token) {
+      navigate("/"); // Redirect to home if token exists
+    }
+  }, [navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setLoading(true)
-    const res = await loginUser(email, password);
-    if (res.status === 200) {
-      //? navigate to signup details if profile completed is false
-      if (!res.data.user.profileCompleted) {
-        navigate("/signup/details", { state: { user: res.data.user } });
-        return;
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${baseUrl}/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+      if (res.status === 200) {
+        Cookies.set("authToken", res.data.token); //setting cookie
+        //? navigate to signup details if profile completed is false
+        if (!res.data.user.profileCompleted) {
+          navigate("/signup/details", { state: { user: res.data.user } });
+          return;
+        }
+        setCurrentUser(res.data.user); //? setting up current user
+        setUserLoggedIn(true);
+        toast.success("User logged in Successfully");
+        navigate("/"); //? navigate to home page
+      } else {
+        toast.error("something went wrong, try again later");
       }
-
-      setCurrentUser(res.data.user); //? setting up current user
-      localStorage.setItem("authToken", res.data.token);
-      console.log(localStorage.getItem("authToken"));
-      setUserLoggedIn(true);
-      toast.success("User logged in Successfully");
-      navigate("/"); //? navigate to home page
-    } else {
+    } catch (error) {
       toast.error("something went wrong, try again later");
+      console.log("something went wrong, try again later");
     }
-    setLoading(false)
+    setLoading(false);
   }
 
   return (
@@ -61,7 +79,8 @@ function Login() {
                     Email
                   </label>
                   <input
-                    type="tel"
+                    type="email"
+                    aria-label="Email"
                     className="mt-1 block w-full p-2 border border-gray-300 bg-[#FCFDFE] rounded-md shadow-sm "
                     placeholder="someone@gmail.com"
                     value={email}
@@ -87,7 +106,7 @@ function Login() {
                   type="submit"
                   className="w-full py-2 px-4 bg-[#4C9A2A] text-white font-semibold rounded-md shadow-sm hover:bg-green-600"
                 >
-                  {loading ? 'submitting...' : 'Log In'}
+                  {loading ? "submitting..." : "Log In"}
                 </button>
               </form>
               <div className="grid grid-cols-3 text-[12px] ">
@@ -100,7 +119,7 @@ function Login() {
                 </div>
               </div>
               <div className="w-full flex flex-col items-center justify-center gap-5">
-                <SignInwithGoogle />
+                <LoginWithGoogle />
                 <p className="text-sm text-gray-500 text-center">
                   Don’t have an account?{" "}
                   <a href="/signup" className="text-green-500 hover:underline">

@@ -1,21 +1,22 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../css/home.css";
 import Sidebar from "../components/sidebar";
 import Order from "../components/order";
 import PostRemoval from "../forms/postRemoval";
 import CardDetails from "../components/cardDetails";
 import axios from "axios";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import { UseGlobal } from "../context/GlobalContext";
 import ClieentOrders from "../components/ClientOrders";
 import { useNavigate } from "react-router-dom";
 import EditProfileForm from "../components/profile";
+import { getUserByToken } from "../api/auth";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard");
-  const { currentUser } = useContext(AuthContext);
-  const {breadCrumb, setBreadCrumb, isInfo, setIsInfo} = UseGlobal()
-  const navigate = useNavigate()
+  const { currentUser, setCurrentUser } = useAuth();
+  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -29,22 +30,41 @@ const Home = () => {
     }
   }
 
-  function handleView(){
-    if(isInfo) setIsInfo(false)
-    if(breadCrumb !== activeView) setBreadCrumb(activeView)
+  //? ------------------------------
+  //? breadcrumbs
+  //? ------------------------------
+  function handleView() {
+    if (isInfo) setIsInfo(false);
+    if (breadCrumb !== activeView) setBreadCrumb(activeView);
   }
 
-//? ------------------------------
-//? updating render on currentuser
-//? ------------------------------
-  useEffect(()=>{
-    if(!currentUser){
-      navigate('/signup')
+  //? ------------------------------
+  //? updating render on currentuser
+  //? ------------------------------
+  useEffect(() => {
+    if (!currentUser) {
+      handleLogin()
+    } else if (!currentUser.profileCompleted) {
+      navigate("/signup/details");
     }
-    else if(!currentUser.profileCompleted){
-      navigate('/signup/details')
+  }, [currentUser]);
+
+  //? ------------------------------
+  //? logging user by authtoken
+  //? ------------------------------
+  async function handleLogin(){
+    const res = await getUserByToken()
+    if (res.status === 200) {
+      setCurrentUser(res.data.user);
+      console.info("logged in");
+    }else{
+      navigate("/login");
     }
-  }, [currentUser])
+  }
+  
+  useEffect( () => {
+    handleLogin()
+  }, []);
 
   return (
     <>
@@ -80,7 +100,7 @@ const Home = () => {
             </div>
           </div>
           <div className="active-bottom h-[87vh] overflow-y-auto p-7">
-            {activeView === "dashboard" && <ClieentOrders/> }
+            {activeView === "dashboard" && <ClieentOrders />}
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval />}
             {activeView === "profile" && <EditProfileForm />}

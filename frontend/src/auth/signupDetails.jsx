@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import { signUpDetails } from "../api/auth";
+import axios from "axios";
+import { UseGlobal } from "../context/GlobalContext";
 
 const SignUpDetails = () => {
   const initialState = {
@@ -19,6 +21,7 @@ const SignUpDetails = () => {
 
   // const location = useLocation();
   const navigate = useNavigate();
+  const {baseUrl} = UseGlobal()
 
   // const user = location.state;
   const [formData, setFormData] = useState(initialState);
@@ -35,18 +38,23 @@ const SignUpDetails = () => {
   //? form submission
   //?---------------------------------
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    console.log(formData)
-    const res = await signUpDetails(formData);
-    if (res.status !== 201) {
-      toast.error("something went wrong, try again")
-      return;
+    e.preventDefault();
+    console.log(formData);
+    try {
+      const res = await axios.post(`${baseUrl}/auth/signUp/details`, formData, {
+        withCredentials: true,
+      });
+      if (res.status !== 201) {
+        toast.error("something went wrong, try again");
+        return;
+      }
+      toast.success("submitted succesfully");
+      setFormData(initialState); // cleanup of form
+      navigate("/"); // navigating to homepage
+    } catch (error) {
+      toast.error("something went wrong, try again");
     }
-    toast.success("submitted succesfully");
-    setFormData(initialState) // cleanup of form
-    navigate("/"); // navigating to homepage
-  }
-
+  };
 
   // useEffect(() => {}, [user]);
 

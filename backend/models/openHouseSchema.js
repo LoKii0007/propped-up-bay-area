@@ -13,7 +13,7 @@ const formDataSchema = new Schema({
   email: { type: String, required: true },
   phone: { type: String, required: true },
 
-  firstEventDate: { type: Date, required: true },
+  requestedDate: { type: Date, required: true },
   firstEventStartTime: { type: String, required: true },
   firstEventEndTime: { type: String, required: true },
 
@@ -50,6 +50,11 @@ const formDataSchema = new Schema({
   additionalInstructions: { type: String },
 
   total: { type: Number, default: 0 },
+  status : {
+    type:String,
+    enum : ['pending', 'completed', 'installed'],
+    default : 'pending'
+  }
 });
 
 const openHouseSchema = mongoose.model('openHouseForm', formDataSchema)

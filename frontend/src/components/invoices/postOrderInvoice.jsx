@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
-function PostOrderInvoice({data}) {
+function PostOrderInvoice({ data }) {
 
-    console.log('post invoice :', data)
+    console.log('post invoice :', data);
 
     return (
         <>
@@ -15,11 +15,11 @@ function PostOrderInvoice({data}) {
                     <div className="flex justify-between mt-4">
                         <div>
                             <p>Received:</p>
-                            <p>Friday, October 4, 2024</p>
+                            <p>{new Date(data.requestedDate).toLocaleDateString()}</p>
                         </div>
                         <div>
-                            <p className='font-bold pb-3' >Propped Up Sign Services</p>
-                            <p>{/* companyAddress */}</p>
+                            <p className='font-bold pb-3'>Propped Up Sign Services</p>
+                            <p>123 Company Address St.</p> {/* Update with the actual address if available */}
                             <p>info@proppedupbayarea.com</p>
                             <p>510.661.3100</p>
                         </div>
@@ -27,55 +27,59 @@ function PostOrderInvoice({data}) {
                     <h3 className="text-center text-xl font-bold my-4">POST ORDER FORM</h3>
                     <div className="border-t border-gray-300 my-4"></div>
                     <div className="mb-4">
-                        <h3 className="text-lg font-semibold">Anne Keller</h3>
-                        <p>4916 Cochrane Ave.</p>
-                        <p>Oakland, CA, 94618</p>
+                        <h3 className="text-lg font-semibold">{data.firstName} {data.lastName}</h3>
+                        <p>{data.listingAddress.streetAddress}</p>
+                        <p>{data.listingAddress.city}, {data.listingAddress.state}, {data.listingAddress.postalCode}</p>
                     </div>
                     <div className="mb-4 flex gap-8">
-                        <p className="font-semibold">Subscription: <span className="">$15.00</span></p>
+                        <p className="font-semibold">Subscription: <span>${data.requiredZone.price}</span></p>
                     </div>
                     <div className="mb-4 flex gap-8 ">
                         <h4 className="font-semibold">What color would you like your post?</h4>
-                        <p>White</p>
+                        <p>{data.postColor}</p>
                     </div>
                     <div className="mb-4 flex gap-8 ">
                         <h4 className="font-semibold">Flyer box</h4>
-                        <p>Lighting</p>
+                        <p>{data.flyerBox ? "Included" : "Not Included"}</p>
+                    </div>
+                    <div className="mb-4 flex gap-8 ">
+                        <h4 className="font-semibold">Lighting</h4>
+                        <p>{data.lighting ? "Included" : "Not Included"}</p>
                     </div>
                     <div className="mb-4">
-                        <p className="font-semibold">Renewal Date: <span className="">May 30 2024</span></p>
+                        <p className="font-semibold">Renewal Date: <span>May 30, 2024</span></p> {/* Assuming a placeholder or actual renewal date */}
                     </div>
                     <div className="mb-4">
                         <h4 className="font-semibold">Status</h4>
                         <ul className="list-disc pl-5">
-                            <li>Coming soon: 0</li>
-                            <li>Pending: 0</li>
-                            <li>Open Saturday & Sunday: 0</li>
-                            <li>Do not disturb: 0</li>
-                            <li>Pool: 0</li>
+                            <li>Coming soon: {data.riders?.comingSoon || 0}</li>
+                            <li>Pending: {data.riders?.pending || 0}</li>
+                            <li>Open Saturday & Sunday: {data.riders?.openSatSun || 0}</li>
+                            <li>Do not disturb: {data.riders?.doNotDisturb || 0}</li>
+                            <li>Pool: {data.riders?.pool || 0}</li>
                         </ul>
                     </div>
                     <div className="border-t border-gray-300 my-4"></div>
 
                     <div className="mb-4 flex gap-4 ">
                         <h4 className="font-semibold">Additional Instructions</h4>
-                        <p>Please install the post at the curb in front of the property.</p>
+                        <p>{data.additionalInstructions || "No additional instructions provided."}</p>
                     </div>
                     <div className="border-t border-gray-300 my-4"></div>
 
                     <div className="mb-4">
                         <p>Post signs start at $50 as first payment and a $15.00 monthly recurring fee which will be removed during the post order removal request submission.</p>
                     </div>
-                    <div className=" mt-6">
+                    <div className="mt-6">
                         <p className="font-bold">THANK YOU</p>
                     </div>
                     <div className='my-4'>
-                        <img src="/logo.png" alt="" />
+                        <img src="/logo.png" alt="Company Logo" />
                     </div>
                 </div>
             </div>
         </>
-    )
+    );
 }
 
-export default PostOrderInvoice
+export default PostOrderInvoice;

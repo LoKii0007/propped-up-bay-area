@@ -1,50 +1,68 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import SignInwithGoogle from "./signInWithGoogle";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { registerUser } from "../api/auth";
 import ProppedUpLogo from "../ui/proppedUpLogo";
+import axios from "axios";
+import { UseGlobal } from "../context/GlobalContext";
 
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fname, setFname] = useState("");
-  const [lname, setLname] = useState("")
-  const [agreeTerms, setAgreeterms] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const { setCurrentUser, setUserLoggedIn, currentUser } = useContext(AuthContext);
+  const [lname, setLname] = useState("");
+  const [agreeTerms, setAgreeterms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { setCurrentUser, setUserLoggedIn, currentUser } =
+    useContext(AuthContext);
   const navigate = useNavigate();
+  const { baseUrl } = UseGlobal();
 
   async function handleRegister(e) {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     const userData = {
       firstName: fname,
       lastName: lname,
       email: email,
       password: password,
+    };
+    console.log("userdata", userData);
+    try {
+      const res = await axios.post(`${baseUrl}/auth/signUp`, userData, {
+        withCredentials: true,
+      });
+      if (res.status === 400) {
+        toast.error("user with the email already exist");
+        return;
+      } else if (res.status === 201) {
+        toast.success("User registered successfully");
+        setCurrentUser(res.data.user);
+        setUserLoggedIn(true);
+        navigate("/signup/details", { state: { user: res.data.user } });
+      } else {
+        toast.error("something went wrong");
+      }
+    } catch (error) {
+      toast.error("something went wrong");
+    }finally{
+    setLoading(false);
     }
-
-    const res = await registerUser(userData);
-    if(res.status === 400){
-      toast.error("user with the email already exist");
-      return;
-    }
-    else if (res.status === 201) {
-      toast.success("User registered successfully")
-      setCurrentUser(res.data.user)
-      setUserLoggedIn(true)
-      navigate("/signup/details", {state : {user : res.data.user}})
-    } else {
-      toast.error('something went wrong')
-    }
-    setLoading(false)
   }
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/");
+    } else if (currentUser && !currentUser.profileCompleted) {
+      navigate("/signup/details");
+    }
+  }, []);
 
   return (
     <>
-      <ProppedUpLogo/>
+      <ProppedUpLogo />
       <div className="min-h-screen flex items-center justify-center bg-[#4c9a2a10]">
         <div className="flex bg-white shadow-lg rounded-[20px] w-[90%] md:w-[80%] lg:w-[70%] justify-center items-center">
           <div className="signup-client w-[90%] md:w-[90%] lg:w-3/4 flex justify-center items-center py-10 gap-8">
@@ -52,7 +70,7 @@ function Register() {
             <div className="hidden md:flex md:w-1/2">
               <img
                 className=" h-full md:min-w-[340px] "
-                src="/signup-bg.png"  // Replace with the path to your image
+                src="/signup-bg.png" // Replace with the path to your image
                 alt="House"
               />
             </div>
@@ -60,7 +78,11 @@ function Register() {
             {/* Form section */}
             <div className="w-[90%] md:w-1/2 py-10">
               <div className="flex justify-center items-center gap-5">
-                <img src="/logo.png" alt="Propped up Logo" className="h-10 mb-4" />
+                <img
+                  src="/logo.png"
+                  alt="Propped up Logo"
+                  className="h-10 mb-4"
+                />
                 <h3 className="text-2xl font-semibold">Propped up</h3>
               </div>
 
@@ -98,7 +120,12 @@ function Register() {
                 />
 
                 <div className="flex items-center mt-2 px-2 ">
-                  <input onChange={(e) => setAgreeterms(e.target.value)} type="checkbox" className="h-4 w-4 text-green-600" required />
+                  <input
+                    onChange={(e) => setAgreeterms(e.target.value)}
+                    type="checkbox"
+                    className="h-4 w-4 text-green-600"
+                    required
+                  />
                   <label className="ml-2 text-sm text-gray-600">
                     By proceeding you agree to the{" "}
                     <a href="/terms" className="text-green-600 hover:underline">
@@ -116,13 +143,13 @@ function Register() {
                 </button>
               </form>
 
-              <div className="grid grid-cols-3 text-[12px] my-4" >
-                <div className="justify-center items-center flex w-full " >
-                  <div className="h-[1px] w-3/4 bg-gray-300 " ></div>
+              <div className="grid grid-cols-3 text-[12px] my-4">
+                <div className="justify-center items-center flex w-full ">
+                  <div className="h-[1px] w-3/4 bg-gray-300 "></div>
                 </div>
-                <p className="text-center" >Or signup with</p>
-                <div className="justify-center items-center flex w-full " >
-                  <div className="h-[1px] w-3/4 bg-gray-300 " ></div>
+                <p className="text-center">Or signup with</p>
+                <div className="justify-center items-center flex w-full ">
+                  <div className="h-[1px] w-3/4 bg-gray-300 "></div>
                 </div>
               </div>
               <div className="flex justify-center space-x-4">

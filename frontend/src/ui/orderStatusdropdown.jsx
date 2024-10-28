@@ -2,7 +2,7 @@ import React from 'react'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 
-function OrderStatusdropdown({handleOrderType}) {
+function OrderStatusdropdown({handleOrderType, filterType}) {
     return (
         <>
             <Menu as="div" className="relative inline-block py-1">
@@ -21,7 +21,7 @@ function OrderStatusdropdown({handleOrderType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
-                                    className=''
+                                className={`${filterType=== 'all' && ' text-[#638856] font-semibold ' } py-2 `}
                                     onClick={() => {
                                         handleOrderType('all');
                                         close(); // Closes the dropdown
@@ -34,6 +34,7 @@ function OrderStatusdropdown({handleOrderType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
+                                className={`${filterType=== 'pending' && ' text-[#638856] font-semibold ' } py-2 `}
                                     onClick={() => {
                                         handleOrderType('pending');
                                         close(); // Closes the dropdown
@@ -46,6 +47,7 @@ function OrderStatusdropdown({handleOrderType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
+                                className={`${filterType=== 'installed' && ' text-[#638856] font-semibold ' } py-2 `}
                                     onClick={() => {
                                         handleOrderType('installed');
                                         close(); // Closes the dropdown
@@ -58,6 +60,7 @@ function OrderStatusdropdown({handleOrderType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
+                                className={`${filterType=== 'completed' && ' text-[#638856] font-semibold ' } py-2 `}
                                     onClick={() => {
                                         handleOrderType('completed');
                                         close(); // Closes the dropdown

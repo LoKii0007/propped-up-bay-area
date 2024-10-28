@@ -11,7 +11,7 @@ const OpenHouseForm = () => {
     lastName: "",
     email: "",
     phone: "",
-    firstEventDate: "",
+    requestedDate: "",
     firstEventStartTime: "",
     firstEventEndTime: "",
     firstEventAddress: {
@@ -63,7 +63,7 @@ const OpenHouseForm = () => {
       ...formData,
       [name]: value,
     });
-    if (name === "firstEventDate") {
+    if (name === "requestedDate") {
       checkRushFee(value);
     }
   };
@@ -169,10 +169,10 @@ const OpenHouseForm = () => {
   }, []);
 
   useEffect(() => {
-    if (formData.firstEventDate) {
-      checkRushFee(formData.firstEventDate);
+    if (formData.requestedDate) {
+      checkRushFee(formData.requestedDate);
     }
-  }, [currentTime, formData.firstEventDate]);
+  }, [currentTime, formData.requestedDate]);
 
   // ----------------------------------
   // calculating total price
@@ -246,7 +246,7 @@ const OpenHouseForm = () => {
       formData.lastName,
       formData.email,
       formData.phone,
-      formData.firstEventDate,
+      formData.requestedDate,
       formData.firstEventStartTime,
       formData.firstEventEndTime,
       formData.firstEventAddress.streetAddress,
@@ -371,8 +371,8 @@ const OpenHouseForm = () => {
           </label>
           <input
             type="date"
-            name="firstEventDate"
-            value={formData.firstEventDate}
+            name="requestedDate"
+            value={formData.requestedDate}
             onChange={handleInputChange}
             required
             className="border border-gray-300 p-2 rounded"

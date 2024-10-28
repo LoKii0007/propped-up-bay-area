@@ -72,10 +72,23 @@ const createOpenHouseOrderApi = async (req, res) => {
       total
     } = req.body;
 
-    //TODO: Validate total
+    // Validate total
+    if (!total || typeof total !== "number" || total <= 0) {
+      return res.status(400).json({ message: "Invalid total amount" });
+    }
+
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "User not authorized" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const order = await openHouseSchema.create({
-      userId: req.user.userId,
+      userId,
       type,
       firstName,
       lastName,
@@ -85,89 +98,57 @@ const createOpenHouseOrderApi = async (req, res) => {
       firstEventStartTime,
       firstEventEndTime,
       firstEventAddress: {
-        streetAddress: firstEventAddress.streetAddress,
-        streetAddress2: firstEventAddress.streetAddress2,
-        city: firstEventAddress.city,
-        state: firstEventAddress.state,
-        postalCode: firstEventAddress.postalCode,
+        streetAddress: firstEventAddress?.streetAddress,
+        streetAddress2: firstEventAddress?.streetAddress2,
+        city: firstEventAddress?.city,
+        state: firstEventAddress?.state,
+        postalCode: firstEventAddress?.postalCode,
       },
       requiredZone: {
-        name: requiredZone.name,
-        text: requiredZone.text,
-        price: requiredZone.price,
-        resetPrice: requiredZone.resetPrice,
+        name: requiredZone?.name,
+        text: requiredZone?.text,
+        price: requiredZone?.price,
+        resetPrice: requiredZone?.resetPrice,
       },
       pickSign,
       additionalSignQuantity,
       twilightTourSlot,
       printAddressSign,
       printAddress: {
-        streetAddress: printAddress.streetAddress,
-        streetAddress2: printAddress.streetAddress2,
-        city: printAddress.city,
-        state: printAddress.state,
-        postalCode: printAddress.postalCode,
+        streetAddress: printAddress?.streetAddress,
+        streetAddress2: printAddress?.streetAddress2,
+        city: printAddress?.city,
+        state: printAddress?.state,
+        postalCode: printAddress?.postalCode,
       },
       additionalInstructions,
       total,
     });
 
+    // Increment totalOrders by 1 and totalSpent by total using $inc
+    await User.findByIdAndUpdate(userId, {
+      $inc: { totalOrders: 1, totalSpent: total }
+    });
+
     res.status(200).json({ order, message: "Order created successfully" });
   } catch (error) {
     console.error("Order creation error:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Error creating order" });
   }
 };
 
-
-//? ---------------------------
-//? -------get openHouseOrderApi
-//? ---------------------------
-const getOpenHouseOrderApi = async (req, res)=>{
-  try {
-    const orders = await openHouseSchema.find({userId : req.user.userId})
-    console.log('orders:',orders)
-    if(!orders){
-      console.log('no order found')
-      return res.status(400).json({message:'no order found'})
-    }
-    return res.status(200).json({orders})
-  } catch (error) {
-    console.log('error in get openhouseapi', error.message)
-    return res.status(500).json({message : 'error in get openhouseapi', error:error.message})
-  }
-}
-
-//? ---------------------------
-//? -------get postOrder API
-//? ---------------------------
-const getPostOrderApi = async (req, res)=>{
-  try {
-    const orders = await postOrderSchema.findById(req.user.userId)
-    if(!orders){
-      console.log('no order found')
-      return res.status(400).json({message:'no order found'})
-    }
-    return res.status(200).json({orders})
-  } catch (error) {
-    console.log('error in get openhouseapi', error.message)
-    return res.status(200).json({message : 'error in get openhouseapi', error:error.message})
-  }
-}
-
-//? ---------------------------
-//? -------create postOrderApi
-//? ---------------------------
+//? ------------------------------------------
+//? -------- createPostOrderApi -------------
+//? ------------------------------------------
 const createPostOrderApi = async (req, res) => {
   try {
-    // Destructure form data from request body
     const {
       type,
       firstName,
       lastName,
       email,
       phone,
-      neededByDate,
+      requestedDate,
       listingAddress,
       billingAddress,
       requiredZone,
@@ -180,19 +161,49 @@ const createPostOrderApi = async (req, res) => {
       riders,
     } = req.body;
 
-    //TODO: Validate total
-    // Create a new form document with the provided data and user ID from middleware
+    // Validate total
+    if (!total || typeof total !== "number" || total <= 0) {
+      return res.status(400).json({ message: "Invalid total amount" });
+    }
+
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "User not authorized" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const newForm = new postOrderSchema({
-      userId: req.user.userId,
+      userId,
       type,
       firstName,
       lastName,
       email,
       phone,
-      neededByDate,
-      listingAddress,
-      billingAddress,
-      requiredZone,
+      requestedDate,
+      listingAddress: {
+        streetAddress: listingAddress?.streetAddress,
+        streetAddress2: listingAddress?.streetAddress2,
+        city: listingAddress?.city,
+        state: listingAddress?.state,
+        postalCode: listingAddress?.postalCode,
+      },
+      billingAddress: {
+        streetAddress: billingAddress?.streetAddress,
+        streetAddress2: billingAddress?.streetAddress2,
+        city: billingAddress?.city,
+        state: billingAddress?.state,
+        postalCode: billingAddress?.postalCode,
+      },
+      requiredZone: {
+        name: requiredZone?.name,
+        text: requiredZone?.text,
+        price: requiredZone?.price,
+        resetPrice: requiredZone?.resetPrice,
+      },
       additionalInstructions,
       total,
       postColor,
@@ -202,12 +213,74 @@ const createPostOrderApi = async (req, res) => {
       riders,
     });
 
-    // Save the form to the database
     const savedForm = await newForm.save();
-    res.status(201).json(savedForm);
+
+    // Increment totalOrders by 1 and totalSpent by total using $inc
+    await User.findByIdAndUpdate(userId, {
+      $inc: { totalOrders: 1, totalSpent: total }
+    });
+
+    res.status(201).json({ savedForm, message: "Post order created successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error creating form", error });
+    console.error("Error creating post order:", error);
+    res.status(500).json({ message: "Error creating post order", error: error.message });
+  }
+};
+
+
+//? ---------------------------
+//? -------get openHouseOrderApi
+//? ---------------------------
+const getOpenHouseOrderApi = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authorized' });
+    }
+
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const orders = await openHouseSchema.find({ userId });
+    if (!orders.length) { // Check if orders array is empty
+      console.log('No order found');
+      return res.status(404).json({ message: 'No order found' });
+    }
+
+    return res.status(200).json({ orders });
+  } catch (error) {
+    console.log('Error in getOpenHouseOrderApi', error.message);
+    return res.status(500).json({ message: 'Error in getOpenHouseOrderApi', error: error.message });
+  }
+};
+
+//? ---------------------------
+//? -------getPostOrderApi-----
+//? ---------------------------
+const getPostOrderApi = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authorized' });
+    }
+
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const orders = await postOrderSchema.find({ userId });
+    if (!orders.length) { // Check if orders array is empty
+      console.log('No order found');
+      return res.status(404).json({ message: 'No order found' });
+    }
+
+    return res.status(200).json({ orders });
+  } catch (error) {
+    console.log('Error in getPostOrderApi', error.message);
+    return res.status(500).json({ message: 'Error in getPostOrderApi', error: error.message });
   }
 };
 
@@ -229,64 +302,99 @@ const postRemovalApi = async (req, res) =>{
 //? ---------------------------
 //? -------update Orders Api
 //? ---------------------------
-const upadteOrderApi = async(req, res) => {
+const updateOrderApi = async(req, res) => {
   try {
-    const {orderType, userId, orderStatus} = req.body
+    const {orderId , orderStatus, orderType} = req.body
     // Find the user and check their status
     const user = await User.findById(req.user.userId);
     if (!user || (user.status !== 'admin' && user.status !== 'superuser')) {
-      return res.status(403).json({ msg: 'Unauthorized' });
+      return res.status(403).json({ message: 'Unauthorized' });
     }
 
     if (orderType === 'openHouse') {
       
       const updatedOrder = await openHouseSchema.findByIdAndUpdate(
-        userId,
-        { oStatus: orderStatus },
+        orderId,
+        { status: orderStatus },
         { new: true } 
       )
 
       if (!updatedOrder) {
-        return res.status(404).json({ msg: 'Order not found' });
+        return res.status(404).json({ message: 'Order not found' });
       }
 
-      return res.status(200).json({ msg: 'Order updated successfully!', order: updatedOrder })
-    }
-
-    else if (orderType === 'postOrder') {
+      return res.status(200).json({ message: 'Order updated successfully!', order: updatedOrder })
+    }else if (orderType === 'postOrder') {
       
       const updatedOrder = await postOrderSchema.findByIdAndUpdate(
-        userId,
-        { oStatus: orderStatus },
+        orderId,
+        { status: orderStatus },
         { new: true } 
       )
 
       if (!updatedOrder) {
-        return res.status(404).json({ msg: 'Order not found' });
+        return res.status(404).json({ message: 'Order not found' });
       }
 
-      return res.status(200).json({ msg: 'Order updated successfully!', order: updatedOrder })
+      return res.status(200).json({ message: 'Order updated successfully!', order: updatedOrder })
     }
 
     else if (orderType === 'postRemoval') {
       
       const updatedOrder = await postRemovalSchema.findByIdAndUpdate(
-        userId,
-        { oStatus: orderStatus },
+        orderId,
+        { status: orderStatus },
         { new: true } 
       )
 
       if (!updatedOrder) {
-        return res.status(404).json({ msg: 'Order not found' });
+        return res.status(404).json({ message: 'Order not found' });
       }
 
-      return res.status(200).json({ msg: 'Order updated successfully!', order: updatedOrder })
+      return res.status(200).json({ message: 'Order updated successfully!', order: updatedOrder })
     }
-    return res.status(400).json({ msg: 'Invalid order type' })
+    return res.status(400).json({ message: 'Invalid order type' })
   } catch (error) {
     console.log('error in update orders api', error.message)
-    return res.status(500).json({msg : 'error in update orders api'})
+    return res.status(500).json({message : 'error in update orders api'})
   }
 }
 
-module.exports = { createOpenHouseOrderApi , getOpenHouseOrderApi, getPostOrderApi , postRemovalApi , createPostOrderApi, upadteOrderApi }
+
+//? ---------------------------
+//? -------get all Orders API
+//? ---------------------------
+const getAllOrdersApi = async (req, res) => {
+  let orders = [];
+  try {
+    const user = await User.findById(req.user.userId)
+    if(!user){
+      return res.status(401).json({ message: 'unauthorized' });
+    }
+
+    if(user.role !== 'superuser' && user.role !== 'admin' ){
+      return res.status(401).json({ message: 'unauthorized' });
+    }
+
+    const page = parseInt(req.query.page) || 1; // Get page number from query, default to 1
+    const limit = parseInt(req.query.limit) || 10; // Get limit from query, default to 10
+    const skip = (page - 1) * limit; // Calculate how many orders to skip
+
+    const openHouseOrders = await openHouseSchema.find().skip(skip).limit(limit);
+    const postOrders = await postOrderSchema.find().skip(skip).limit(limit);
+    
+    orders.push(...openHouseOrders, ...postOrders);
+
+    if (orders.length === 0) {
+      console.log('No orders found');
+      return res.status(404).json({ message: 'No orders found' });
+    }
+
+    return res.status(200).json({ orders, message:'orders found .' });
+  } catch (error) {
+    console.log('Error in getAllOrdersApi', error.message);
+    return res.status(500).json({ message: 'Error in getAllOrdersApi', error: error.message });
+  }
+};
+
+module.exports = { createOpenHouseOrderApi , getOpenHouseOrderApi, getPostOrderApi , postRemovalApi , createPostOrderApi, updateOrderApi, getAllOrdersApi }

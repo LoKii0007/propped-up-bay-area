@@ -12,7 +12,7 @@ const formSchema = new Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true },
   phone: { type: String, required: true },
-  neededByDate: { type: Date, required: true },
+  requestedDate: { type: Date, required: true },
 
   listingAddress: {
     streetAddress: { type: String, required: true },
@@ -51,6 +51,11 @@ const formSchema = new Schema({
     openSun: { type: Number, default: 0 },
     doNotDisturb: { type: Number, default: 0 },
   },
+  status : {
+    type:String,
+    enum : ['pending', 'completed', 'installed'],
+    default : 'pending'
+  }
 });
 
 const postOrderSchema = mongoose.model("postOrderForm", formSchema);
