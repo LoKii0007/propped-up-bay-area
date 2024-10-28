@@ -205,7 +205,7 @@ const login = async (req, res) => {
     res.cookie("authToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Only set secure flag in production
-      sameSite: "Lax",
+      sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30 ,
       // path : '/'
     });
