@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProppedUpLogo from "../ui/proppedUpLogo";
-import Cookies from "js-cookie";
 import LoginWithGoogle from "./LoginWithGoogle";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
@@ -34,7 +33,6 @@ function Login() {
         { withCredentials: true }
       );
       if (res.status === 200) {
-        // Cookies.set("authToken", res.data.token); //setting cookie
         //? navigate to signup details if profile completed is false
         if (!res.data.user.profileCompleted) {
           navigate("/signup/details", { state: { user: res.data.user } });
