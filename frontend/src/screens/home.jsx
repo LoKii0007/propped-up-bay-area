@@ -41,13 +41,13 @@ const Home = () => {
   //? ------------------------------
   //? updating render on currentuser
   //? ------------------------------
-  useEffect(() => {
-    if (!currentUser) {
-      handleLogin()
-    } else if (!currentUser.profileCompleted) {
-      navigate("/signup/details");
-    }
-  }, [currentUser]);
+  // useEffect(() => {
+  //   if (!currentUser) {
+  //     handleLogin()
+  //   } else if (!currentUser.profileCompleted) {
+  //     navigate("/signup/details");
+  //   }
+  // }, [currentUser]);
 
   //? ------------------------------
   //? logging user by authtoken

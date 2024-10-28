@@ -16,13 +16,13 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const {baseUrl} = UseGlobal()
 
-  useEffect(() => {
-    const token = Cookies.get("authToken");
-    console.log("token ", token);
-    if (token) {
-      navigate("/"); // Redirect to home if token exists
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = Cookies.get("authToken");
+  //   console.log("token ", token);
+  //   if (token) {
+  //     navigate("/"); // Redirect to home if token exists
+  //   }
+  // }, [navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,7 +34,7 @@ function Login() {
         { withCredentials: true }
       );
       if (res.status === 200) {
-        Cookies.set("authToken", res.data.token); //setting cookie
+        // Cookies.set("authToken", res.data.token); //setting cookie
         //? navigate to signup details if profile completed is false
         if (!res.data.user.profileCompleted) {
           navigate("/signup/details", { state: { user: res.data.user } });

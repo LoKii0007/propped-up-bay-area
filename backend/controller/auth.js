@@ -216,6 +216,43 @@ const login = async (req, res) => {
   }
 };
 
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password, googleId } = req.body;
+
+    const user = await User.findOne({ email });     // Check if user exists
+    if (!user || user.satus !== 'admin' ) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    if(password){
+      const isMatch = bcrypt.compare(password, user.password); // Check password match
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+    }
+    if(googleId){
+      if (user.googleId !== googleId) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Only set secure flag in production
+      sameSite: "Lax",
+      maxAge: 1000 * 60 * 60 * 24 * 30 ,
+      // path : '/'
+    });
+    res.status(200).json({ token: token, user: user });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "login Server error" });
+  }
+};
+
 
 //?------------------------------
 //? login by authtoken
@@ -310,5 +347,6 @@ module.exports = {
   getUserByToken,
   updateUserDetails,
   updatePassword,
-  getAllUsersApi
+  getAllUsersApi,
+  adminLogin
 };

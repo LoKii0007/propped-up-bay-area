@@ -52,13 +52,13 @@ function Register() {
     }
   }
 
-  useEffect(() => {
-    if (currentUser) {
-      navigate("/");
-    } else if (currentUser && !currentUser.profileCompleted) {
-      navigate("/signup/details");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     navigate("/");
+  //   } else if (currentUser && !currentUser.profileCompleted) {
+  //     navigate("/signup/details");
+  //   }
+  // }, []);
 
   return (
     <>
