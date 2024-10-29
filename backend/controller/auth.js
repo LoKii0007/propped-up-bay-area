@@ -206,13 +206,13 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
-    // res.cookie("authToken", token, {
-    //   // httpOnly: true,
-    //   secure : true, // Only set secure flag in production
-    //   sameSite: "None",
-    //   maxAge: 1000 * 60 * 60 * 24 * 30 ,
-    //   // path : '/'
-    // });
+    res.cookie("authToken", token, {
+      // httpOnly: true,
+      secure : true, // Only set secure flag in production
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24 * 30 ,
+      // path : '/'
+    });
     res.status(200).json({ token: token, user: user });
   } catch (error) {
     console.error(error.message);
