@@ -229,7 +229,7 @@ const adminLogin = async (req, res) => {
 
     const user = await User.findOne({ email });     // Check if user exists
     if (!user || user.satus !== 'admin' ) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "unauthorized" });
     }
 
     if(password){
