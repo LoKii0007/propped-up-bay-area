@@ -53,13 +53,13 @@ const Home = () => {
   //? logging user by authtoken
   //? ------------------------------
   async function handleLogin(){
-    const res = await getUserByToken()
-    if (res.status === 200) {
-      setCurrentUser(res.data.user);
-      console.info("logged in");
-    }else{
-      navigate("/login");
-    }
+    // const res = await getUserByToken()
+    // if (res.status === 200) {
+    //   setCurrentUser(res.data.user);
+    //   console.info("logged in");
+    // }else{
+    //   navigate("/login");
+    // }
   }
   
   useEffect( () => {
