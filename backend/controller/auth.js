@@ -232,7 +232,7 @@ const adminLogin = async (req, res) => {
       return res.status(400).json({ message: "user not found" });
     }
 
-    if (user.status !== 'admin' ) {
+    if (user.role !== 'admin' ) {
       return res.status(400).json({ message: "unauthorized" });
     }
 
