@@ -115,13 +115,13 @@ function ClientDetails({ users }) {
               <div className="order-top text-[#718096] grid grid-cols-4 px-5 gap-2">
                 <RowHeading
                   setFilteredData={setFilteredUsers}
-                  filterValue={""}
+                  filterValue={"firstName lastName"}
                   data={filteredUsers}
                   text="Username"
                 />
                 <RowHeading
                   setFilteredData={setFilteredUsers}
-                  filterValue={""}
+                  filterValue={"email"}
                   data={filteredUsers}
                   text="Email"
                 />
@@ -133,13 +133,13 @@ function ClientDetails({ users }) {
                 /> */}
                 <RowHeading
                   setFilteredData={setFilteredUsers}
-                  filterValue={""}
+                  filterValue={"totalOrders"}
                   data={filteredUsers}
                   text="Orders"
                 />
                 <RowHeading
                   setFilteredData={setFilteredUsers}
-                  filterValue={""}
+                  filterValue={"totalSpent"}
                   data={filteredUsers}
                   text="Spent"
                 />

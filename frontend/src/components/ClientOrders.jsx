@@ -22,7 +22,7 @@ function ClieentOrders({orders}) {
   //? ------------------------
   //? pagination
   //? ------------------------
-  const [displayCount, setDisplayCount] = useState(3);
+  const [displayCount, setDisplayCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(
     Math.ceil(orders.length / displayCount)

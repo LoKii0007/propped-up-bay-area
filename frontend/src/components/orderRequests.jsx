@@ -267,7 +267,7 @@ function OrderRequests() {
                 <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
-                  filterValue={"totalSpent"}
+                  filterValue={"total"}
                   text="Amount"
                 />
                 <RowHeading

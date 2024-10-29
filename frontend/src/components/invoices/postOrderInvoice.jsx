@@ -68,7 +68,7 @@ function PostOrderInvoice({ data }) {
                     <div className="border-t border-gray-300 my-4"></div>
 
                     <div className="mb-4">
-                        <p>Post signs start at $50 as first payment and a $15.00 monthly recurring fee which will be removed during the post order removal request submission.</p>
+                        <p>Post signs start at ${data.total} as first payment and a $15.00 monthly recurring fee which will be removed during the post order removal request submission.</p>
                     </div>
                     <div className="mt-6">
                         <p className="font-bold">THANK YOU</p>

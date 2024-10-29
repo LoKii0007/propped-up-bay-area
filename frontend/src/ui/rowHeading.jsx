@@ -8,7 +8,7 @@ function RowHeading({ text, setFilteredData, data, filterValue }) {
     //  ?---------------------------
     const handleSort = () => {
         setIsAscending(!isAscending);
-    }
+    };
 
     useEffect(() => {
         const sortedData = [...data].sort((a, b) => {
@@ -19,13 +19,19 @@ function RowHeading({ text, setFilteredData, data, filterValue }) {
                 valA = (a.firstName + ' ' + a.lastName).toLowerCase();
                 valB = (b.firstName + ' ' + b.lastName).toLowerCase();
             } else {
-                valA = a[filterValue]?.toLowerCase() || '';
-                valB = b[filterValue]?.toLowerCase() || '';
+                valA = a[filterValue];
+                valB = b[filterValue];
             }
 
-            return isAscending
-                ? valA.localeCompare(valB)
-                : valB.localeCompare(valA);
+            // Check if values are numbers
+            if (typeof valA === 'number' && typeof valB === 'number') {
+                return isAscending ? valA - valB : valB - valA;
+            } else {
+                // Fallback to string comparison for non-numeric fields
+                return isAscending
+                    ? String(valA).toLowerCase().localeCompare(String(valB).toLowerCase())
+                    : String(valB).toLowerCase().localeCompare(String(valA).toLowerCase());
+            }
         });
 
         setFilteredData(sortedData); // Update the sorted data in parent
