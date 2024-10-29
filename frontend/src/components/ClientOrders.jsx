@@ -5,13 +5,10 @@ import RowHeading from "../ui/rowHeading";
 import OrderTypeDropdown from "../ui/orderTypeDropdown";
 import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
-import { sampleOrder } from "../data/staticData";
 import toast from "react-hot-toast";
-import { getOpenHouseOrder, getpostOrder } from "../api/orders";
 import { parseDate } from "../helpers/utilities";
 
-function ClieentOrders() {
-  const [orders, setOrders] = useState([]);
+function ClieentOrders({orders}) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
@@ -21,32 +18,6 @@ function ClieentOrders() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [completeOrder, setCompleteOrder] = useState('')
-
-  //? ----------------------------------
-  //? loading orders
-  //?  ---------------------------------
-  async function handleOrders() {
-    const [openHouseOrderResponse, postOrderResponse] = await Promise.all([
-      getOpenHouseOrder(),
-      getpostOrder(),
-    ]);
-    // if(openHouseOrderResponse.status !== 200 || postOrderResponse !== 200 ){
-    //   toast.error('something went wrong ')
-    //   return
-    // }
-    const combinedOrders = [
-      ...openHouseOrderResponse.data.orders,
-      ...postOrderResponse.data.orders,
-    ];
-    setOrders(combinedOrders);
-    setFilteredOrders(combinedOrders);
-    setTotalPages(Math.ceil(combinedOrders.length / displayCount));
-    console.log("res : ", filteredOrders);
-  }
-
-  useEffect(() => {
-    handleOrders();
-  }, []);
 
   //? ------------------------
   //? pagination

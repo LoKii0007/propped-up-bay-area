@@ -52,6 +52,6 @@ const signUpDetailsSchema = new mongoose.Schema({
   },
 });
 
-const SignUpDetails = mongoose.model("SignUpDetails", signUpDetailsSchema);
+const UserDetails = mongoose.model("userDetails", signUpDetailsSchema);
 
-module.exports = SignUpDetails;
+module.exports = UserDetails;

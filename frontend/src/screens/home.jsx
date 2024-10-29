@@ -10,12 +10,14 @@ import { UseGlobal } from "../context/GlobalContext";
 import ClieentOrders from "../components/ClientOrders";
 import { useNavigate } from "react-router-dom";
 import EditProfileForm from "../components/profile";
-import { getUserByToken } from "../api/auth";
+import { getOpenHouseOrder, getpostOrder } from "../api/orders";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard");
   const { currentUser, setCurrentUser } = useAuth();
   const { breadCrumb, setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const [orders, setOrders] = useState([]);
+
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -52,7 +54,7 @@ const Home = () => {
   //? ------------------------------
   //? logging user by authtoken
   //? ------------------------------
-  async function handleLogin(){
+  async function handleLogin() {
     // const res = await getUserByToken()
     // if (res.status === 200) {
     //   setCurrentUser(res.data.user);
@@ -61,10 +63,36 @@ const Home = () => {
     //   navigate("/login");
     // }
   }
-  
-  useEffect( () => {
-    handleLogin()
-  }, []);
+
+  //? ----------------------------------
+  //? loading orders
+  //?  ---------------------------------
+  async function handleOrders() {
+    const [openHouseOrderResponse, postOrderResponse] = await Promise.all([
+      getOpenHouseOrder(),
+      getpostOrder(),
+    ]);
+    // if(openHouseOrderResponse.status !== 200 || postOrderResponse !== 200 ){
+    //   toast.error('something went wrong ')
+    //   return
+    // }
+    const combinedOrders = [
+      ...openHouseOrderResponse.data.orders,
+      ...postOrderResponse.data.orders,
+    ];
+    setOrders(combinedOrders);
+    console.log("res : ", combinedOrders);
+  }
+
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+    if (currentUser) {
+      handleOrders();
+    }
+  }, [currentUser]);
 
   return (
     <>
@@ -100,7 +128,7 @@ const Home = () => {
             </div>
           </div>
           <div className="active-bottom h-[87vh] overflow-y-auto p-7">
-            {activeView === "dashboard" && <ClieentOrders />}
+            {activeView === "dashboard" && <ClieentOrders orders={orders} />}
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval />}
             {activeView === "profile" && <EditProfileForm />}

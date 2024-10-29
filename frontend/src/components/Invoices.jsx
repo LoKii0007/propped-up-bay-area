@@ -105,7 +105,7 @@ function Invoices() {
   //? ---------------------------
   function handleInvoice(index) {
     const details = filteredInvoices[index];
-    console.log("details : " , details);
+    console.log("details : ", details);
     if (details) {
       setBreadCrumb("Invoice info"); //updating breadcrumb
       setInvoiceData(details);
@@ -191,43 +191,47 @@ function Invoices() {
   //? download - single invoice
   //? -----------------------
   function handleSingleDownload(data) {
-    const container = document.createElement("div");
-    container.style.display = "none";
-    document.body.appendChild(container);
+    try {
+      const container = document.createElement("div");
+      container.style.display = "none";
+      document.body.appendChild(container);
 
-    // let root = createRoot(container)
+      // let root = createRoot(container)
 
-    // Render the appropriate component based on the invoice type
-    if (data.type === InvoiceTypes.OPENHOUSE) {
-      const element = <OpenHouseInvoice data={data} />;
-      ReactDOM.render(element, container);
-    } else if (data.type === InvoiceTypes.POSTORDER) {
-      const element = <PostOrderInvoice data={data} />;
-      ReactDOM.render(element, container);
+      // Render the appropriate component based on the invoice type
+      if (data.type.toLowerCase() === InvoiceTypes.OPENHOUSE.toLowerCase()) {
+        const element = <OpenHouseInvoice data={data} />;
+        ReactDOM.render(element, container);
+      } else if (data.type === InvoiceTypes.POSTORDER) {
+        const element = <PostOrderInvoice data={data} />;
+        ReactDOM.render(element, container);
+      } else {
+        toast.error("Download failed. Please try again");
+        return;
+      }
+
+      const invoiceElement = container.firstChild;
+      const filename = `${data.type}_invoice.pdf`;
+
+      const opt = {
+        margin: 1,
+        filename: filename,
+        html2canvas: { scale: 2 },
+      };
+
+      html2pdf()
+        .from(invoiceElement)
+        .set(opt)
+        .save()
+        .then(() => {
+          toast.success(`Downloaded ${filename}`);
+          ReactDOM.unmountComponentAtNode(container); // Unmount and cleanup
+          document.body.removeChild(container);
+        });
+    } catch (error) {
+      toast.error("something went wrong");
+      console.error("PDF Generation Error:", error);
     }
-
-    const invoiceElement = container.firstChild;
-    const filename = `${data.type}_invoice.pdf`;
-
-    const opt = {
-      margin: 1,
-      filename: filename,
-      html2canvas: { scale: 2 },
-    };
-
-    html2pdf()
-      .from(invoiceElement)
-      .set(opt)
-      .save()
-      .then(() => {
-        toast.success(`Downloaded ${filename}`);
-        ReactDOM.unmountComponentAtNode(container); // Unmount and cleanup
-        document.body.removeChild(container);
-      })
-      .catch((error) => {
-        toast.error("something went wrong");
-        console.error("PDF Generation Error:", error);
-      });
   }
 
   //? ---------------------------
@@ -375,8 +379,7 @@ function Invoices() {
                       onClick={() => handleSingleDownload(data)}
                       className="text-left bg-[#34CAA5] px-5 w-fit rounded-md"
                     >
-                      {" "}
-                      Download{" "}
+                      Download
                     </button>
                   </div>
                 ))}

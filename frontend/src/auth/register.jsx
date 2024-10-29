@@ -46,7 +46,7 @@ function Register() {
         toast.error("signup failed. Please try again");
       }
     } catch (error) {
-      toast.error("signup failed. Please try again");
+      toast.error("signup failed. Please try again..");
     } finally {
       setLoading(false);
     }

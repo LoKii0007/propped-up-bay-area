@@ -20,6 +20,7 @@ Routes.patch('/auth/updatePassword', verifyUser, updatePassword ) // updating pa
 //? -----------------------------
 Routes.post('/auth/signUp/details',verifyUser, userDetails) //user details for complete signup
 Routes.patch('/update/signUp/details',verifyUser, updateUserDetails) // updation of user details
+Routes.get('/api/get/userDetails',verifyUser, userDetails) //user details for complete signup
 
 
 //? -----------------------------

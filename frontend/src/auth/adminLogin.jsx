@@ -111,14 +111,14 @@ const AdminLogin = () => {
                 </div>
                 <div className="mt-8">
                   <button
-                    className="bg-gray-400 w-full text-[13px] text-white py-[16px] px-4 rounded-lg hover:bg-gray-800 focus:outline-none focus:shadow-outline flex items-center justify-center"
+                    className="bg-gray-900 w-full text-[13px] text-white py-[16px] px-4 rounded-lg hover:bg-gray-800 focus:outline-none focus:shadow-outline flex items-center justify-center"
                     type="submit"
                     disabled={loading}
                   >
                     {loading ? (
                       <div className="flex items-center justify-center">
                         <div
-                          className="spinner-border animate-spin inline-block w-4 h-4 border-4 border-t-transparent border-gray-900 rounded-full"
+                          className="spinner-border animate-spin inline-block w-4 h-4 border-4 border-t-transparent border-gray-100 rounded-full"
                           role="status"
                           aria-hidden="true"
                         ></div>

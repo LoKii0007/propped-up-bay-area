@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const baseUrl = 'http://localhost:5000'
-// const baseUrl = 'https://propped-up-bay-area-1.onrender.com'
+// const baseUrl = 'http://localhost:5000'
+const baseUrl = 'https://propped-up-backend.vercel.app'
 
 //? signup
 export const registerUser = async (userData) => {
