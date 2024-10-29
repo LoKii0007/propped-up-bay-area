@@ -228,7 +228,11 @@ const adminLogin = async (req, res) => {
     const { email, password, googleId } = req.body;
 
     const user = await User.findOne({ email });     // Check if user exists
-    if (!user || user.satus !== 'admin' ) {
+    if (!user) {
+      return res.status(400).json({ message: "user not found" });
+    }
+    
+    if (user.satus !== 'admin' ) {
       return res.status(400).json({ message: "unauthorized" });
     }
 
