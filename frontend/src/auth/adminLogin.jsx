@@ -35,6 +35,7 @@ const AdminLogin = () => {
         toast.error(response.data.message);
       }
     } catch (err) {
+      toast.error(response.data.message || 'Login failed. Please try again');
       console.log('login failed : ',err.message)
     } finally {
       setLoading(false);

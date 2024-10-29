@@ -211,7 +211,6 @@ const login = async (req, res) => {
       secure : true, // Only set secure flag in production
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30 ,
-      // path : '/'
     });
     res.status(200).json({ token: token, user: user });
   } catch (error) {

@@ -15,7 +15,6 @@ Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/updatePassword', verifyUser, updatePassword ) // updating pass
 
 
-
 //? -----------------------------
 //? user details routes
 //? -----------------------------
@@ -41,7 +40,6 @@ Routes.get('/api/orders/getAll',verifyUser, getAllOrdersApi) // get all user ord
 Routes.patch('/api/orders/update',verifyUser, updateOrderApi) // updation of user orders
 Routes.get('/api/users',verifyUser, getAllUsersApi) // updation of user orders
 Routes.post('/auth/adminLogin', adminLogin) // custom login
-
 
 
 //? -----------------------------
