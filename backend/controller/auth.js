@@ -180,6 +180,7 @@ const updateUserDetails = async (req, res) => {
 //? login
 //?------------------------------
 const login = async (req, res) => {
+  console.log('login')
   try {
     const { email, password, googleId } = req.body;
 
