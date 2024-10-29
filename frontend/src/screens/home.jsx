@@ -11,12 +11,14 @@ import ClieentOrders from "../components/ClientOrders";
 import { useNavigate } from "react-router-dom";
 import EditProfileForm from "../components/profile";
 import { getOpenHouseOrder, getpostOrder } from "../api/orders";
+import toast from "react-hot-toast";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard");
   const { currentUser, setCurrentUser } = useAuth();
-  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo , baseUrl} = UseGlobal();
   const [orders, setOrders] = useState([]);
+  const [userDetails, setUserDetails] = useState({});
 
   const navigate = useNavigate();
 
@@ -39,17 +41,6 @@ const Home = () => {
     if (isInfo) setIsInfo(false);
     if (breadCrumb !== activeView) setBreadCrumb(activeView);
   }
-
-  //? ------------------------------
-  //? updating render on currentuser
-  //? ------------------------------
-  // useEffect(() => {
-  //   if (!currentUser) {
-  //     handleLogin()
-  //   } else if (!currentUser.profileCompleted) {
-  //     navigate("/signup/details");
-  //   }
-  // }, [currentUser]);
 
   //? ------------------------------
   //? logging user by authtoken
@@ -84,6 +75,31 @@ const Home = () => {
     console.log("res : ", combinedOrders);
   }
 
+
+    //? ----------------------------------
+  //? loading userDetails
+  //?  ---------------------------------
+  async function handleUserDetails(){
+    try {
+      const res = await axios.get(`${baseUrl}/api/get/userDetails`, {withCredentials : true})
+
+      if(res.status === 200 ){
+        setUserDetails(res.data.userDetails)
+      }
+      else if(res.status === 404){
+        toast.error(res.data.message || 'user or user details not found')
+      }
+      else if (res.status === 400){
+        toast.error(res.data.message || 'error fetching user details')
+      }else{
+        console.log('error fetching user details', error.message)
+      }
+    } catch (error) {
+      toast.error('error fetching user details.')
+      console.log(error.message)
+    }
+  }
+
   useEffect(() => {
     if (!currentUser) {
       navigate("/login");
@@ -91,6 +107,7 @@ const Home = () => {
     }
     if (currentUser) {
       handleOrders();
+      handleUserDetails()
     }
   }, [currentUser]);
 
@@ -131,7 +148,7 @@ const Home = () => {
             {activeView === "dashboard" && <ClieentOrders orders={orders} />}
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval />}
-            {activeView === "profile" && <EditProfileForm />}
+            {activeView === "profile" && <EditProfileForm userDetails={userDetails} user={currentUser} />}
             {activeView === "payment info" && <CardDetails />}
           </div>
         </div>

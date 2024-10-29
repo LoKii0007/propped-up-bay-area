@@ -144,7 +144,7 @@ const updateUserDetails = async (req, res) => {
     } = req.body;
 
     // Find and update user details if they exist, otherwise create a new record
-    const profileComplete = await SignUpDetails.findOneAndUpdate(
+    const profileComplete = await UserDetails.findOneAndUpdate(
       { userId },
       {
         company,
@@ -370,7 +370,7 @@ const getUserDetailsApi = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
     if (!user.profileCompleted) {
-      return res.status(404).json({ message: "signup not complete" });
+      return res.status(400).json({ message: "signup not complete" });
     }
 
     const userDetails = await UserDetails.find(userId);

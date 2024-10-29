@@ -1,23 +1,27 @@
 import { useState } from "react";
+import { UseGlobal } from "../context/GlobalContext";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-const EditProfileForm = () => {
-  // Initial form data state
+const EditProfileForm = ({userDetails, user}) => {
   const [formData, setFormData] = useState({
-    firstName: "Miron ",
-    lastName: "vitold",
-    country: "USA",
-    stateRegion: "New York",
-    mobilePhone: 55748327439,
-    workPhone: 55748327439,
-    address2: "House #25",
-    email: "miron.vitold@devias.io",
-    zipCode: 122017,
-    caDreLicense: "something",
+    firstName: userDetails?.firstName,
+    lastName: userDetails?.lastName,
+    country: userDetails?.country,
+    stateRegion: userDetails?.stateRegion,
+    mobilePhone: userDetails?.mobilePhone,
+    workPhone: userDetails?.workPhone,
+    email: user.email,
+    zipCode: userDetails?.zipCode,
+    caDreLicense: userDetails?.caDreLicense,
+    address : userDetails?.address
   });
 
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [textNotifications, setTextNotifications] = useState(true);
-  const [isEditing, setIsEditing] = useState(false); // Track whether form is in edit mode or not
+  const [emailNotifications, setEmailNotifications] = useState(userDetails?.receiveEmailNotifications|| false);
+  const [textNotifications, setTextNotifications] = useState(userDetails?.receiveTextNotifications || false);
+  const [isEditing, setIsEditing] = useState(false);
+  const {baseUrl} = UseGlobal()
+  const [loading, setLoading] = useState(false)
 
   // Handle form input change
   const handleInputChange = (e) => {
@@ -28,10 +32,24 @@ const EditProfileForm = () => {
   };
 
   // Handle update profile (save and disable form)
-  const handleUpdateProfile = () => {
-    // Save changes and disable form
-    setIsEditing(false);
-    console.log("Updated Profile:", formData); // Send this data to a backend API or handle it
+  const handleUpdateProfile = async () => {
+    setLoading(true)
+    try {
+      const data = {...formData,receiveEmailNotifications:emailNotifications, receiveTextNotifications : textNotifications }
+      const res = await axios.patch(`${baseUrl}/api/update/userDetails`, data, {withCredentials:true})
+      if(res.status === 200){
+        toast.success('Profile updated successfully.')
+      }else{
+        toast.error(res.data.message)
+      }
+    } catch (error) {
+      console.log('Profile update failed',error.message )
+      toast.error('Profile update failed. Please try again',)
+    }finally{
+      setIsEditing(false);
+      console.log("Updated Profile:", formData);
+      setLoading(false)
+    }
   };
 
   // Handle edit mode
@@ -123,9 +141,9 @@ const EditProfileForm = () => {
             <label className="text-[#6C737F] block text-xs ">Address</label>
             <input
               type="text"
-              name="address2"
+              name="address"
               className="w-full  "
-              value={formData.address2}
+              value={formData.address}
               onChange={handleInputChange}
               disabled={!isEditing}
             />

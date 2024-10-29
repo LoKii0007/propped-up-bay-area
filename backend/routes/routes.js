@@ -1,6 +1,6 @@
 const express = require('express')
 const { stripePayment, stripeWebhook, stripeSubscription } = require('../controller/paymentServer')
-const { signUp, login, userDetails, getUserByToken, updateUserDetails, updatePassword, getAllUsersApi, adminLogin } = require('../controller/auth')
+const { signUp, login, userDetails, getUserByToken, updateUserDetails, updatePassword, getAllUsersApi, adminLogin, getUserDetailsApi } = require('../controller/auth')
 const { postRemovalApi, createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
 const verifyUser = require('../utilities/middleware')
 const Routes = express.Router()
@@ -19,8 +19,8 @@ Routes.patch('/auth/updatePassword', verifyUser, updatePassword ) // updating pa
 //? user details routes
 //? -----------------------------
 Routes.post('/auth/signUp/details',verifyUser, userDetails) //user details for complete signup
-Routes.patch('/update/signUp/details',verifyUser, updateUserDetails) // updation of user details
-Routes.get('/api/get/userDetails',verifyUser, userDetails) //user details for complete signup
+Routes.patch('/api/update/userDetails',verifyUser, updateUserDetails) // updation of user details
+Routes.get('/api/get/userDetails',verifyUser, getUserDetailsApi) //user details for complete signup
 
 
 //? -----------------------------
