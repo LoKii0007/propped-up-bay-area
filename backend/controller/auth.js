@@ -35,7 +35,7 @@ const signUp = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
     res.cookie("authToken", token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure : true,
       sameSite: "None",
       maxAge : 1000 * 60 * 60 *24 * 30
@@ -206,7 +206,7 @@ const login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
     res.cookie("authToken", token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure : true, // Only set secure flag in production
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30 ,
@@ -219,6 +219,10 @@ const login = async (req, res) => {
   }
 };
 
+
+//?------------------------------
+//? admin login
+//?------------------------------
 const adminLogin = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
@@ -243,7 +247,7 @@ const adminLogin = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
     res.cookie("authToken", token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure : true, // Only set secure flag in production
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30 ,

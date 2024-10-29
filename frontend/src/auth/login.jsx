@@ -47,7 +47,7 @@ function Login() {
       }
     } catch (error) {
       toast.error("Login failed. Please try again");
-      console.log("something went wrong, try again later", error);
+      console.log("something went wrong, try again later", error.message);
     }
     setLoading(false);
   }
