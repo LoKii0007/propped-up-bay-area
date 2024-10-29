@@ -42,6 +42,64 @@ function OrderInfo({ order }) {
               <span>Email:</span> {order.email}
             </p>
 
+            {order.type === "openHouse" && (
+              <>
+                <p className="text-md grid grid-cols-2">
+                  <span className="">Phone Number:</span> {order.mobilePhone}
+                </p>
+                <p className="text-md grid grid-cols-2">
+                  <span className="">First Event Date:</span>{" "}
+                  {order.requestedDate}
+                </p>
+                <p className="text-md grid grid-cols-2">
+                  <span className="">First Event Start Time:</span>{" "}
+                  {order.firstEventStartTime}
+                </p>
+                <p className="text-md grid grid-cols-2">
+                  <span className="">First Event End Time:</span>{" "}
+                  {order.firstEventEndTime}
+                </p>
+                <p className="text-md grid grid-cols-2">
+                  <span className="">Event Address:</span>{" "}
+                  {`${order.firstEventAddress.streetAddress}, ${order.firstEventAddress.city}, ${order.firstEventAddress.state} ${order.firstEventAddress.postalCode}`}
+                </p>
+                <p className="text-md grid grid-cols-2">
+                  <span className="">Zone:</span> {order.requiredZone.name} (
+                  {order.requiredZone.text})
+                </p>
+                <p className="text-md grid grid-cols-2">
+                  <span className="">Additional Signs:</span>{" "}
+                  {order.additionalSignQuantity}
+                </p>
+                {order.twilightTourSlot && (
+                  <p className="text-md grid grid-cols-2">
+                    <span className="">Twilight Tour Slot:</span>{" "}
+                    {order.twilightTourSlot}
+                  </p>
+                )}
+                {order.printAddressSign && (
+                  <>
+                    <p className="text-md grid grid-cols-2">
+                      <span className="">Print Address Sign:</span> Yes
+                    </p>
+                    <p className="text-md grid grid-cols-2">
+                      <span className="">Print Address:</span>{" "}
+                      {`{order.printAddress.streetAddress}, ${order.printAddress.city}, ${order.printAddress.state} ${order.printAddress.postalCode}`}
+                    </p>
+                  </>
+                )}
+                {order.additionalInstructions && (
+                  <p className="text-md grid grid-cols-2">
+                    <span className="">Additional Instructions:</span>{" "}
+                    {order.additionalInstructions}
+                  </p>
+                )}
+                <p className="text-md grid grid-cols-2">
+                  <span className="">Total:</span> ${order.total}
+                </p>
+              </>
+            )}
+
             {order.type === "postOrder" && (
               <>
                 <p className="text-md grid grid-cols-2">
@@ -51,15 +109,18 @@ function OrderInfo({ order }) {
                   <span>Requested Date:</span> {order.requestedDate}
                 </p>
                 <p className="text-md grid grid-cols-2">
-                  <span>Listing Address:</span> {`${order.listingAddress.streetAddress}, ${order.listingAddress.city}, ${order.listingAddress.state} ${order.listingAddress.postalCode}`}
+                  <span>Listing Address:</span>{" "}
+                  {`${order.listingAddress.streetAddress}, ${order.listingAddress.city}, ${order.listingAddress.state} ${order.listingAddress.postalCode}`}
                 </p>
                 <p className="text-md grid grid-cols-2">
-                  <span>Billing Address:</span> {`${order.billingAddress.streetAddress}, ${order.billingAddress.city}, ${order.billingAddress.state} ${order.billingAddress.postalCode}`}
+                  <span>Billing Address:</span>{" "}
+                  {`${order.billingAddress.streetAddress}, ${order.billingAddress.city}, ${order.billingAddress.state} ${order.billingAddress.postalCode}`}
                 </p>
                 <p className="text-md grid grid-cols-2">
-                  <span>Zone:</span> {order.requiredZone.name} ({order.requiredZone.text})
+                  <span>Zone:</span> {order.requiredZone.name} (
+                  {order.requiredZone.text})
                 </p>
-                
+
                 {order.postColor && (
                   <p className="text-md grid grid-cols-2">
                     <span>Post Color:</span> {order.postColor}
@@ -80,7 +141,7 @@ function OrderInfo({ order }) {
                     <span>Number of Posts:</span> {order.numberOfPosts}
                   </p>
                 )}
-                
+
                 <p className="text-md grid grid-cols-2">
                   <span>Status:</span> {order.status}
                 </p>
@@ -91,16 +152,18 @@ function OrderInfo({ order }) {
                     {Object.entries(order.riders).map(([rider, count]) =>
                       count > 0 ? (
                         <p key={rider}>
-                          {rider.charAt(0).toUpperCase() + rider.slice(1)}: {count}
+                          {rider.charAt(0).toUpperCase() + rider.slice(1)}:{" "}
+                          {count}
                         </p>
                       ) : null
                     )}
                   </div>
                 </div>
-                
+
                 {order.additionalInstructions && (
                   <p className="text-md grid grid-cols-2">
-                    <span>Additional Instructions:</span> {order.additionalInstructions}
+                    <span>Additional Instructions:</span>{" "}
+                    {order.additionalInstructions}
                   </p>
                 )}
                 <p className="text-md grid grid-cols-2">
