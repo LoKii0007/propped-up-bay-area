@@ -24,7 +24,7 @@ const AdminLogin = () => {
 
     try {
       const response = await axios.post(
-        `${baseUrl}/auth/login`,
+        `${baseUrl}/auth/adminLogin`,
         { email, password },
         { withCredentials: true }
       );
@@ -51,10 +51,10 @@ const AdminLogin = () => {
 
   return (
     <>
-      {/* <div className="fixed flex top-0 left-0 py-6 px-8 w-full h-full bg-transparent">
+      <div className="fixed flex top-0 left-0 py-6 px-8 bg-transparent">
         <img src="/logo.png" alt="Logo" className="h-8 mr-2" />
         <h2 className="text-2xl text-[26.3px] poppinns-font font-semibold text-[#ffffff]">Propped up</h2>
-      </div> */}
+      </div>
 
       <div className=" font-inter flex h-screen bg-[#1E5631] w-svw justify-center items-center">
         <div className="flex h-[80%] w-[80%] bg-white rounded-[20px] justify-center items-center">
