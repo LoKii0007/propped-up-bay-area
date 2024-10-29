@@ -1,6 +1,6 @@
 const express = require('express')
 const { stripePayment, stripeWebhook, stripeSubscription } = require('../controller/paymentServer')
-const { signUp, login, userDetails, getUserByToken, updateUserDetails, updatePassword, getAllUsersApi, adminLogin, getUserDetailsApi } = require('../controller/auth')
+const { signUp, login, userDetails, getUserByToken, updateUserDetails, updatePassword, getAllUsersApi, adminLogin, getUserDetailsApi, signOutApi } = require('../controller/auth')
 const { postRemovalApi, createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
 const verifyUser = require('../utilities/middleware')
 const Routes = express.Router()
@@ -13,6 +13,7 @@ Routes.post('/auth/signUp', signUp) // initial signup
 Routes.post('/auth/login', login) // custom login
 Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/updatePassword', verifyUser, updatePassword ) // updating pass
+Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 
 
 //? -----------------------------

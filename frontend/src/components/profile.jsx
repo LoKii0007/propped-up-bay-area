@@ -4,19 +4,21 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const EditProfileForm = ({userDetails, user}) => {
-  const [formData, setFormData] = useState({
-    firstName: userDetails?.firstName,
-    lastName: userDetails?.lastName,
-    country: userDetails?.country,
-    stateRegion: userDetails?.stateRegion,
+  
+  const initialState = {
+    firstName: user?.firstName,
+    lastName: user?.lastName,
+    company: userDetails?.company,
+    state: userDetails?.state,
     mobilePhone: userDetails?.mobilePhone,
     workPhone: userDetails?.workPhone,
     email: user.email,
     zipCode: userDetails?.zipCode,
     caDreLicense: userDetails?.caDreLicense,
     address : userDetails?.address
-  });
+  }
 
+  const [formData, setFormData] = useState(initialState);
   const [emailNotifications, setEmailNotifications] = useState(userDetails?.receiveEmailNotifications|| false);
   const [textNotifications, setTextNotifications] = useState(userDetails?.receiveTextNotifications || false);
   const [isEditing, setIsEditing] = useState(false);
@@ -56,6 +58,12 @@ const EditProfileForm = ({userDetails, user}) => {
   const enableEditMode = () => {
     setIsEditing(true);
   };
+
+  function handleCancel(){
+    setIsEditing(false)
+    setFormData(initialState)
+  }
+  
 
   return (
     <div className="bg-white rounded-lg p-12 mx-auto">
@@ -103,12 +111,12 @@ const EditProfileForm = ({userDetails, user}) => {
           </div>
 
           <div className="mt-1 p-2  block w-full border rounded-md border-[#E5E7EB ] ">
-            <label className="text-[#6C737F] block text-xs ">Country</label>
+            <label className="text-[#6C737F] block text-xs ">company</label>
             <input
               type="text"
-              name="country"
+              name="company"
               className="w-full  "
-              value={formData.country}
+              value={formData.company}
               onChange={handleInputChange}
               disabled={!isEditing}
             />
@@ -117,9 +125,9 @@ const EditProfileForm = ({userDetails, user}) => {
             <label className="text-[#6C737F] block text-xs ">State/Region</label>
             <input
               type="text"
-              name="stateRegion"
+              name="state"
               className="w-full  "
-              value={formData.stateRegion}
+              value={formData.state}
               onChange={handleInputChange}
               disabled={!isEditing}
             />
@@ -221,7 +229,7 @@ const EditProfileForm = ({userDetails, user}) => {
           )}
           <button
             type="button"
-            onClick={() => setIsEditing(false)} // Cancel editing
+            onClick={() => handleCancel()} // Cancel editing
             className="text-gray-700 font-semibold px-4 py-2 rounded-md hover:"
           >
             Cancel
@@ -230,6 +238,6 @@ const EditProfileForm = ({userDetails, user}) => {
       </form>
     </div>
   );
-};
+}
 
 export default EditProfileForm;

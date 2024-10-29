@@ -84,7 +84,7 @@ const Home = () => {
       const res = await axios.get(`${baseUrl}/api/get/userDetails`, {withCredentials : true})
 
       if(res.status === 200 ){
-        setUserDetails(res.data.userDetails)
+        setUserDetails(res.data.userDetails[0])
       }
       else if(res.status === 404){
         toast.error(res.data.message || 'user or user details not found')
@@ -113,7 +113,7 @@ const Home = () => {
       handleOrders();
       handleUserDetails()
     }
-  }, [currentUser]);
+  }, [currentUser, setCurrentUser]);
 
   return (
     <>

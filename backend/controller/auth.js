@@ -391,6 +391,31 @@ const updateUserDetails = async (req, res) => {
     });
   }
 };
+
+const signOutApi = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is missing" });
+    }
+
+    // Clear the authToken cookie, specifying the domain for cross-site compatibility
+    res.clearCookie("authToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None", // Allows cross-site cookie usage
+      domain: ".https://propped-up-bay-area.vercel.app.com", 
+    });
+
+    // Send response indicating sign-out success
+    return res.status(200).json({ message: "Successfully signed out" });
+  } catch (error) {
+    console.error("Error in signOutApi:", error);
+    return res.status(500).json({ message: "Server error during sign-out" });
+  }
+};
+
+
 module.exports = {
   signUp,
   login,
@@ -400,5 +425,6 @@ module.exports = {
   updatePassword,
   getAllUsersApi,
   adminLogin,
-  getUserDetailsApi
+  getUserDetailsApi,
+  signOutApi
 };
