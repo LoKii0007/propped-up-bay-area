@@ -113,74 +113,6 @@ const userDetails = async (req, res) => {
 };
 
 //?------------------------------
-//? update user details
-//?------------------------------
-const updateUserDetails = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(400).json({ message: "user not found." });
-    }
-
-    if (!user.profileCompleted) {
-      return res
-        .status(400)
-        .json({ message: "please finish your signup process." });
-    }
-
-    const {
-      company,
-      caDreLicense,
-      address,
-      city,
-      state,
-      zipCode,
-      workPhone,
-      mobilePhone,
-      receiveEmailNotifications,
-      receiveTextNotifications,
-    } = req.body;
-
-    // Find and update user details if they exist, otherwise create a new record
-    const profileComplete = await UserDetails.findOneAndUpdate(
-      { userId },
-      {
-        company,
-        caDreLicense,
-        address,
-        city,
-        state,
-        zipCode,
-        workPhone,
-        mobilePhone,
-        receiveEmailNotifications: receiveEmailNotifications || false, // default to false if not provided
-        receiveTextNotifications: receiveTextNotifications || false, // default to false if not provided
-      },
-      { new: true, upsert: true } // upsert creates a new record if none exists
-    );
-
-    if (!profileComplete) {
-      return res.status(500).json({
-        message: "User details could not be updated",
-      });
-    }
-
-    return res.status(200).json({
-      message: "User details updated successfully",
-      profileComplete,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "User details could not be updated",
-      error: error.message,
-    });
-  }
-};
-
-//?------------------------------
 //? login
 //?------------------------------
 const login = async (req, res) => {
@@ -365,7 +297,7 @@ const getUserDetailsApi = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    const user = await User.findById(userId).select("-password"); // Exclude sensitive fields like password
+    const user = await User.findById(userId).select("-password"); // Exclude password
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -373,7 +305,7 @@ const getUserDetailsApi = async (req, res) => {
       return res.status(400).json({ message: "signup not complete" });
     }
 
-    const userDetails = await UserDetails.find(userId);
+    const userDetails = await UserDetails.find({userId});
     if (!userDetails) {
       return res.status(404).json({ message: "User details not found." });
     }
@@ -391,6 +323,74 @@ const getUserDetailsApi = async (req, res) => {
   }
 };
 
+
+//?------------------------------
+//? update user details
+//?------------------------------
+const updateUserDetails = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "user not found." });
+    }
+
+    if (!user.profileCompleted) {
+      return res
+        .status(400)
+        .json({ message: "please finish your signup process." });
+    }
+
+    const {
+      company,
+      caDreLicense,
+      address,
+      city,
+      state,
+      zipCode,
+      workPhone,
+      mobilePhone,
+      receiveEmailNotifications,
+      receiveTextNotifications,
+    } = req.body;
+
+    // Find and update user details if they exist, otherwise create a new record
+    const profileComplete = await UserDetails.findOneAndUpdate(
+      { userId },
+      {
+        company,
+        caDreLicense,
+        address,
+        city,
+        state,
+        zipCode,
+        workPhone,
+        mobilePhone,
+        receiveEmailNotifications: receiveEmailNotifications || false, // default to false if not provided
+        receiveTextNotifications: receiveTextNotifications || false, // default to false if not provided
+      },
+      { new: true, upsert: true } // upsert creates a new record if none exists
+    );
+
+    if (!profileComplete) {
+      return res.status(500).json({
+        message: "User details could not be updated",
+      });
+    }
+
+    return res.status(200).json({
+      message: "User details updated successfully",
+      profileComplete,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "User details could not be updated",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   signUp,
   login,

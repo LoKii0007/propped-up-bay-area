@@ -106,6 +106,10 @@ const Home = () => {
       return;
     }
     if (currentUser) {
+      if(!currentUser.profileCompleted){
+        navigate('/signup/details')
+        return
+      }
       handleOrders();
       handleUserDetails()
     }
