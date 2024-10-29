@@ -43,12 +43,12 @@ function Register() {
         setUserLoggedIn(true);
         navigate("/signup/details", { state: { user: res.data.user } });
       } else {
-        toast.error("something went wrong");
+        toast.error("signup failed. Please try again");
       }
     } catch (error) {
-      toast.error("something went wrong");
-    }finally{
-    setLoading(false);
+      toast.error("signup failed. Please try again");
+    } finally {
+      setLoading(false);
     }
   }
 

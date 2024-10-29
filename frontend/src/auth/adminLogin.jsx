@@ -30,7 +30,7 @@ const AdminLogin = () => {
       );
       if (response.status === 200) {
         toast.success("Login successful");
-        setAdmin(response.data);
+        setAdmin(response.data.user);
       } else {
         toast.error(response.data.message);
       }

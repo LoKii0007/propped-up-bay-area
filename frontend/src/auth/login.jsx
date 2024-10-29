@@ -13,7 +13,7 @@ function Login() {
   const navigate = useNavigate();
   const { setCurrentUser, setUserLoggedIn, currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
-  const {baseUrl} = UseGlobal()
+  const { baseUrl } = UseGlobal();
 
   // useEffect(() => {
   //   const token = Cookies.get("authToken");
@@ -109,7 +109,7 @@ function Login() {
               </form>
               <div className="grid grid-cols-3 text-[12px] ">
                 <div className="justify-center items-center flex w-full ">
-                <div className="h-[1px] w-3/4 bg-gray-300 "></div>
+                  <div className="h-[1px] w-3/4 bg-gray-300 "></div>
                 </div>
                 <p className="text-center">Or Login with</p>
                 <div className="justify-center items-center flex w-full ">
