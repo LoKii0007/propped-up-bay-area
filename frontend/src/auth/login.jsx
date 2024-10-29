@@ -43,11 +43,11 @@ function Login() {
         toast.success("User logged in Successfully");
         navigate("/"); //? navigate to home page
       } else {
-        toast.error("something went wrong, try again later");
+        toast.error("Login failed. Please try again");
       }
     } catch (error) {
-      toast.error("something went wrong, try again later");
-      console.log("something went wrong, try again later");
+      toast.error("Login failed. Please try again");
+      console.log("something went wrong, try again later", error);
     }
     setLoading(false);
   }
