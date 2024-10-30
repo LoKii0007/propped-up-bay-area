@@ -46,7 +46,16 @@ const signUp = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
-    res.status(201).json({ token, user });
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    delete userResponse.__v;
+    delete userResponse.createdAt
+    delete userResponse.updatedAt
+    delete userResponse.totalOrders
+    delete userResponse.totalSpent
+    delete userResponse._id
+
+    res.status(201).json({msg:'user saved', user });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: "signup Server error" });
@@ -100,8 +109,7 @@ const userDetails = async (req, res) => {
     );
 
     return res.status(201).json({
-      message: "User details saved successfully",
-      profileComplete,
+      message: "User details saved successfully"
     });
   } catch (error) {
     console.error(error);
@@ -120,9 +128,9 @@ const login = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
 
-    const user = await User.findOne({ email }); // Check if user exists
+    const user = await User.findOne({ email }).select('-_id -password -__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "user not found" });
     }
 
     if (!password && !googleId) {
@@ -148,7 +156,7 @@ const login = async (req, res) => {
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
-    res.status(200).json({ token: token, user: user });
+    res.status(200).json({ user });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: "login Server error" });
@@ -162,7 +170,7 @@ const adminLogin = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
 
-    const user = await User.findOne({ email }); // Check if user exists
+    const user = await User.findOne({ email }).select('-_id -password -__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
     if (!user) {
       return res.status(400).json({ message: "user not found" });
     }
@@ -192,7 +200,7 @@ const adminLogin = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       // path : '/'
     });
-    res.status(200).json({ token: token, user: user });
+    res.status(200).json({ user, message : 'logged in' });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: "login Server error" });
@@ -204,7 +212,7 @@ const adminLogin = async (req, res) => {
 //?------------------------------
 const getUserByToken = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select("-password -_id");
+    const user = await User.findById(req.user.userId).select("-_id -password -__v -createdAt -updatedAt -totalOrders -totalSpent");
     if (!res) {
       return res.status(400).json({ messsage: "no user found" });
     }
