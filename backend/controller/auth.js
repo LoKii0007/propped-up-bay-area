@@ -380,7 +380,7 @@ const signOutApi = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "None", // Allows cross-site cookie usage
-      domain: ".https://propped-up-bay-area.vercel.app.com", 
+      domain: "propped-up-bay-area.vercel.app", 
     });
 
     // Send response indicating sign-out success
