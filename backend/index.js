@@ -26,9 +26,7 @@ app.options('*', cors({
 }));
 
 //? compression
-app.use(compression({
-    level : 6
-}))
+// app.use(compression())
 
 app.use(express.static('public'))
 app.use(bodyParser.json())
