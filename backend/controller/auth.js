@@ -128,7 +128,7 @@ const login = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
 
-    const user = await User.findOne({ email }).select('-_id -password -__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
+    const user = await User.findOne({ email }).select('-__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
     if (!user) {
       return res.status(400).json({ message: "user not found" });
     }
@@ -170,7 +170,7 @@ const adminLogin = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
 
-    const user = await User.findOne({ email }).select('-_id -password -__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
+    const user = await User.findOne({ email }).select('-__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
     if (!user) {
       return res.status(400).json({ message: "user not found" });
     }
@@ -212,7 +212,7 @@ const adminLogin = async (req, res) => {
 //?------------------------------
 const getUserByToken = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select("-_id -password -__v -createdAt -updatedAt -totalOrders -totalSpent");
+    const user = await User.findById(req.user.userId).select("-password -__v -createdAt -updatedAt -totalOrders -totalSpent");
     if (!res) {
       return res.status(400).json({ messsage: "no user found" });
     }
