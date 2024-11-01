@@ -12,7 +12,7 @@ const Routes = express.Router()
 Routes.post('/auth/signUp', signUp) // initial signup
 Routes.post('/auth/login', login) // custom login
 Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
-Routes.patch('/auth/updatePassword', verifyUser, updatePassword ) // updating pass
+Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating pass
 Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 
 

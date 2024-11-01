@@ -156,7 +156,12 @@ const login = async (req, res) => {
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
-    res.status(200).json({ user });
+
+    const user2 = user.toObject()
+    delete user2._id
+    delete user2.password
+
+    res.status(200).json({ user : user2 });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: "login Server error" });
@@ -230,7 +235,7 @@ const getUserByToken = async (req, res) => {
 //?------------------------------
 const updatePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const { currentPass, newPass } = req.body;
 
     // Find the user by ID
     const user = await User.findById(req.user.userId);
@@ -239,14 +244,14 @@ const updatePassword = async (req, res) => {
     }
 
     // Check if the current password is correct
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    const isMatch = await bcrypt.compare(currentPass, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
     // Hash the new password
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    user.password = await bcrypt.hash(newPass, salt);
 
     // Save the updated user
     await user.save();
@@ -380,7 +385,7 @@ const signOutApi = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "None", // Allows cross-site cookie usage
-      domain: "propped-up-bay-area.vercel.app", 
+      domain: "propped-up-backend.vercel.app", 
     });
 
     // Send response indicating sign-out success
