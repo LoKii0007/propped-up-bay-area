@@ -13,7 +13,6 @@ import SignUpDetails from "./auth/signupDetails";
 function App() {
 
   const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
-  console.log('GOOGLE_OAUTH_CLIENT_ID', GOOGLE_OAUTH_CLIENT_ID)
 
   return (
     <>
