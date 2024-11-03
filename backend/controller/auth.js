@@ -222,7 +222,6 @@ const updateAdminDetails = async (req, res) => {
     if (lastName) user.lastName = lastName;
     if (email) user.email = email;
     if (phone) user.phone = phone;
-    if (profilePic) user.profilePic = profilePic; // Update profilePic only if a new file is uploaded
 
     await user.save(); // Save updated user details to the database
 
