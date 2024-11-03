@@ -47,19 +47,16 @@ const Home = () => {
   //? loading orders
   //?  ---------------------------------
   async function handleOrders() {
-    const [openHouseOrderResponse, postOrderResponse] = await Promise.all([
-      getOpenHouseOrder(),
-      getpostOrder(),
-    ]);
-    // if(openHouseOrderResponse.status !== 200 || postOrderResponse !== 200 ){
-    //   toast.error('something went wrong ')
-    //   return
-    // }
-    setPostOrders(postOrderResponse.data.orders)
-    const combinedOrders = [
-      ...openHouseOrderResponse.data.orders,
-      ...postOrderResponse.data.orders,
-    ];
+    const openHouseOrderResponse = await getOpenHouseOrder()
+    const postOrderResponse = await getpostOrder();
+    let combinedOrders
+    if(postOrderResponse.status === 200){
+      combinedOrders = [...postOrderResponse.data.orders];
+      setPostOrders(postOrderResponse.data.orders)
+    }
+    if(openHouseOrderResponse.status === 200){
+      combinedOrders = [(prev)=> [...prev, ...openHouseOrderResponse.data.orders]]
+    }
     setOrders(combinedOrders);
     console.log("res : ", combinedOrders);
   }
