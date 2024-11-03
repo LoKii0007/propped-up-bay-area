@@ -4,7 +4,8 @@ const { postOrderSchema } = require("../models/postOrderSchema");
 require("dotenv").config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const frontendUrl = "http://localhost:5173";
+// const frontendUrl = "http://localhost:5173";
+const frontendUrl = "https://propped-up-bay-area.vercel.app";
 
 //? ----------------------------
 //? stripe one time payment for openHouse
