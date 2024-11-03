@@ -208,9 +208,8 @@ const updatePassword = async (req, res) => {
 //?------------------------------
 const updateAdminDetails = async (req, res) => {
   try {
-    const { userId } = req.user.userId ; // Extract userId from token middleware 
+    const userId = req.user.userId ; // Extract userId from token middleware 
     const { firstName, lastName, email, phone } = req.body;
-    const profilePic = req.file?.path; // Assuming profilePic is uploaded using multer
 
     // Find the admin user by ID
     const user = await SuperUser.findById(userId);

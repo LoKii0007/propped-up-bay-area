@@ -306,7 +306,7 @@ const updateOrderApi = async(req, res) => {
 
 
 //? ---------------------------
-//? -------get all Orders API
+//? -------get all Orders API --admin 
 //? ---------------------------
 const getAllOrdersApi = async (req, res) => {
   let orders = [];
