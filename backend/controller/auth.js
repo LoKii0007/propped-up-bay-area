@@ -1,8 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const SignUpDetails = require("../models/userDetails");
-const UserDetails = require("../models/userDetails");
+const SuperUser = require("../models/superUser");
 
 //?------------------------------
 //? signup
@@ -14,7 +13,7 @@ const signUp = async (req, res) => {
     // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ msg: "User already exists" });
     }
 
     let newUserData = { firstName, lastName, email };
@@ -29,7 +28,7 @@ const signUp = async (req, res) => {
     } else {
       return res
         .status(400)
-        .json({ message: "Password or Google ID required" });
+        .json({ msg: "Password or Google ID required" });
     }
 
     // Create new user
@@ -58,65 +57,7 @@ const signUp = async (req, res) => {
     res.status(201).json({msg:'user saved', user });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: "signup Server error" });
-  }
-};
-
-//?------------------------------
-//? create user details for signup
-//?------------------------------
-const userDetails = async (req, res) => {
-  try {
-    const {
-      company,
-      caDreLicense,
-      address,
-      city,
-      state,
-      zipCode,
-      workPhone,
-      mobilePhone,
-      receiveEmailNotifications,
-      receiveTextNotifications,
-    } = req.body;
-
-    const userId = req.user.userId;
-    // Creaing a new record with the signup details
-    const profileComplete = await SignUpDetails.create({
-      userId,
-      company,
-      caDreLicense,
-      address,
-      city,
-      state,
-      zipCode,
-      workPhone,
-      mobilePhone,
-      receiveEmailNotifications: receiveEmailNotifications || false, // default to false if not provided
-      receiveTextNotifications: receiveTextNotifications || false, // default to false if not provided
-    });
-
-    if (!profileComplete) {
-      return res.status(500).json({
-        message: "User details could not be saved",
-      });
-    }
-
-    const statusUpdated = await User.findByIdAndUpdate(
-      userId,
-      { profileCompleted: true },
-      { new: true }
-    );
-
-    return res.status(201).json({
-      message: "User details saved successfully"
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "User details could not be saved",
-      error: error.message,
-    });
+    res.status(500).json({ msg: "signup Server error" });
   }
 };
 
@@ -130,21 +71,21 @@ const login = async (req, res) => {
 
     const user = await User.findOne({ email }).select('-__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
     if (!user) {
-      return res.status(400).json({ message: "user not found" });
+      return res.status(400).json({ msg: "user not found" });
     }
 
     if (!password && !googleId) {
-      return res.status(400).json({ message: "Please provide credentials" });
+      return res.status(400).json({ msg: "Please provide credentials" });
     }
     if (password) {
       const isMatch = await bcrypt.compare(password, user.password); // Check password match
       if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ msg: "Invalid credentials" });
       }
     }
     if (googleId) {
       if (user.googleId !== googleId) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ msg: "Invalid credentials" });
       }
     }
 
@@ -164,7 +105,7 @@ const login = async (req, res) => {
     res.status(200).json({ user : user2 });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: "login Server error" });
+    res.status(500).json({ msg: "login Server error" });
   }
 };
 
@@ -175,24 +116,24 @@ const adminLogin = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
 
-    const user = await User.findOne({ email }).select('-__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
+    const user = await SuperUser.findOne({ email }).select('-__v -createdAt') // Check if user exists
     if (!user) {
-      return res.status(400).json({ message: "user not found" });
+      return res.status(400).json({ msg: "user not found" });
     }
 
     if (user.role !== "admin") {
-      return res.status(400).json({ message: "unauthorized" });
+      return res.status(400).json({ msg: "unauthorized" });
     }
 
     if (password) {
       const isMatch = bcrypt.compare(password, user.password); // Check password match
       if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ msg: "Invalid credentials" });
       }
     }
     if (googleId) {
       if (user.googleId !== googleId) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ msg: "Invalid credentials" });
       }
     }
 
@@ -203,12 +144,11 @@ const adminLogin = async (req, res) => {
       secure: true, // Only set secure flag in production
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30,
-      // path : '/'
     });
-    res.status(200).json({ user, message : 'logged in' });
+    res.status(200).json({ user, msg : 'logged in' });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: "login Server error" });
+    res.status(500).json({ msg: "login Server error" });
   }
 };
 
@@ -264,111 +204,35 @@ const updatePassword = async (req, res) => {
 };
 
 //?------------------------------
-//? getting all users
+//? update admin details
 //?------------------------------
-const getAllUsersApi = async (req, res) => {
+const updateAdminDetails = async (req, res) => {
   try {
-    // Find the requesting user
-    const requestingUser = await User.findById(req.user.userId);
-    if (!requestingUser) {
-      return res.status(401).json({ message: "Unauthorized" });
+    const { userId } = req.user.userId ; // Extract userId from token middleware 
+    const { firstName, lastName, email, phone } = req.body;
+    const profilePic = req.file?.path; // Assuming profilePic is uploaded using multer
+
+    // Find the admin user by ID
+    const user = await SuperUser.findById(userId);
+    if (!user || (user.role !== "admin" && user.role !== 'superuser')) {
+      return res.status(403).json({ message: "Unauthorized or user not found" });
     }
 
-    // Check if the requesting user has the necessary role
-    if (
-      requestingUser.role !== "superuser" &&
-      requestingUser.role !== "admin"
-    ) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    // Update fields if they exist in the request body
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (profilePic) user.profilePic = profilePic; // Update profilePic only if a new file is uploaded
 
-    // Set pagination parameters
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    await user.save(); // Save updated user details to the database
 
-    // Find users with pagination
-    const users = await User.find().skip(skip).limit(limit);
-
-    if (users.length === 0) {
-      return res.status(404).json({ message: "No users found" });
-    }
-
-    return res.status(200).json({ users, message: "Users found." });
-  } catch (error) {
-    console.log("Error in getAllUsersApi", error.message);
-    return res
-      .status(500)
-      .json({ message: "Error in getAllUsersApi", error: error.message });
-  }
-};
-
-//?------------------------------
-//? getting user details
-//?------------------------------
-const getUserDetailsApi = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-
-    const user = await User.findById(userId).select("-password"); // Exclude password
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-    if (!user.profileCompleted) {
-      return res.status(400).json({ message: "signup not complete" });
-    }
-
-    const userDetails = await UserDetails.find({userId});
-    if (!userDetails) {
-      return res.status(404).json({ message: "User details not found." });
-    }
-
-    return res.status(200).json({
-      message: "User details retrieved successfully",
-      userDetails,
-    });
+    res.status(200).json({ user, message: "Profile updated successfully" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      message: "Could not retrieve user details",
-      error: error.message,
-    });
+    res.status(500).json({ message: "Server error while updating profile" });
   }
 };
-
-
-//?------------------------------
-//? update user details
-//?------------------------------
-const updateUserDetails = async (req, res) => {
-  const userId = req.user.userId; // from middleware
-  const { firstName, lastName, company, state, mobilePhone, workPhone, zipCode, caDreLicense, address, receiveEmailNotifications, receiveTextNotifications } = req.body;
-
-  try {
-    // Update User schema
-    const userUpdate = await User.findOneAndUpdate(
-      { _id: userId },
-      { firstName, lastName },
-      { new: true }
-    );
-
-    // Update UserDetails schema
-    const detailsUpdate = await UserDetails.findOneAndUpdate(
-      { userId },
-      { company, state, mobilePhone, workPhone, zipCode, caDreLicense, address, receiveEmailNotifications, receiveTextNotifications },
-      { new: true }
-    );
-
-    if (userUpdate && detailsUpdate) {
-      return res.status(200).json({ message: 'Profile updated successfully', user: userUpdate, userDetails: detailsUpdate });
-    }
-    res.status(404).json({ message: 'User or User Details not found' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to update profile', error: error.message });
-  }
-};
-
 
 //? ------------------------
 //? signout api
@@ -400,12 +264,9 @@ const signOutApi = async (req, res) => {
 module.exports = {
   signUp,
   login,
-  userDetails,
   getUserByToken,
-  updateUserDetails,
   updatePassword,
-  getAllUsersApi,
   adminLogin,
-  getUserDetailsApi,
-  signOutApi
+  signOutApi,
+  updateAdminDetails
 };

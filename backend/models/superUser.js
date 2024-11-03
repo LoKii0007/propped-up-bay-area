@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    phone: {
+      type: Number,
+    //   required: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: function () {
@@ -26,21 +31,10 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true, // Allows it to be optional and unique across entries
     },
-    totalOrders : {
-      type: Number,
-      default : 0
-    },
-    isSubscribed : {
-      type : Boolean,
-      default : false
-    },
-    totalSpent:{
-      type: Number,
-      default : 0
-    },
-    profileCompleted: {
-      type: Boolean,
-      default: false, 
+    role: { 
+      type: String, 
+      enum: ['user', 'superuser', 'admin'], 
+      default: 'user' 
     },
     createdAt: {
       type: Date,
@@ -50,6 +44,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("Users", userSchema);
+const SuperUser = mongoose.model("SuperUser", userSchema);
 
-module.exports = User;
+module.exports = SuperUser;

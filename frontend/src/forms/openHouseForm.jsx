@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import "../css/form.css";
 import { zones } from "../data/staticData";
 import axios from "axios";
-import { openhouseOrder } from "../api/orders";
 import toast from "react-hot-toast";
+import { UseGlobal } from "../context/GlobalContext";
 
 const OpenHouseForm = () => {
   const initialState = {
@@ -42,8 +41,6 @@ const OpenHouseForm = () => {
     total: 0,
   };
 
-  const [formData, setFormData] = useState(initialState);
-
   const additionalPrices = {
     signReset: 5,
     AddressPrint: 10,
@@ -51,8 +48,11 @@ const OpenHouseForm = () => {
     RushFee: 25,
   };
 
+  const [formData, setFormData] = useState(initialState);
   const [rushFee, setRushFee] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().getHours());
+  const [loading, setLoading] = useState(false);
+  const { baseUrl } = UseGlobal();
 
   // ----------------------------------
   // handling inputs
@@ -209,31 +209,38 @@ const OpenHouseForm = () => {
     currentTime,
   ]);
 
-
   //? ----------------------------------
   //? form submission
   //?  ---------------------------------
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true);
     const data = { ...formData, type: "openHouse" };
-    // console.log(data);
-    const res = await openhouseOrder(data);
-    if (res.status === 200) {
-      toast.success("Order placed successfully");
-      setFormData(initialState);   // Clear form data
-      setRushFee(0);  // Reset rush fee
-      window.scrollTo(0, 0); // scroll to top of form
-      return;
+    try {
+      // Step 1: Verifying payment by creating a checkout session
+      const payment = await axios.post(
+        `${baseUrl}/api/orders/openHouse/create-checkout-session`,
+        { total: formData.total },
+        {withCredentials : true }
+      );
+
+      // Store order data in sessionStorage
+      sessionStorage.setItem("orderData", JSON.stringify(data));
+
+      // Step 2: Redirect to the Stripe checkout session
+      window.location.href = payment.data.url;
+
+    } catch (error) {
+      toast.error("Server Error");
+    } finally {
+      setLoading(false);
     }
-    toast.error("Error placing order");
   }
 
   //? ----------------------------------
   //? updating render
   //?  ---------------------------------
-  useEffect(()=>{
-
-  }, [formData])
+  useEffect(() => {}, [formData]);
 
   const apiKey = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID;
   const sheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
@@ -461,7 +468,7 @@ const OpenHouseForm = () => {
             />
           </div>
           <input
-            type="text"
+            type="number"
             name="postalCode"
             placeholder="Postal / Zip Code"
             value={formData.firstEventAddress.postalCode}
@@ -657,7 +664,7 @@ const OpenHouseForm = () => {
             />
           </div>
           <input
-            type="text"
+            type="number"
             name="postalCode"
             placeholder="Postal / Zip Code"
             value={formData.printAddress.postalCode}
@@ -687,10 +694,11 @@ const OpenHouseForm = () => {
 
         {/* Submit Button */}
         <button
+          disabled={loading}
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Submit
+          {loading ? "placing order..." : "Submit"}
         </button>
       </form>
     </>

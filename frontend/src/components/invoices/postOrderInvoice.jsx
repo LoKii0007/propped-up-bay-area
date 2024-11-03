@@ -6,8 +6,8 @@ function PostOrderInvoice({ data }) {
 
     return (
         <>
-            <div id='postOrder' className="max-w-[790px] mx-auto bg-white border border-gray-300">
-                <div className="bg-green-800 text-white flex py-4 px-10 justify-between">
+            <div id='postOrder' className="max-w-[790px] mx-auto bg-[fff] border border-[#d1d5db]">
+                <div className="bg-[#166534] text-white flex py-4 px-10 justify-between">
                     <h1 className="text-2xl font-bold">INVOICE</h1>
                     <h2 className="text-lg">PSS001028</h2>
                 </div>
@@ -25,7 +25,7 @@ function PostOrderInvoice({ data }) {
                         </div>
                     </div>
                     <h3 className="text-center text-xl font-bold my-4">POST ORDER FORM</h3>
-                    <div className="border-t border-gray-300 my-4"></div>
+                    <div className="border-t border-[#d1d5db] my-4"></div>
                     <div className="mb-4">
                         <h3 className="text-lg font-semibold">{data.firstName} {data.lastName}</h3>
                         <p>{data.listingAddress.streetAddress}</p>
@@ -59,13 +59,13 @@ function PostOrderInvoice({ data }) {
                             <li>Pool: {data.riders?.pool || 0}</li>
                         </ul>
                     </div>
-                    <div className="border-t border-gray-300 my-4"></div>
+                    <div className="border-t border-[#d1d5db] my-4"></div>
 
                     <div className="mb-4 flex gap-4 ">
                         <h4 className="font-semibold">Additional Instructions</h4>
                         <p>{data.additionalInstructions || "No additional instructions provided."}</p>
                     </div>
-                    <div className="border-t border-gray-300 my-4"></div>
+                    <div className="border-t border-[#d1d5db] my-4"></div>
 
                     <div className="mb-4">
                         <p>Post signs start at ${data.total} as first payment and a $15.00 monthly recurring fee which will be removed during the post order removal request submission.</p>

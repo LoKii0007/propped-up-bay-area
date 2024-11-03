@@ -11,21 +11,7 @@ import RowHeading from "../ui/rowHeading";
 import Pagination from "./pagination";
 import { UseGlobal } from "../context/GlobalContext";
 import InvoiceDownload from "./invoiceDownload";
-import axios from "axios";
 import { getAllOrders } from "../api/orders";
-
-const invoiceDataType = {
-  NAME: "name",
-  INVOICENO: "invoiceNo",
-  AMOUNT: "amount",
-  ID: "id",
-  DATE: "date",
-};
-
-export const InvoiceTypes = {
-  OPENHOUSE: "openHouse",
-  POSTORDER: "postOrder",
-};
 
 function Invoices() {
   const [orders, setOrders] = useState([]);
@@ -35,7 +21,6 @@ function Invoices() {
 
   const [orderType, setOrderType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
   const [invoiceData, setInvoiceData] = useState();
   const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
 
@@ -130,10 +115,10 @@ function Invoices() {
       document.body.appendChild(container);
 
       // Render the appropriate component based on the invoice type
-      if (data.type === InvoiceTypes.OPENHOUSE) {
+      if (data.type === "openHouse") {
         const element = <OpenHouseInvoice data={data} />;
         ReactDOM.render(element, container);
-      } else if (data.type === InvoiceTypes.POSTORDER) {
+      } else if (data.type === "postOrder") {
         const element = <PostOrderInvoice data={data} />;
         ReactDOM.render(element, container);
       }
@@ -196,40 +181,43 @@ function Invoices() {
       container.style.display = "none";
       document.body.appendChild(container);
 
-      // let root = createRoot(container)
-
       // Render the appropriate component based on the invoice type
-      if (data.type.toLowerCase() === InvoiceTypes.OPENHOUSE.toLowerCase()) {
-        const element = <OpenHouseInvoice data={data} />;
-        ReactDOM.render(element, container);
-      } else if (data.type === InvoiceTypes.POSTORDER) {
-        const element = <PostOrderInvoice data={data} />;
-        ReactDOM.render(element, container);
+      let element;
+      if (data.type === 'openHouse') {
+        element = <OpenHouseInvoice data={data} />;
+      } else if (data.type === 'postOrder') {
+        element = <PostOrderInvoice data={data} />;
       } else {
         toast.error("Download failed. Please try again");
         return;
       }
 
+      // Render the invoice component
+      ReactDOM.render(element, container);
+
       const invoiceElement = container.firstChild;
       const filename = `${data.type}_invoice.pdf`;
 
-      const opt = {
+      const options = {
         margin: 1,
-        filename: filename,
+        filename,
         html2canvas: { scale: 2 },
+        jsPDF: { format: "a4" },
       };
 
-      html2pdf()
-        .from(invoiceElement)
-        .set(opt)
-        .save()
+      // Generate and download PDF
+      html2pdf().from(invoiceElement).set(options).save()
         .then(() => {
           toast.success(`Downloaded ${filename}`);
-          ReactDOM.unmountComponentAtNode(container); // Unmount and cleanup
-          document.body.removeChild(container);
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container); // Clean up
+        })
+        .catch((error) => {
+          console.error("PDF Generation Error:", error);
+          toast.error("Error generating PDF. Please try again.");
         });
     } catch (error) {
-      toast.error("something went wrong");
+      toast.error("Something went wrong");
       console.error("PDF Generation Error:", error);
     }
   }
@@ -347,13 +335,13 @@ function Invoices() {
           <div className="inoice-top grid grid-cols-3 w-full px-5 rounded-2xl text-[#718096] items-center font-medium">
             <RowHeading
               setFilteredData={setFilteredInvoices}
-              filterValue={invoiceDataType.NAME}
+              filterValue="firstName lastName" // filtering basis
               data={filteredInvoices}
               text="Customer name"
             />
             <RowHeading
               setFilteredData={setFilteredInvoices}
-              filterValue={invoiceDataType.INVOICENO}
+              filterValue="_id" // filtering basis
               data={filteredInvoices}
               text="Invoice No."
             />

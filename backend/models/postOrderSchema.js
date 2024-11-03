@@ -55,6 +55,18 @@ const formSchema = new Schema({
     type:String,
     enum : ['pending', 'completed', 'installed'],
     default : 'pending'
+  },
+  subActive : {
+    type : Boolean,
+    default : true
+  },
+  subId : {
+    type : String,
+    required : true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   }
 });
 

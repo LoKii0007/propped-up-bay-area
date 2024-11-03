@@ -2,7 +2,6 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { loginUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
@@ -29,7 +28,7 @@ function LoginWithGoogle() {
         { withCredentials: true }
       );
       if (response.status === 400) {
-        toast.error(`${response.data.message || "Invalid credentials."}`);
+        toast.error(`${response.data.msg || "Invalid credentials."}`);
         return;
       }
       if (response.status === 200) {
@@ -38,10 +37,10 @@ function LoginWithGoogle() {
         return;
       }
       toast.error("Google login failed. Please try again.");
-      console.log(response.data.message);
+      console.log(response.data.msg);
     } catch (error) {
       toast.error("Google login failed. Please try again.");
-      console.log(response.data.message);
+      console.log(response.data.msg);
     }
   };
 

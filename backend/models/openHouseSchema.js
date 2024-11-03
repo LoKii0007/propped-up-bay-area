@@ -54,6 +54,10 @@ const formDataSchema = new Schema({
     type:String,
     enum : ['pending', 'completed', 'installed'],
     default : 'pending'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   }
 });
 

@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import SignInwithGoogle from "./signInWithGoogle";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { registerUser } from "../api/auth";
 import ProppedUpLogo from "../ui/proppedUpLogo";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
@@ -34,22 +33,25 @@ function Register() {
       const res = await axios.post(`${baseUrl}/auth/signUp`, userData, {
         withCredentials: true,
       });
-      if (res.status === 400) {
-        toast.error("user with the email already exist");
-        return;
-      } else if (res.status === 201) {
+    
+      if (res.status === 201) {
         toast.success("User registered successfully");
         setCurrentUser(res.data.user);
         setUserLoggedIn(true);
         navigate("/signup/details", { state: { user: res.data.user } });
       } else {
-        toast.error("signup failed. Please try again");
+        toast.error(res.data.msg || "Signup failed. Please try again");
       }
     } catch (error) {
-      toast.error("signup failed. Please try again..");
+      if (error.response && error.response.status === 400) {
+        toast.error(error.response.data.msg || "User with the email already exists");
+      } else {
+        toast.error("Server error. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
+    
   }
 
   // useEffect(() => {

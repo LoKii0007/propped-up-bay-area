@@ -1,9 +1,13 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+require("dotenv").config();
 
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+//? ------------------------------
 //? Middleware to verify the JWT token
+//? ------------------------------
 const verifyUser = (req, res, next) => {
-  // const token = req.header('Authorization')?.split(' ')[1]; // Bearer <token>
   const token = req.cookies.authToken
 
   if (!token) {
@@ -11,10 +15,8 @@ const verifyUser = (req, res, next) => {
   }
 
   try {
-    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     req.user = decoded
-    // console.log(req.user)
     next()
   } catch (error) {
     console.error('Token verification failed:', error);
@@ -22,4 +24,24 @@ const verifyUser = (req, res, next) => {
   }
 }
 
-module.exports = verifyUser;
+//? ----------------------------
+//? check payment status
+//? ----------------------------
+const checkPaymentStatus = async (req, res, next) => {
+  const { sessionId } = req.query;
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    // Check if the payment status is 'paid'
+    if (session.payment_status === 'paid') {
+      next()
+    } else {
+      return res.status(400).json({ success: false });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to retrieve session", error: error.message });
+  }
+};
+
+module.exports = {verifyUser, checkPaymentStatus};

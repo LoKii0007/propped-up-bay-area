@@ -63,4 +63,11 @@ const zones = [
     },
 ]
 
-module.exports = zones
+const openHouseAdditionalPrices = {
+  signReset: 5,
+  AddressPrint: 10,
+  TwilightHour: 25,
+  RushFee: 25,
+}
+
+module.exports = {zones, openHouseAdditionalPrices}

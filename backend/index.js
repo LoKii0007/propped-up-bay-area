@@ -18,15 +18,8 @@ app.use(cors({
     credentials: true,
 }))
 
-
-//? Handle preflight requests for CORS
-app.options('*', cors({
-    origin: ['http://localhost:5173', 'https://propped-up-bay-area.vercel.app'],
-    credentials: true
-}));
-
 //? compression
-app.use(compression())
+// app.use(compression())
 
 app.use(express.static('public'))
 app.use(bodyParser.json())

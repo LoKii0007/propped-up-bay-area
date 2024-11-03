@@ -1,21 +1,41 @@
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
+import { UseGlobal } from '../context/GlobalContext';
+import axios from 'axios';
 
 const ChangePassword = () => {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false)
-    const [isLoading , setIsLoading] = useState(false)
+    const [passLoading, setPassLoading] = useState(false)
 
-    const handleSubmit = (e) => {
+    const {baseUrl} = UseGlobal()
+
+    const handleSubmit = async(e) => {
         e.preventDefault();
-        setIsLoading(true)
-        console.log({ oldPassword, newPassword })
-        setTimeout(() => {
-            setIsLoading(false)
-            toast.success('password changed successfully', {position:'top-right'})
-        }, 2000)
+        setPassLoading(true);
+        if (oldPassword === newPassword) {
+            toast.error(`New password can't be same as old password`)
+            setPassLoading(false)
+            return
+        }
+        try {
+            const res = await axios.patch(
+                `${baseUrl}/auth/update/password`,
+                { currentPass : oldPassword , newPass : newPassword },
+                { withCredentials: true }
+            );
+            if (res.status === 200) {
+                toast.success("Password changed successfully.");
+            } else {
+                toast.error(res.data.message);
+            }
+        } catch (error) {
+            toast.error("Server error. Please try again.");
+        } finally {
+            setPassLoading(false);
+        }
     };
 
     return (
@@ -62,11 +82,11 @@ const ChangePassword = () => {
                     <p className="text-xs text-gray-500">Minimum 6 characters</p>
                 </div>
                 <button
-                    disabled={isLoading}
+                    disabled={passLoading}
                     type="submit"
                     className="w-full px-4 py-2  bg-teal-500 text-white rounded-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
                 >
-                    {isLoading ? 'changing' : 'Change Password'}
+                    {passLoading ? 'changing' : 'Change Password'}
                 </button>
             </form>
         </div>

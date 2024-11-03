@@ -9,9 +9,9 @@ import { UseGlobal } from "../context/GlobalContext";
 function ClientDetails({ users }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [searchTerm, setSearchTerm] = useState("");
-  const [orderType, setOrderType] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
   const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const [userInfo , setUserInfo] = useState(null)
 
   //? ------------------------
   //? pagination
@@ -53,9 +53,13 @@ function ClientDetails({ users }) {
   //? --------------------
   //? user click
   //?---------------------
-  function handleUserClick() {
-    setBreadCrumb("Customer info"); //updating breadcrumb
-    setIsInfo(true); //changing view
+  function handleUserClick(index) {
+    const selectedUser = filteredUsers[index];
+    if(selectedUser){
+      setUserInfo(selectedUser) // Store selected user 
+      setBreadCrumb("Customer info"); // updating breadcrumb
+      setIsInfo(true); // changing view
+    }
   }
 
   return (
@@ -70,7 +74,7 @@ function ClientDetails({ users }) {
                   width="16"
                   height="16"
                   fill="currentColor"
-                  class="bi bi-search"
+                  className="bi bi-search"
                   viewBox="0 0 16 16"
                 >
                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
@@ -85,30 +89,10 @@ function ClientDetails({ users }) {
                 placeholder="Search by name or email"
               />
             </div>
-            {/* <div className="flt-right">
-              <button
-                onClick={() => setModalOpen(true)}
-                className="filter-btn px-3 me-12 flex justify-center items-center gap-3"
-              >
-                <div className="funnel-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-funnel"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
-                  </svg>
-                </div>
-                Filters
-              </button>
-            </div> */}
           </div>
 
-           {/* ------------------------- modal----------- */}
-           <Modal open={modalOpen} setOpen={setModalOpen} />
+          {/* ------------------------- modal----------- */}
+          <Modal open={modalOpen} setOpen={setModalOpen} />
 
           <div className="dashboard-bottom w-full gap-6 flex flex-col justify-between h-full">
             <div className="order-list w-full flex flex-col">
@@ -125,12 +109,6 @@ function ClientDetails({ users }) {
                   data={filteredUsers}
                   text="Email"
                 />
-                {/* <RowHeading
-                  setFilteredData={setFilteredUsers}
-                  filterValue={""}
-                  data={filteredUsers}
-                  text="OrderId"
-                /> */}
                 <RowHeading
                   setFilteredData={setFilteredUsers}
                   filterValue={"totalOrders"}
@@ -149,11 +127,11 @@ function ClientDetails({ users }) {
                   .slice(startIndex, endIndex)
                   .map((user, index) => (
                     <div
-                      onClick={handleUserClick}
-                      key={index}
+                      onClick={() => handleUserClick(index)}
+                      key={user._id}
                       className="grid grid-cols-4 bg-white p-5 gap-2 cursor-pointer "
                     >
-                      <div className=" text-center flex items-center gap-3">
+                      <div className="text-center flex items-center gap-3 overflow-hidden">
                         <img
                           src="/user.png"
                           alt=""
@@ -161,10 +139,9 @@ function ClientDetails({ users }) {
                         />
                         {user.firstName} {user.lastName}
                       </div>
-                      <div className="">{user.email}</div>
-                      {/* <div className="">{user.id}</div> */}
-                      <div className="">{user.totalOrders}</div>
-                      <div className="">{user.totalSpent}</div>
+                      <div className="overflow-hidden">{user.email}</div>
+                      <div className="overflow-hidden">{user.totalOrders}</div>
+                      <div className="overflow-hidden">{user.totalSpent}</div>
                     </div>
                   ))}
               </div>
@@ -184,7 +161,7 @@ function ClientDetails({ users }) {
           </div>
         </div>
       ) : (
-        <DetailedInfo />
+        <DetailedInfo user={userInfo} /> // Pass selected user ID
       )}
     </>
   );

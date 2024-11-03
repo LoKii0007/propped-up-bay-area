@@ -188,8 +188,11 @@ function OrderRequests() {
     //? --------------------
   //? updating order status
   //?---------------------
-  function handleUpdateOrderStatus(){
-
+  function handleUpdateOrderStatus(index){
+    const slectedOrder = filteredOrders[index]
+    if(slectedOrder){
+      setCompleteOrder(filteredOrders[index])
+    }
   }
 
   return (
@@ -221,7 +224,7 @@ function OrderRequests() {
                 />
               </div>
             </div>
-            <div className="filter-right mx-auto grid grid-cols-3 gap-5 w-2/3">
+            <div className="filter-right mx-auto grid grid-cols-2 gap-5 w-2/3">
               <OrderTypeDropdown
                 filterType={orderType}
                 handleOrderType={handleOrderType}
@@ -230,10 +233,10 @@ function OrderRequests() {
                 filterType={orderStatus}
                 handleOrderType={handleOrderStatus}
               />
-              <button className="font-semibold">
+              {/* <button className="font-semibold">
                 <img src="" alt="" />
                 Date filters
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -255,7 +258,7 @@ function OrderRequests() {
                 <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
-                  filterValue={"requestedDate"}
+                  filterValue={"createdAt"}
                   text="Order Date"
                 />
                 <RowHeading
@@ -288,7 +291,7 @@ function OrderRequests() {
                       >
                         <div className="overflow-hidden">{order._id}</div>
                         <div className="overflow-hidden">{order.firstName} {order.lastName}</div>
-                        <div className="overflow-hidden">{parseDate(order.requestedDate)}</div>
+                        <div className="overflow-hidden">{parseDate(order.createdAt)}</div>
                         <div className="overflow-hidden">{parseDate(order.requestedDate)}</div>
                         <div className="overflow-hidden">{order.total}</div>
                       </div>
@@ -296,7 +299,7 @@ function OrderRequests() {
                         <button
                           onClick={() => {
                             setModalOpen(true);
-                            handleUpdateOrderStatus(order._id)
+                            handleUpdateOrderStatus(index)
                           }}
                           className={`text-left font-semibold w-1/6 ${
                             order.status === "Pending"
@@ -336,7 +339,7 @@ function OrderRequests() {
       )}
 
       {/* -------------modal---------------  */}
-      <ChangeStatusModal open={modalOpen} setOpen={setModalOpen} />
+      <ChangeStatusModal order={completeOrder} open={modalOpen} setOpen={setModalOpen} />
     </>
   );
 }

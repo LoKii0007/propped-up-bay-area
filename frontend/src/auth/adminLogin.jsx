@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../css/form.css";
 import axios from "axios"; 
 import toast from "react-hot-toast";
 import { UseGlobal } from "../context/GlobalContext";
@@ -32,10 +31,10 @@ const AdminLogin = () => {
         toast.success("Login successful");
         setAdmin(response.data.user);
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.msg);
       }
     } catch (err) {
-      toast.error(response.data.message || 'Login failed. Please try again');
+      toast.error('Server error. Please try again');
       console.log('login failed : ',err.message)
     } finally {
       setLoading(false);

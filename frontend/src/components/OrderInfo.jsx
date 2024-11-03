@@ -1,22 +1,25 @@
 import React, { useState } from "react";
 import ActionsDropdown from "../ui/ActionsDropdown";
 import ChangeStatusModal from "../ui/ChangeStatusModal";
+import { useAuth } from "../context/AuthContext";
+import CancelSubModal from "../ui/CancelSubModal";
+import { parseDate } from "../helpers/utilities";
 
-function OrderInfo({ order }) {
+function OrderInfo({ order, setPostOrders, postOrders }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const isAdmin = false;
+  const { admin } = useAuth();
 
   console.log("order", order);
 
   return (
     <>
       <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto">
-        <div className="flex justify-between mb-8 w-full">
-          <button className="text-[#718096] border px-4 py-2 rounded-lg hover:bg-gray-100">
+        <div className="flex justify-end mb-8 w-full">
+          {/* <button className="text-[#718096] border px-4 py-2 rounded-lg hover:bg-gray-100">
             User Details
-          </button>
+          </button> */}
           <div className="flex space-x-4">
-            {isAdmin && (
+            {["admin", "superuser"].includes(admin?.role) && (
               <button
                 onClick={() => setModalOpen(true)}
                 className="text-[#718096] border-[#34CAA5] border px-4 py-2 rounded-lg hover:bg-gray-100"
@@ -24,6 +27,16 @@ function OrderInfo({ order }) {
                 Change Status
               </button>
             )}
+            {!admin && order?.type === 'postOrder' && order?.subActive === true &&
+              <>
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="text-white bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600"
+                >
+                  Cancel subscription
+                </button>
+              </>
+            }
           </div>
         </div>
 
@@ -45,11 +58,11 @@ function OrderInfo({ order }) {
             {order.type === "openHouse" && (
               <>
                 <p className="text-md grid grid-cols-2">
-                  <span className="">Phone Number:</span> {order.mobilePhone}
+                  <span className="">Phone Number:</span> {order.phone}
                 </p>
                 <p className="text-md grid grid-cols-2">
                   <span className="">First Event Date:</span>{" "}
-                  {order.requestedDate}
+                  {parseDate(order.requestedDate)}
                 </p>
                 <p className="text-md grid grid-cols-2">
                   <span className="">First Event Start Time:</span>{" "}
@@ -106,7 +119,7 @@ function OrderInfo({ order }) {
                   <span>Phone Number:</span> {order.phone}
                 </p>
                 <p className="text-md grid grid-cols-2">
-                  <span>Requested Date:</span> {order.requestedDate}
+                  <span>Requested Date:</span> {parseDate(order.requestedDate)}
                 </p>
                 <p className="text-md grid grid-cols-2">
                   <span>Listing Address:</span>{" "}
@@ -175,7 +188,19 @@ function OrderInfo({ order }) {
         </div>
       </div>
 
-      <ChangeStatusModal open={modalOpen} setOpen={setModalOpen} />
+      {/* -------------------------modals ---------------- */}
+      {admin?.role === "admin" ? (
+        <ChangeStatusModal order={order} open={modalOpen} setOpen={setModalOpen} />
+      ) : (
+        <CancelSubModal
+          postOrders={postOrders}
+          setPostOrders={setPostOrders}
+          orderId={order._id}
+          subscriptionId={order.subId}
+          open={modalOpen}
+          setOpen={setModalOpen}
+        />
+      )}
     </>
   );
 }

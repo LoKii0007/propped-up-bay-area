@@ -2,7 +2,6 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { registerUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 import { UseGlobal } from "../context/GlobalContext";
 import axios from "axios";
@@ -35,12 +34,12 @@ function SignInwithGoogle() {
         toast.success("Signup successful! Redirecting...");
         navigate("/");
       } else if (response.status === 400) {
-        toast.error("User with this email already exists. Please log in.");
+        toast.error(res.data.msg || "User with this email already exists.");
       } else {
-        toast.error("Signup failed. Please try again.");
+        toast.error(res.data.msg || "Signup failed. Please try again.");
       }
     } catch (apiError) {
-      toast.error("An error occurred while signing up. Please try again.");
+      toast.error("Server error. Please try again.");
       console.log("API call error:", apiError);
     }
   };

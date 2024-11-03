@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "../css/home.css";
 import Sidebar from "../components/sidebar";
 import Order from "../components/order";
-import PostRemoval from "../forms/postRemoval";
+// import PostRemoval from "../forms/postRemoval";
 import CardDetails from "../components/cardDetails";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -12,27 +11,16 @@ import { useNavigate } from "react-router-dom";
 import EditProfileForm from "../components/profile";
 import { getOpenHouseOrder, getpostOrder } from "../api/orders";
 import toast from "react-hot-toast";
+import PostRemoval from "../components/PostRemoval";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard");
   const { currentUser, setCurrentUser } = useAuth();
-  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo , baseUrl} = UseGlobal();
+  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
   const [orders, setOrders] = useState([]);
   const [userDetails, setUserDetails] = useState({});
-
+  const [postOrders, setPostOrders] = useState([])
   const navigate = useNavigate();
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/postOrder/create-checkout-session"
-      );
-      window.location.href = res.data.url;
-    } catch (error) {
-      console.error("Error during checkout:", error);
-    }
-  }
 
   //? ------------------------------
   //? breadcrumbs
@@ -67,6 +55,7 @@ const Home = () => {
     //   toast.error('something went wrong ')
     //   return
     // }
+    setPostOrders(postOrderResponse.data.orders)
     const combinedOrders = [
       ...openHouseOrderResponse.data.orders,
       ...postOrderResponse.data.orders,
@@ -76,22 +65,22 @@ const Home = () => {
   }
 
 
-    //? ----------------------------------
+  //? ----------------------------------
   //? loading userDetails
   //?  ---------------------------------
-  async function handleUserDetails(){
+  async function handleUserDetails() {
     try {
-      const res = await axios.get(`${baseUrl}/api/get/userDetails`, {withCredentials : true})
+      const res = await axios.get(`${baseUrl}/api/get/userDetails`, { withCredentials: true })
 
-      if(res.status === 200 ){
+      if (res.status === 200) {
         setUserDetails(res.data.userDetails[0])
       }
-      else if(res.status === 404){
+      else if (res.status === 404) {
         toast.error(res.data.message || 'user or user details not found')
       }
-      else if (res.status === 400){
+      else if (res.status === 400) {
         toast.error(res.data.message || 'error fetching user details')
-      }else{
+      } else {
         console.log('error fetching user details', error.message)
       }
     } catch (error) {
@@ -102,11 +91,15 @@ const Home = () => {
 
   useEffect(() => {
     if (!currentUser) {
-      navigate("/login");
-      return;
+      const user = JSON.parse(sessionStorage.getItem('proppedUpUser'))
+      if(user){
+        setCurrentUser(user)
+      }else{
+        navigate("/login");
+      }
     }
-    if (currentUser) {
-      if(!currentUser.profileCompleted){
+    else if (currentUser) {
+      if (!currentUser.profileCompleted) {
         navigate('/signup/details')
         return
       }
@@ -114,6 +107,8 @@ const Home = () => {
       handleUserDetails()
     }
   }, [currentUser, setCurrentUser]);
+
+  useEffect(()=>{}, [postOrders])
 
   return (
     <>
@@ -151,18 +146,12 @@ const Home = () => {
           <div className="active-bottom h-[87vh] overflow-y-auto p-7">
             {activeView === "dashboard" && <ClieentOrders orders={orders} />}
             {activeView === "order" && <Order />}
-            {activeView === "removal" && <PostRemoval />}
+            {activeView === "removal" && <PostRemoval setPostOrders={setPostOrders} postOrders={postOrders} />}
             {activeView === "profile" && <EditProfileForm userDetails={userDetails} user={currentUser} />}
             {activeView === "payment info" && <CardDetails />}
           </div>
         </div>
       </div>
-
-      {/* <form onSubmit={handleSubmit} >
-
-      <input type="hidden" name="priceId" value="price_G0FvDp6vZvdwRZ" />
-      <button type="submit">Checkout</button>
-    </form> */}
     </>
   );
 };

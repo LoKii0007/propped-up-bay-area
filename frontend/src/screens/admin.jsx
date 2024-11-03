@@ -26,7 +26,7 @@ function Admin() {
       const page = 1;
       const limit = 10;
 
-      const res = await axios.get(`${baseUrl}/api/users`, {
+      const res = await axios.get(`${baseUrl}/api/users/get`, {
         params: { page, limit },
         withCredentials: true,
       });

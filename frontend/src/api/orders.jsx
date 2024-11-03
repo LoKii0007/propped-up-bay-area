@@ -4,18 +4,6 @@ import axios from "axios"
 const baseUrl = 'https://propped-up-backend.vercel.app/api/orders'
 // const authToken = localStorage.getItem('authToken')
 
-
-//? CREATE openhouse order api
-export const openhouseOrder = async (data) => {
-    try {
-        const response = await axios.post(`${baseUrl}/openHouseOrder`, data, {withCredentials : true})
-        return response
-    } catch (error) {
-        console.log('Error fetching openhouse orders api', error)
-        return ({res : {status : 500 }})
-    }
-}
-
 //? GET openhouse order api
 export const getOpenHouseOrder = async () => {
     try {
@@ -26,6 +14,7 @@ export const getOpenHouseOrder = async () => {
         return ({res : {status : 500 }})
     }
 }
+
 
 //? CREATE post order api
 export const postOrder = async (data) => {

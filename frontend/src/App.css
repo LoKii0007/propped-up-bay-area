@@ -10,3 +10,54 @@ body{
 :root{
     font-family: Inter;
 }
+
+.btn{
+    border: 1px solid black;
+    width: 120px;
+}
+
+.home{
+    overflow-y: hidden;
+}
+
+.active-order{
+    background-color: #4C9A2A;
+    color: white;
+    transition: 0.5s ease;
+}
+
+.dashboard-btn{
+    transition: 0.3s ease;
+}
+
+.menu-icon{
+    height: 25px;
+}
+
+.active-bottom-wrapper{
+    height: 100%;
+}
+
+.form-input{
+    background-color: #FCFDFE;
+    border: 1px solid #101010;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 14px;
+    color: #101010;
+    width: 100%;
+}
+
+.form-input:focus{
+    outline: none;
+}
+
+.form-label{
+    font-size: 12px;
+    font-weight: 600;
+    color: #101010;
+}
+
+.poppinns-font{
+    font-family: 'poppins';
+}

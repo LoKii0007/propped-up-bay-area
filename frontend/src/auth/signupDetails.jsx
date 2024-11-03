@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
-import { signUpDetails } from "../api/auth";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
 
@@ -48,9 +47,9 @@ const SignUpDetails = () => {
         toast.error("something went wrong, try again");
         return;
       }
-      toast.success("submitted succesfully");
+      toast.success("submitted succesfully. Please login");
       setFormData(initialState); // cleanup of form
-      navigate("/"); // navigating to homepage
+      navigate("/login"); // navigating to homepage
     } catch (error) {
       toast.error("something went wrong, try again");
     }

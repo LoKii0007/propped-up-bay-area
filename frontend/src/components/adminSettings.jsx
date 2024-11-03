@@ -36,7 +36,7 @@ function AdminSettings() {
           >
             Password
           </button>
-          <button
+          {/* <button
             onClick={() => setActiveView("connectedAccounts")}
             className={` ${
               activeView === "connectedAccounts"
@@ -45,7 +45,7 @@ function AdminSettings() {
             } px-4 py-2 font-medium hover:text-teal-600 focus:text-teal-600`}
           >
             Connected Accounts
-          </button>
+          </button> */}
         </div>
         <div className="st-bottom">
           {activeView === "profileSettings" && <ProfileSettings />}

@@ -291,8 +291,8 @@ const EditProfileForm = ({ userDetails, user }) => {
       <form onSubmit={handleChangePassword} className="space-y-6 p-6 rounded-2xl client-form ">
 
       <div className="font-semibold grid text-lg">Change password</div>
-        <div className="xl:w-1/2 lg:w-2/3 w-full " >
-          <label className="block text-sm font-medium text-gray-700">
+        <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  " >
+          <label className="block text-xs text-gray-700">
             Old password
           </label>
           <div className="relative mt-1">
@@ -300,10 +300,8 @@ const EditProfileForm = ({ userDetails, user }) => {
               type={showOldPass ? "text" : "password"}
               value={currentPass}
               onChange={(e) => setCurrentPass(e.target.value)}
-              className="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-700"
-              required
-              minLength={6}
-            />
+              className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
+              required            />
             <button
               type="button"
               onClick={() => setShowOldPass(!showOldPass)}
@@ -314,8 +312,8 @@ const EditProfileForm = ({ userDetails, user }) => {
           </div>
         </div>
 
-        <div className="xl:w-1/2 lg:w-2/3 w-full ">
-          <label className="block text-sm font-medium text-gray-700">
+        <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
+          <label className="block text-xs text-gray-700">
             New password
           </label>
           <div className="relative mt-1">
@@ -323,7 +321,7 @@ const EditProfileForm = ({ userDetails, user }) => {
               type={showNewPass ? "text" : "password"}
               value={newPass}
               onChange={(e) => setNewPass(e.target.value)}
-              className="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-700"
+              className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
               required
               minLength={6}
             />

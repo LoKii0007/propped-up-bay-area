@@ -136,7 +136,7 @@ function ClieentOrders({orders}) {
   }
 
   //? -------------------------
-  //? filter - date range
+  //? filter - clear
   //?--------------------------
   function handleClearFilter() {
     setOrderStatus("all");
@@ -305,7 +305,7 @@ function ClieentOrders({orders}) {
                       <div className="">
                         {order.firstName} {order.lastName}{" "}
                       </div>
-                      <div className="">{parseDate(order.requestedDate)}</div>
+                      <div className="">{parseDate(order.createdAt)}</div>
                       <div className="">{parseDate(order.requestedDate)}</div>
                       <div className="">{order.total}</div>
                       <button

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react"
 import { zones } from "../data/staticData";
 import { postOrder } from "../api/orders";
 import toast from "react-hot-toast";
+import axios from "axios";
+import { UseGlobal } from "../context/GlobalContext";
 
 function PostOrder() {
 
   const initialState = {
-    type:'postOrder',
+    type: 'postOrder',
     firstName: "",
     lastName: "",
     email: "",
@@ -46,16 +48,16 @@ function PostOrder() {
       doNotDisturb: 0,
     }
   }
-
-  const [formData, setFormData] = useState(initialState);
-  const [loading , setLoading] = useState(false)
-
   const additionalPrices = {
     flyerBox: 10,
     lighting: 35,
     rider: 10,
     post: 15,
   };
+
+  const [formData, setFormData] = useState(initialState);
+  const [loading, setLoading] = useState(false)
+  const { baseUrl } = UseGlobal()
 
   //? ----------------------------------
   //? handling inputs
@@ -136,19 +138,29 @@ function PostOrder() {
   //?  ---------------------------------
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log(formData);
     setLoading(true)
-    const res = await postOrder(formData) //calling api
-    if(res.status!== 201){
-      toast.error('something went wrong') // on error
-      return
+    try {
+      const payment = await axios.post(
+        `${baseUrl}/postOrder/subscription-schedule`,
+        formData,
+        {withCredentials : true }
+      );
+
+      console.log(payment.data.schedule)
+      // Store order data in sessionStorage
+      sessionStorage.setItem("postOrderData", JSON.stringify(formData));
+
+      // Step 2: Redirect to the Stripe checkout session
+      // window.location.href = payment.data.url;
+
+    } catch (error) {
+      toast.error('Server error')
+    }finally{
+      setLoading(false)
     }
-    toast.success('Order placed successfully')
-    setLoading(false)
-    setFormData(initialState) //clear form
   }
 
-  useEffect(()=>{
+  useEffect(() => {
 
   }, [formData])
 

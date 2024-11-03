@@ -15,13 +15,14 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const { baseUrl } = UseGlobal();
 
-  // useEffect(() => {
-  //   const token = Cookies.get("authToken");
-  //   console.log("token ", token);
-  //   if (token) {
-  //     navigate("/"); // Redirect to home if token exists
-  //   }
-  // }, [navigate]);
+  useEffect(() => {
+    if(currentUser && currentUser.profileCompleted ){
+      navigate('/')
+    }
+    if(currentUser && !currentUser.profileCompleted ){
+      navigate('/signup/details')
+    }
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -39,6 +40,7 @@ function Login() {
           return;
         }
         setCurrentUser(res.data.user); //? setting up current user
+        sessionStorage.setItem('proppedUpUser',JSON.stringify(res.data.user))
         setUserLoggedIn(true);
         toast.success("User logged in Successfully");
         navigate("/"); //? navigate to home page

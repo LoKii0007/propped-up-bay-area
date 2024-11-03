@@ -9,6 +9,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GlobalContextProvider } from "./context/GlobalContext";
 import SignUpDetails from "./auth/signupDetails";
+import ConfirmationPage from "./screens/ConfirmationPage";
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/signup" element={<Register />} />
               <Route path="/signup/details" element={<SignUpDetails />} />
+              <Route path="/order/openHouse/payment" element={<ConfirmationPage />} />
               <Route path="/login" element={<Login />} />
             </Routes>
             <Toaster />

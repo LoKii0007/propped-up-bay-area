@@ -1,51 +1,10 @@
-const { zones } = require("../data/data");
 const { openHouseSchema } = require("../models/openHouseSchema");
 const { postRemovalSchema } = require("../models/postRemovalSchema");
 const { postOrderSchema } = require("../models/postOrderSchema");
 const User = require("../models/user");
+const verifyOpenHouseTotal = require("../utilities/verifyTotal");
+const SuperUser = require("../models/superUser");
 
-
-// Helper function to calculate rush fee
-function calculateRushFee(eventDate) {
-  const currentDate = new Date();
-  const eventDateObj = new Date(eventDate);
-  const currentTime = currentDate.getHours();
-
-  const isToday = currentDate.toDateString() === eventDateObj.toDateString();
-  const isFriday = currentDate.getDay() === 5;
-  const isSaturday = currentDate.getDay() === 6;
-  const isSunday = currentDate.getDay() === 0;
-
-  if (
-    isToday ||
-    (isFriday && currentTime >= 16) ||
-    (isSaturday && currentTime >= 16) ||
-    (isSunday && currentTime >= 16)
-  ) {
-    return additionalPrices.RushFee;
-  }
-
-  return 0;
-}
-
-const verifyTotal = (data) => {
-  const {
-    requiredZone,
-    pickSign,
-    additionalSignQuantity,
-    printAddressSign,
-    twilightTourSlot,
-    firstEventDate,
-  } = data;
-
-  // Calculate rush fee
-  const rushFee = calculateRushFee(firstEventDate);
-
-  // Calculate total
-  let total = selectedZone.price + rushFee;
-
-  return total;
-};
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -58,7 +17,7 @@ const createOpenHouseOrderApi = async (req, res) => {
       lastName,
       email,
       phone,
-      firstEventDate,
+      requestedDate,
       firstEventStartTime,
       firstEventEndTime,
       firstEventAddress,
@@ -94,7 +53,7 @@ const createOpenHouseOrderApi = async (req, res) => {
       lastName,
       email,
       phone,
-      firstEventDate,
+      requestedDate,
       firstEventStartTime,
       firstEventEndTime,
       firstEventAddress: {
@@ -132,8 +91,8 @@ const createOpenHouseOrderApi = async (req, res) => {
 
     res.status(200).json({ order, message: "Order created successfully" });
   } catch (error) {
-    console.error("Order creation error:", error);
-    res.status(500).json({ error: "Error creating order" });
+    console.error("Order creation error:", error.message);
+    res.status(500).json({ message : 'Error creating order', error: error.message });
   }
 };
 
@@ -161,7 +120,6 @@ const createPostOrderApi = async (req, res) => {
       riders,
     } = req.body;
 
-    // Validate total
     if (!total || typeof total !== "number" || total <= 0) {
       return res.status(400).json({ message: "Invalid total amount" });
     }
@@ -304,59 +262,45 @@ const postRemovalApi = async (req, res) =>{
 //? ---------------------------
 const updateOrderApi = async(req, res) => {
   try {
-    const {orderId , orderStatus, orderType} = req.body
+    const {orderId , status, orderType} = req.body
     // Find the user and check their status
-    const user = await User.findById(req.user.userId);
-    if (!user || (user.status !== 'admin' && user.status !== 'superuser')) {
-      return res.status(403).json({ message: 'Unauthorized' });
+    const user = await SuperUser.findById(req.user.userId);
+    if (!user || (user.role !== 'admin' && user.role !== 'superuser')) {
+      return res.status(403).json({ msg: 'Unauthorized' });
     }
 
     if (orderType === 'openHouse') {
       
       const updatedOrder = await openHouseSchema.findByIdAndUpdate(
         orderId,
-        { status: orderStatus },
+        { status },
         { new: true } 
       )
 
       if (!updatedOrder) {
-        return res.status(404).json({ message: 'Order not found' });
+        return res.status(404).json({ msg: 'Order not found' });
       }
 
-      return res.status(200).json({ message: 'Order updated successfully!', order: updatedOrder })
+      return res.status(200).json({ msg: 'Order updated successfully!' })
     }else if (orderType === 'postOrder') {
       
       const updatedOrder = await postOrderSchema.findByIdAndUpdate(
         orderId,
-        { status: orderStatus },
+        { status },
         { new: true } 
       )
 
       if (!updatedOrder) {
-        return res.status(404).json({ message: 'Order not found' });
+        return res.status(404).json({ msg: 'Order not found' });
       }
 
-      return res.status(200).json({ message: 'Order updated successfully!', order: updatedOrder })
+      return res.status(200).json({ msg: 'Order updated successfully!' })
     }
 
-    else if (orderType === 'postRemoval') {
-      
-      const updatedOrder = await postRemovalSchema.findByIdAndUpdate(
-        orderId,
-        { status: orderStatus },
-        { new: true } 
-      )
-
-      if (!updatedOrder) {
-        return res.status(404).json({ message: 'Order not found' });
-      }
-
-      return res.status(200).json({ message: 'Order updated successfully!', order: updatedOrder })
-    }
-    return res.status(400).json({ message: 'Invalid order type' })
+    return res.status(400).json({ msg: 'Invalid order type' })
   } catch (error) {
     console.log('error in update orders api', error.message)
-    return res.status(500).json({message : 'error in update orders api'})
+    return res.status(500).json({msg : 'error in update orders api'})
   }
 }
 
@@ -367,7 +311,7 @@ const updateOrderApi = async(req, res) => {
 const getAllOrdersApi = async (req, res) => {
   let orders = [];
   try {
-    const user = await User.findById(req.user.userId)
+    const user = await SuperUser.findById(req.user.userId)
     if(!user){
       return res.status(401).json({ message: 'unauthorized' });
     }
