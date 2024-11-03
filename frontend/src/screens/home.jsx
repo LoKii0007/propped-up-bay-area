@@ -47,19 +47,30 @@ const Home = () => {
   //? loading orders
   //?  ---------------------------------
   async function handleOrders() {
-    const openHouseOrderResponse = await getOpenHouseOrder()
-    const postOrderResponse = await getpostOrder();
-    let combinedOrders
-    if(postOrderResponse.status === 200){
-      combinedOrders = [...postOrderResponse.data.orders];
-      setPostOrders(postOrderResponse.data.orders)
+    try {
+      const openHouseOrderResponse = await getOpenHouseOrder();
+      const postOrderResponse = await getpostOrder();
+      
+      let combinedOrders = []; // Initialize as an empty array
+  
+      if (postOrderResponse.status === 200) {
+        combinedOrders = [...postOrderResponse.data.orders];
+        setPostOrders(postOrderResponse.data.orders);
+      }
+  
+      if (openHouseOrderResponse.status === 200) {
+        combinedOrders = [...combinedOrders, ...openHouseOrderResponse.data.orders];
+      }
+  
+      setOrders(combinedOrders);
+      console.log("res : ", combinedOrders);
+    } catch (error) {
+      toast.error('server error')
+      console.error("Error fetching orders:", error);
+      // Handle error, e.g., show a toast notification
     }
-    if(openHouseOrderResponse.status === 200){
-      combinedOrders = [(prev)=> [...prev, ...openHouseOrderResponse.data.orders]]
-    }
-    setOrders(combinedOrders);
-    console.log("res : ", combinedOrders);
   }
+  
 
 
   //? ----------------------------------
