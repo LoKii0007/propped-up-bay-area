@@ -76,7 +76,7 @@ const stripeSubscription = async (req, res) => {
         }
       ],
       mode: "subscription",
-      success_url: `${frontendUrl}/order/openHouse/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${frontendUrl}/order/postOrder/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendUrl}/order/postOrder/payment?canceled=true`,
     });
     res.status(200).json({ url: session.url });
