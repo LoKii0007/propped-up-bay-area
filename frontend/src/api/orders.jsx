@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const baseUrl = `${import.meta.env.VITE_BASE_URL}/api/orders`
+const baseUrl = `${import.meta.env.VITE_BACKEND_URL}/api/orders`
 
 //? GET openhouse order api
 export const getOpenHouseOrder = async () => {
