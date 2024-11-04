@@ -169,6 +169,7 @@ const createPostOrderApi = async (req, res) => {
       lighting,
       numberOfPosts,
       riders,
+      subId : req.subId
     });
 
     const savedForm = await newForm.save();

@@ -34,6 +34,7 @@ const checkPaymentStatus = async (req, res, next) => {
 
     // Check if the payment status is 'paid'
     if (session.payment_status === 'paid') {
+      req.subId = sessionId
       next()
     } else {
       return res.status(400).json({ success: false });
