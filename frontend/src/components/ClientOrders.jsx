@@ -5,7 +5,7 @@ import RowHeading from "../ui/rowHeading";
 import OrderTypeDropdown from "../ui/orderTypeDropdown";
 import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
-import toast from "react-hot-toast";
+import toast, { LoaderIcon } from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 
 function ClieentOrders({orders}) {
@@ -321,8 +321,8 @@ function ClieentOrders({orders}) {
                     </div>
                   ))
               ) : (
-                <div className=" text-gray-500 p-12">
-                  You don't have any orders yet.
+                <div className=" text-gray-500 p-12 text-center">
+                  {LoaderIcon}
                 </div>
               )}
             </div>

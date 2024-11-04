@@ -65,13 +65,12 @@ const signUp = async (req, res) => {
 //? login
 //?------------------------------
 const login = async (req, res) => {
-  console.log("login");
   try {
     const { email, password, googleId } = req.body;
 
     const user = await User.findOne({ email }).select('-__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
     if (!user) {
-      return res.status(400).json({ msg: "user not found" });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
     if (!password && !googleId) {

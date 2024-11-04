@@ -37,6 +37,7 @@ const ProfileSettings = () => {
           toast.error(res.data.message || 'Profile update failed. Please try again')
         }
         toast.success("Profile updated successfully!");
+        
       } catch (error) {
         toast.error("Failed to update profile.");
       } finally {

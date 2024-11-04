@@ -3,10 +3,12 @@ import { parseDate } from '../helpers/utilities'
 import { UseGlobal } from '../context/GlobalContext'
 import OrderInfo from './OrderInfo'
 
+
 function PostRemoval({ postOrders, setPostOrders }) {
 
     const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal()
     const [completeOrder, setCompleteOrder] = useState('')
+    const [loading, setLoading] = useState(true)
 
 
     //? --------------------
@@ -20,6 +22,10 @@ function PostRemoval({ postOrders, setPostOrders }) {
             setIsInfo(true); //changing view
         }
     }
+
+    useEffect(()=>{
+       setLoading(false)
+    }, [postOrders])
 
     useEffect(() => { }, [completeOrder, setPostOrders])
 
@@ -50,7 +56,7 @@ function PostRemoval({ postOrders, setPostOrders }) {
                                     </button>
                                 </>
                             ))
-                            : `You don't have any active subscriptions`}
+                            : <div className='text-center py-12'>{loading ? 'loading...' : "You don't have any active subscriptions"}</div>  }
                     </div>
                 </div>
 

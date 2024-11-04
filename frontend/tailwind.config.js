@@ -14,7 +14,7 @@ export default {
     require('daisyui'),
   ],
   daisyui: {
-    themes: ['light'], // Disable DaisyUI themes
+    themes: [], // Disable DaisyUI themes
   },
 }
 

@@ -27,12 +27,15 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    try {
+    // try {
       const res = await axios.post(
         `${baseUrl}/auth/login`,
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true, validateStatus: function (status) {
+          return status < 500; // Reject only if the status code is greater than or equal to 500
+        }}
       );
+      console.log(res.data)
       if (res.status === 200) {
         //? navigate to signup details if profile completed is false
         if (!res.data.user.profileCompleted) {
@@ -45,12 +48,12 @@ function Login() {
         toast.success("User logged in Successfully");
         navigate("/"); //? navigate to home page
       } else {
-        toast.error("Login failed. Please try again");
+        toast.error(res.data.msg ||"Login failed. Please try again");
       }
-    } catch (error) {
-      toast.error("Login failed. Please try again");
-      console.log("something went wrong, try again later", error.message);
-    }
+    // } catch (error) {
+    //   toast.error("Server error. Please try again");
+    //   console.log("something went wrong, try again later", error.message);
+    // }
     setLoading(false);
   }
 
