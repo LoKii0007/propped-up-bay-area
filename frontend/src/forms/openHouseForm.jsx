@@ -219,7 +219,7 @@ const OpenHouseForm = () => {
     try {
       // Step 1: Verifying payment by creating a checkout session
       const payment = await axios.post(
-        `${baseUrl}/api/orders/openHouse/create-checkout-session`,
+        `${baseUrl}/api/orders/open-house/create-checkout-session`,
         { total: formData.total },
         {withCredentials : true }
       );

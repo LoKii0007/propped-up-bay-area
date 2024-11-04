@@ -7,8 +7,7 @@ export function GlobalContextProvider({children}){
     const [settingsActiveView, setSettingsActiveView] = useState("profileSettings")
     const [breadCrumb, setBreadCrumb] = useState('clients')
     const [isInfo, setIsInfo] = useState(false)
-    // const baseUrl = 'http://localhost:5000'
-    const baseUrl = 'https://propped-up-backend.vercel.app'
+    const baseUrl = import.meta.env.VITE_BASE_URL
 
     return(
         <GlobalContext.Provider value={{setSettingsActiveView, settingsActiveView, breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl}} >

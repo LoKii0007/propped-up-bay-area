@@ -141,17 +141,15 @@ function PostOrder() {
     setLoading(true)
     try {
       const payment = await axios.post(
-        `${baseUrl}/postOrder/subscription-schedule`,
+        `${baseUrl}/api/orders/post-order/subscription-schedule`,
         formData,
         {withCredentials : true }
       );
 
-      console.log(payment.data.schedule)
-      // Store order data in sessionStorage
-      sessionStorage.setItem("postOrderData", JSON.stringify(formData));
+      sessionStorage.setItem("orderData", JSON.stringify(formData));
 
       // Step 2: Redirect to the Stripe checkout session
-      // window.location.href = payment.data.url;
+      window.location.href = payment.data.url;
 
     } catch (error) {
       toast.error('Server error')
@@ -539,7 +537,7 @@ function PostOrder() {
         <div className="flex gap-2 border border-gray-300 rounded bg-gray-100 items-center justify-between px-4 py-5">
           <div className="font-medium text-lg">Postorder</div>
           <div className="flex gap-2 items-center" >
-            <div className="font-medium text-md border bg-white border-gray-300 p-2 rounded px-5 " >{formData.requiredZone.price}</div>
+            <div className="font-medium text-md border bg-white border-gray-300 p-2 rounded px-5 " >{formData.total}</div>
             <p>USD for the first month then, $15.00 for each month</p>
           </div>
         </div>

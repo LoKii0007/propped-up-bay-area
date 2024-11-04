@@ -1,7 +1,6 @@
 import axios from "axios"
 
-// const baseUrl = 'http://localhost:5000/api/orders'
-const baseUrl = 'https://propped-up-backend.vercel.app/api/orders'
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 //? GET openhouse order api
 export const getOpenHouseOrder = async () => {

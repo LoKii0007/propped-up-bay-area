@@ -1,11 +1,10 @@
 
 const { postOrderSchema } = require("../models/postOrderSchema");
-
 require("dotenv").config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-// const frontendUrl = "http://localhost:5173";
-const frontendUrl = "https://propped-up-bay-area.vercel.app";
+const frontendUrl = process.env.FRONTEND_URL;
+const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET
 
 //? ----------------------------
 //? stripe one time payment for openHouse
@@ -55,57 +54,33 @@ const stripeCustomPayment = async (req, res) => {
 //? stripe subscription
 //? ----------------------------
 const stripeSubscription = async (req, res) => {
+  const { total } = req.body
+  const amountInCents = total * 100;
+  
   try {
-
-    const {firstName,lastName, email, total } = req.body
-
-    // adding customer to stripe
-    const customer = await stripe.customers.create({
-      name : `${firstName} ${lastName}`,
-      email,
-    });
-
-    if (!customer) {
-      res.status(200).json({ msg: "error creating customer" });
-    }
-
-    const amountInCents = total * 100;
-
-    // creating subscription
-    const schedule = await stripe.subscriptionSchedules.create({
-      start_date: "now",
-      end_behavior: "release",
-      customer: customer.id,
-      phases: [
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
         {
-          iterations: 1,
-          items: [
-            {
-              price_data: {
-                currency: "usd",
-                unit_amount: amountInCents, // Amount in cents
-                product: "prod_QzXUu3mBk2v5hE",
-                recurring: {
-                  interval: "month",
-                },
-              },
-              quantity: 1,
+          price_data: {
+            currency: "usd", // Change to your currency
+            product_data: {
+              name: "open house order", // Optional: provide a product name
             },
-          ],
+            unit_amount: amountInCents, // Use the custom amount
+          },
+          quantity: 1,
         },
         {
-          items: [
-            {
-              price : 'price_1Q7YPsSGNvyNL8D3bbSlSt6Q',
-              quantity : 1
-            },
-          ],
-          // iterations: 12,
-        },
+          price : 'price_1QH5BiSBgjrcPEt3WZQKnEZH',
+          quantity : 1
+        }
       ],
+      mode: "subscription",
+      success_url: `${frontendUrl}/order/openHouse/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontendUrl}/order/postOrder/payment?canceled=true`,
     });
+    res.status(200).json({ url: session.url });
 
-    res.status(200).json({ schedule });
   } catch (error) {
     console.log("error in subscription payment method: ", error.message);
     res.status(500).json({ msg: "error in subscription API", err: error });
@@ -140,24 +115,39 @@ const cancelSubscription = async (req, res) => {
   }
 };
 
+//? ----------------------------
+//? stripe subscription webhook
+//? ----------------------------
+const stipeSubscriptionWebhook = async(req, res) => {
+  const sig = request.headers['stripe-signature'];
+  let event;
 
-const addStripeCustomer = async (req, res) => {
-  const { name, email } = req.body;
-
-  const customer = await stripe.customers.create({
-    name,
-    email,
-  });
-
-  if (!customer) {
-    res.status(200).json({ msg: "error creating customer" });
+  try {
+    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+  } catch (err) {
+    response.status(400).send(`Webhook Error: ${err.message}`);
+    return;
   }
-  res.status(200).json({msg: "customer created ", customer});
 
-};
+  // Handle the event
+  switch (event.type) {
+    case 'checkout.session.completed':
+      const checkoutSessionCompleted = event.data.object;
+      const session = await stripe.checkout.sessions.retrieve(checkoutSessionCompleted)
+      const customerDetails = session.customer_details 
+      console.log('monthly payment completed :', customerDetails?.email)
+
+      break;
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  res.status(200).json({msg:'order placed'})
+}
 
 module.exports = {
   stripeSubscription,
   stripeCustomPayment,
   cancelSubscription,
+  stipeSubscriptionWebhook
 };

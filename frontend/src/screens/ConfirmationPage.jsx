@@ -25,7 +25,7 @@ const ConfirmationPage = () => {
     try {
       const orderData = JSON.parse(sessionStorage.getItem("orderData"));
       const res = await axios.post(
-        `${baseUrl}/api/orders/openHouseOrder`,
+        `${baseUrl}/api/orders/${ location.pathname.includes('openHouse') ? 'open-house-order' : 'post-order'}`,
         orderData,
         { params: { sessionId }, withCredentials: true }
       );
@@ -42,6 +42,7 @@ const ConfirmationPage = () => {
         position: "top-right",
       });
     } finally {
+      sessionStorage.removeItem('orderData')
       navigate("/");
     }
   };

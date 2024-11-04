@@ -1,5 +1,5 @@
 const express = require('express')
-const { stripeSubscription, stripeCustomPayment, cancelSubscription } = require('../controller/paymentServer')
+const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails} = require('../controller/users')
 const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails } = require('../controller/auth')
 const { postRemovalApi, createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
@@ -28,8 +28,8 @@ Routes.get('/api/get/userDetails',verifyUser, getUserDetailsApi) //get user deta
 //? -----------------------------
 //? orders route
 //? -----------------------------
-Routes.post('/api/orders/openHouseOrder', checkPaymentStatus ,verifyUser, createOpenHouseOrderApi) //openhouse new order
-Routes.post('/api/orders/postOrder',verifyUser, createPostOrderApi) // new postorder
+Routes.post('/api/orders/open-house-order', checkPaymentStatus ,verifyUser, createOpenHouseOrderApi) //openhouse new order
+Routes.post('/api/orders/post-order',checkPaymentStatus, verifyUser, createPostOrderApi) // new postorder
 Routes.post('/api/orders/postRemoval',verifyUser, postRemovalApi) //postremoval
 
 Routes.get('/api/orders/openHouseOrder', verifyUser , getOpenHouseOrderApi) //openhouse get
@@ -50,8 +50,9 @@ Routes.patch('/auth/profile/update',verifyUser, updateAdminDetails) // admin pro
 //? -----------------------------
 //? payment route
 //? -----------------------------
-Routes.post('/api/orders/openHouse/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
-Routes.post('/api/orders/postOrder/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
+Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
+Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
+Routes.post('/api/orders/post-order/subscription-webhook',verifyUser, stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.patch('/api/orders/postOrder/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription
 
 

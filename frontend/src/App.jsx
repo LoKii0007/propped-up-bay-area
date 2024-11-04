@@ -26,6 +26,7 @@ function App() {
               <Route path="/signup" element={<Register />} />
               <Route path="/signup/details" element={<SignUpDetails />} />
               <Route path="/order/openHouse/payment" element={<ConfirmationPage />} />
+              <Route path="/order/postOrder/payment" element={<ConfirmationPage />} />
               <Route path="/login" element={<Login />} />
             </Routes>
             <Toaster />
