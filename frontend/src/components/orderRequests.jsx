@@ -5,82 +5,101 @@ import OrderTypeDropdown from "../ui/orderTypeDropdown";
 import OrderStatusdropdown from "../ui/orderStatusdropdown";
 import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
-import { sampleOrder } from "../data/staticData";
 import ChangeStatusModal from "../ui/ChangeStatusModal";
-import { getAllOrders } from "../api/orders";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
+import axios from "axios";
 
 function OrderRequests() {
-
-  const [orders, setOrders] = useState([])
+  const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
-  const [updateOrderStatus, setUpdateOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
-  const [completeOrder, setCompleteOrder] = useState('')
-  const [loading, setLoading] = useState(false)
-
-
-  //? ----------------------------------
-  //? loading initial orders
-  //? ---------------------------------
-  async function handleOrders() {
-    setLoading(true)
-    try {
-      const res = await getAllOrders({page:1, limit:20})
-      if(res.status === 401){
-        toast.error(`${res.data.message} || 'Unauthorized'`)
-        return
-      }
-      if(res.status === 500 ){
-        toast.error(`${res.data.message} || 'error fetching orders'`)
-        return
-      }
-      if(res.status === 404){
-        toast.custom(`${res.data.message} || 'no orders found'`)
-        return
-      }
-      const allOrders = res.data.orders
-      console.log(allOrders)
-      setOrders(allOrders);
-      setFilteredOrders(allOrders);
-      setTotalPages(Math.ceil(allOrders.length / displayCount)); 
-    } catch (error) {
-      toast.error('something went wrong . Please try again')
-    }finally{
-      setLoading(false)
-    }
-  }
-
-  //? ----------------------------------
-  //? loading next orders
-  //? ---------------------------------
-  async function handleNextOrders(page) {
-    const allOrders = await getAllOrders({page:1, limit:20})
-    setOrders(allOrders);
-    setFilteredOrders(allOrders);
-    setTotalPages(Math.ceil(allOrders.length / displayCount));
-    resetPagination(allOrders)
-    console.log("res : ", allOrders);
-  }
-
-  useEffect(() => {
-    handleOrders();
-  }, []);
+  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const [completeOrder, setCompleteOrder] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [nextLoading, setnextLoading] = useState(false);
+  const [orderPage, setOrderPage] = useState(1);
+  const limit = 20
 
   //? ------------------------
   //? pagination
   //? ------------------------
   const [displayCount, setDisplayCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState( Math.ceil(orders.length / displayCount));
+  const [totalPages, setTotalPages] = useState(
+    Math.ceil(orders.length / displayCount)
+  );
   const [startPage, setStartPage] = useState(1);
   const startIndex = (currentPage - 1) * displayCount;
   const endIndex = startIndex + displayCount;
+
+  //? ----------------------------------
+  //? loading initial orders
+  //? ---------------------------------
+  async function handleOrders() {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
+        params: { page: orderPage, limit },
+        withCredentials: true,
+      });
+      if (res.status === 401) {
+        toast.error(`${res.data.message} || 'Unauthorized'`);
+        return;
+      }
+      if (res.status === 404) {
+        toast.custom(`${res.data.message} || 'no orders found'`);
+        return;
+      }
+      const allOrders = res.data.orders;
+      console.log(allOrders);
+      setOrders(allOrders);
+      setFilteredOrders(allOrders);
+      setTotalPages(Math.ceil(allOrders.length / displayCount));
+    } catch (error) {
+      toast.error("Server error. Please try again");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //? ----------------------------------
+  //? loading next orders
+  //? ---------------------------------
+  async function handleNextOrders() {
+    setnextLoading(true);
+    try {
+      const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
+        params: { page: orderPage + 1, limit },
+        withCredentials: true,
+        validateStatus: function (status) {
+          return status < 500; // Reject only if the status code is greater than or equal to 500
+        },
+      });
+      if (res.status === 200) {
+        setOrderPage((prev) => prev + 1);
+        const allOrders = [...orders, ...res.data.orders];
+        setFilteredOrders(allOrders);
+        setOrders(allOrders);
+        setTotalPages(Math.ceil(allOrders.length / displayCount));
+        resetPagination(allOrders);
+        console.log("res : ", allOrders);
+      } else {
+        toast(res.data.message || "no more orders found");
+      }
+    } catch (error) {
+      toast.error("Server error");
+    } finally {
+      setnextLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    handleOrders();
+  }, []);
 
   //? -------------------------
   //? pagination resets
@@ -99,8 +118,8 @@ function OrderRequests() {
   };
 
   useEffect(() => {
-    if(orders.length === 0){
-      return
+    if (orders.length === 0) {
+      return;
     }
     const filtered = orders.filter((order) =>
       Object.entries(order).some(([key, value]) => {
@@ -171,9 +190,9 @@ function OrderRequests() {
   };
 
   function handleUserClick(index) {
-    const slectedOrder = filteredOrders[index]
-    if(slectedOrder){
-      setCompleteOrder(filteredOrders[index])
+    const slectedOrder = filteredOrders[index];
+    if (slectedOrder) {
+      setCompleteOrder(filteredOrders[index]);
       setBreadCrumb("Order details"); //updating breadcrumb
       setIsInfo(true); //changing view
     }
@@ -182,16 +201,22 @@ function OrderRequests() {
   //? --------------------
   //? upadting render
   //?---------------------
-  useEffect(() => {}, [filteredOrders, orders, orderType, orderStatus, completeOrder]);
+  useEffect(() => {}, [
+    filteredOrders,
+    orders,
+    orderType,
+    orderStatus,
+    completeOrder,
+    setOrders
+  ]);
 
-
-    //? --------------------
+  //? --------------------
   //? updating order status
   //?---------------------
-  function handleUpdateOrderStatus(index){
-    const slectedOrder = filteredOrders[index]
-    if(slectedOrder){
-      setCompleteOrder(filteredOrders[index])
+  function handleUpdateOrderStatus(index) {
+    const slectedOrder = filteredOrders[index];
+    if (slectedOrder) {
+      setCompleteOrder(filteredOrders[index]);
     }
   }
 
@@ -286,27 +311,31 @@ function OrderRequests() {
                   .map((order, index) => (
                     <div key={index} className="flex w-full p-5 gap-2 ">
                       <div
-                        onClick={()=>handleUserClick(index)}
+                        onClick={() => handleUserClick(index)}
                         className="cursor-pointer grid grid-cols-5 w-5/6 gap-2"
                       >
                         <div className="overflow-hidden">{order._id}</div>
-                        <div className="overflow-hidden">{order.firstName} {order.lastName}</div>
-                        <div className="overflow-hidden">{parseDate(order.createdAt)}</div>
-                        <div className="overflow-hidden">{parseDate(order.requestedDate)}</div>
+                        <div className="overflow-hidden">
+                          {order.firstName} {order.lastName}
+                        </div>
+                        <div className="overflow-hidden">
+                          {parseDate(order.createdAt)}
+                        </div>
+                        <div className="overflow-hidden">
+                          {parseDate(order.requestedDate)}
+                        </div>
                         <div className="overflow-hidden">{order.total}</div>
                       </div>
                       <div>
                         <button
                           onClick={() => {
                             setModalOpen(true);
-                            handleUpdateOrderStatus(index)
+                            handleUpdateOrderStatus(index);
                           }}
-                          className={`text-left font-semibold w-1/6 ${
-                            order.status === "Pending"
-                              ? "text-[#F6B73C]"
-                              : order.status === "installed"
-                              ? "text-[#4C9A2A]"
-                              : "text-[#4C9A2A]"
+                          className={`text-left font-semibold capitalize
+                            ${order.status === "pending" && "text-[#F6B73C]"}
+                            ${order.status === "installed" && "text-[#4C9A2A]"}
+                            ${order.status === "completed" && "text-[#4C9A2A]"}
                           }`}
                         >
                           {order.status}
@@ -316,7 +345,18 @@ function OrderRequests() {
                   ))
               ) : (
                 <div className=" text-gray-500 p-12 text-center">
-                  {loading ? 'loading...' : "You don't have any orders yet."}
+                  {loading ? "loading..." : "You don't have any orders yet."}
+                </div>
+              )}
+              {orders.length >= orderPage * limit && currentPage === totalPages && (
+                <div className="flex justify-center">
+                  <button
+                    disabled={nextLoading}
+                    onClick={() => handleNextOrders()}
+                    className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                  >
+                    {nextLoading ? "loading..." : "Load more"}
+                  </button>
                 </div>
               )}
             </div>
@@ -335,11 +375,18 @@ function OrderRequests() {
           </div>
         </div>
       ) : (
-        <OrderInfo order={completeOrder} />
+        <OrderInfo setOrders={setOrders} order={completeOrder} setCompleteOrder={setCompleteOrder} setFilteredOrders={setFilteredOrders} />
       )}
 
       {/* -------------modal---------------  */}
-      <ChangeStatusModal order={completeOrder} open={modalOpen} setOpen={setModalOpen} />
+      <ChangeStatusModal
+        order={completeOrder}
+        open={modalOpen}
+        setOpen={setModalOpen}
+        setOrders={setOrders}
+        setFilteredOrders={setFilteredOrders}
+        setCompleteOrder={setCompleteOrder}
+      />
     </>
   );
 }

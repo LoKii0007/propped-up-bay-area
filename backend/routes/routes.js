@@ -12,7 +12,7 @@ const Routes = express.Router()
 //? -----------------------------
 Routes.post('/auth/signUp', signUp) // initial signup
 Routes.post('/auth/login', login) // custom login
-Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
+Routes.get('/auth/login/', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating pass
 Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 
@@ -39,7 +39,7 @@ Routes.get('/api/orders/postOrder',verifyUser, getPostOrderApi) // postorder get
 //? -----------------------------
 //? admin only routes
 //? -----------------------------
-Routes.get('/api/orders/getAll',verifyUser, getAllOrdersApi) // get all orders
+Routes.get('/api/orders/get-all',verifyUser, getAllOrdersApi) // get all orders
 Routes.get('/api/userDetails/get',verifyUser, getSingleUserDetails) // get single user detail
 Routes.patch('/api/orders/change-status',verifyUser, updateOrderApi) // updation of user orders
 Routes.get('/api/users/get',verifyUser, getAllUsersApi) // get all users

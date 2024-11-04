@@ -20,12 +20,11 @@ function Admin() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const { admin } = useAuth();
+  const page = 1;
+  const limit = 20;
 
   async function handleUsers() {
     try {
-      const page = 1;
-      const limit = 10;
-
       const res = await axios.get(`${baseUrl}/api/users/get`, {
         params: { page, limit },
         withCredentials: true,
@@ -100,7 +99,7 @@ function Admin() {
         <div className="p-7 bg-white h-[87vh]">
           <div className="active-bottom h-full overflow-y-auto">
             {activeView === "dashboard" && <Salesreport />}
-            {activeView === "clients" && <ClientDetails users={users} />}
+            {activeView === "clients" && <ClientDetails users={users} setUsers={setUsers} />}
             {activeView === "order requests" && <OrderRequests />}
             {activeView === "subscription" && <ClientDetails users={filteredUsers} />}
             {activeView === "sales report" && <Salesreport />}

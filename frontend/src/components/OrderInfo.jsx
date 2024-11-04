@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ActionsDropdown from "../ui/ActionsDropdown";
 import ChangeStatusModal from "../ui/ChangeStatusModal";
 import { useAuth } from "../context/AuthContext";
 import CancelSubModal from "../ui/CancelSubModal";
 import { parseDate } from "../helpers/utilities";
 
-function OrderInfo({ order, setPostOrders, postOrders }) {
+function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOrders, setCompleteOrder }) {
   const [modalOpen, setModalOpen] = useState(false);
   const { admin } = useAuth();
 
-  console.log("order", order);
+  useEffect(()=>{
+  }, [order])
 
   return (
     <>
@@ -57,6 +58,9 @@ function OrderInfo({ order, setPostOrders, postOrders }) {
 
             {order.type === "openHouse" && (
               <>
+                <p className="text-md grid grid-cols-2">
+                  <span>Status:</span> {order.status}
+                </p>
                 <p className="text-md grid grid-cols-2">
                   <span className="">Phone Number:</span> {order.phone}
                 </p>
@@ -190,7 +194,7 @@ function OrderInfo({ order, setPostOrders, postOrders }) {
 
       {/* -------------------------modals ---------------- */}
       {admin?.role === "admin" ? (
-        <ChangeStatusModal order={order} open={modalOpen} setOpen={setModalOpen} />
+        <ChangeStatusModal setCompleteOrder={setCompleteOrder} order={order} open={modalOpen} setOpen={setModalOpen} setOrders={setOrders} setFilteredOrders={setFilteredOrders} />
       ) : (
         <CancelSubModal
           postOrders={postOrders}

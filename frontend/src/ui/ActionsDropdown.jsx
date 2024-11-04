@@ -57,7 +57,7 @@ function ActionsDropdown({}) {
                 <button
                   className="flex px-3 gap-3 items-center text-[#718096] hover:text-black hover:bg-gray-300 py-2 "
                   onClick={() => {
-                    setModalOpen(true); //opens modal
+                   // setModalOpen(true); //opens modal
                     close(); // Closes the dropdown
                   }}
                 >

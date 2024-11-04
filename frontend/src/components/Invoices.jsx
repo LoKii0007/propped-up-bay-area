@@ -3,7 +3,6 @@ import html2pdf from "html2pdf.js";
 import OpenHouseInvoice from "./invoices/openHouseInvoice";
 import toast from "react-hot-toast";
 import PostOrderInvoice from "./invoices/postOrderInvoice";
-import { useNavigate } from "react-router-dom";
 import ReactDOM from "react-dom";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -11,18 +10,20 @@ import RowHeading from "../ui/rowHeading";
 import Pagination from "./pagination";
 import { UseGlobal } from "../context/GlobalContext";
 import InvoiceDownload from "./invoiceDownload";
-import { getAllOrders } from "../api/orders";
+import axios from "axios";
 
 function Invoices() {
   const [orders, setOrders] = useState([]);
   const [filteredInvoices, setFilteredInvoices] = useState(orders);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
   const [orderType, setOrderType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [invoiceData, setInvoiceData] = useState();
-  const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const [nextLoading, setnextLoading] = useState(false);
+  const [orderPage, setOrderPage] = useState(1);
+  const limit = 20;
 
   //? ------------------------
   //? pagination
@@ -40,7 +41,18 @@ function Invoices() {
   //? loading initial orders
   //? ---------------------------------
   async function handleOrders() {
-    const res = await getAllOrders({ page: 1, limit: 20 });
+    const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
+      params: { page: orderPage, limit },
+      withCredentials: true,
+    });
+    if (res.status === 401) {
+      toast.error(`${res.data.message} || 'Unauthorized'`);
+      return;
+    }
+    if (res.status === 404) {
+      toast.custom(`${res.data.message} || 'no orders found'`);
+      return;
+    }
     if (res.status === 401) {
       toast.error(`${res.data.message} || 'Unauthorized'`);
       return;
@@ -54,10 +66,40 @@ function Invoices() {
       return;
     }
     const allOrders = res.data.orders;
-    console.log(allOrders);
     setOrders(allOrders);
     setFilteredInvoices(allOrders);
     setTotalPages(Math.ceil(allOrders.length / displayCount));
+  }
+
+  //? ----------------------------------
+  //? loading next orders
+  //? ---------------------------------
+  async function handleNextOrders() {
+    setnextLoading(true);
+    try {
+      const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
+        params: { page: orderPage + 1, limit },
+        withCredentials: true,
+        validateStatus: function (status) {
+          return status < 500; // Reject only if the status code is greater than or equal to 500
+        },
+      });
+      if (res.status === 200) {
+        setOrderPage((prev) => prev + 1);
+        const allOrders = [...orders, ...res.data.orders];
+        setFilteredInvoices(allOrders);
+        setOrders(allOrders);
+        setTotalPages(Math.ceil(allOrders.length / displayCount));
+        resetPagination(allOrders);
+        console.log("res : ", allOrders);
+      } else {
+        toast(res.data.message || "no more orders found");
+      }
+    } catch (error) {
+      toast.error("Server error");
+    } finally {
+      setnextLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -160,13 +202,13 @@ function Invoices() {
     setOrderType(type); // updating order type
 
     if (type === "all") {
-      setFilteredOrders(orders);
+      setFilteredInvoices(orders);
     } else {
       // applying the clicked filter
       filtered = filtered.filter(
         (order) => order.type.toLowerCase() === type.toLowerCase()
       );
-      setFilteredOrders(filtered);
+      setFilteredInvoices(filtered);
     }
 
     resetPagination(filtered); // reset pagination
@@ -183,9 +225,9 @@ function Invoices() {
 
       // Render the appropriate component based on the invoice type
       let element;
-      if (data.type === 'openHouse') {
+      if (data.type === "openHouse") {
         element = <OpenHouseInvoice data={data} />;
-      } else if (data.type === 'postOrder') {
+      } else if (data.type === "postOrder") {
         element = <PostOrderInvoice data={data} />;
       } else {
         toast.error("Download failed. Please try again");
@@ -206,7 +248,10 @@ function Invoices() {
       };
 
       // Generate and download PDF
-      html2pdf().from(invoiceElement).set(options).save()
+      html2pdf()
+        .from(invoiceElement)
+        .set(options)
+        .save()
         .then(() => {
           toast.success(`Downloaded ${filename}`);
           ReactDOM.unmountComponentAtNode(container);
@@ -371,6 +416,21 @@ function Invoices() {
                     </button>
                   </div>
                 ))}
+              {orders.length >= orderPage * limit &&
+                currentPage === totalPages && (
+                  <div className="flex justify-center">
+                    {nextLoading ? (
+                      "loading..."
+                    ) : (
+                      <button
+                        onClick={() => handleNextOrders()}
+                        className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                      >
+                        Load more
+                      </button>
+                    )}
+                  </div>
+                )}
             </div>
             <Pagination
               startPage={startPage}

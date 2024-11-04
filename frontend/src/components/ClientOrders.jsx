@@ -8,7 +8,7 @@ import OrderInfo from "./OrderInfo";
 import toast, { LoaderIcon } from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 
-function ClieentOrders({orders}) {
+function ClieentOrders({ orders }) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
@@ -17,7 +17,7 @@ function ClieentOrders({orders}) {
   const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [completeOrder, setCompleteOrder] = useState('')
+  const [completeOrder, setCompleteOrder] = useState("");
 
   //? ------------------------
   //? pagination
@@ -141,8 +141,8 @@ function ClieentOrders({orders}) {
   function handleClearFilter() {
     setOrderStatus("all");
     setOrderType("all");
-    setStartDate('')
-    setEndDate('')
+    setStartDate("");
+    setEndDate("");
     setFilteredOrders(orders);
     resetPagination(orders); // pagination reset
   }
@@ -151,9 +151,9 @@ function ClieentOrders({orders}) {
   //? user click
   //?---------------------
   function handleUserClick(index) {
-    const slectedOrder = filteredOrders[index]
-    if(slectedOrder){
-      setCompleteOrder(filteredOrders[index])
+    const slectedOrder = filteredOrders[index];
+    if (slectedOrder) {
+      setCompleteOrder(filteredOrders[index]);
       setBreadCrumb("Order details"); //updating breadcrumb
       setIsInfo(true); //changing view
     }
@@ -162,7 +162,13 @@ function ClieentOrders({orders}) {
   //? --------------------
   //? upadting render
   //?---------------------
-  useEffect(() => {}, [filteredOrders, orders, orderType, orderStatus, completeOrder]);
+  useEffect(() => {}, [
+    filteredOrders,
+    orders,
+    orderType,
+    orderStatus,
+    completeOrder,
+  ]);
 
   return (
     <>
@@ -297,7 +303,7 @@ function ClieentOrders({orders}) {
                   ?.slice(startIndex, endIndex)
                   .map((order, index) => (
                     <div
-                      onClick={()=>handleUserClick(index)}
+                      onClick={() => handleUserClick(index)}
                       key={index}
                       className="cursor-pointer grid grid-cols-6 w-full p-5 gap-2 "
                     >
@@ -322,7 +328,7 @@ function ClieentOrders({orders}) {
                   ))
               ) : (
                 <div className=" text-gray-500 p-12 text-center">
-                  {LoaderIcon}
+                  you dont have any orders
                 </div>
               )}
             </div>

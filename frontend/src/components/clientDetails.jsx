@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Pagination from "./pagination";
-import DashboardBtn from "../ui/dashboardBtn";
 import RowHeading from "../ui/rowHeading";
 import Modal from "../ui/ChangeStatusModal";
 import DetailedInfo from "./DetailedInfo";
 import { UseGlobal } from "../context/GlobalContext";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-function ClientDetails({ users }) {
+function ClientDetails({ users, setUsers }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
-  const [userInfo , setUserInfo] = useState(null)
+  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const [userInfo, setUserInfo] = useState(null);
+  const [nextLoading, setNextLoading] = useState(false);
+  const [orderPage, setOrderPage] = useState(1);
+  const limit = 10;
 
   //? ------------------------
   //? pagination
@@ -49,14 +53,60 @@ function ClientDetails({ users }) {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
+  //? -------------------------
+  //? pagination resets
+  //?--------------------------
+  function resetPagination(filtered) {
+    setTotalPages(Math.ceil(filtered.length / displayCount));
+    setCurrentPage(1); // Reset to first page when filtering
+    setStartPage(1); // Reset page range to the beginning when filtering
+  }
+
+  //? -------------------------
+  //? handle next users
+  //?--------------------------
+  async function handleNextUsers() {
+    setNextLoading(true);
+    try {
+      const res = await axios.get(`${baseUrl}/api/users/get`, {
+        params: { page: orderPage + 1, limit },
+        withCredentials: true,
+        validateStatus: function (status) {
+          return status < 500; // Reject only if the status code is greater than or equal to 500
+        },
+      });
+      if (res.status === 401) {
+        toast.error(`${res.data.message} || 'Unauthorized'`);
+        return;
+      }
+      if (res.status === 200) {
+        const allUsers = [...users, ...res.data.users];
+        setUsers(allUsers);
+        setFilteredUsers(allUsers);
+        setOrderPage((prev) => prev + 1);
+        setTotalPages(Math.ceil(users.length / displayCount));
+        resetPagination(allUsers);
+      } else {
+        toast(res.data.message || "no more orders found");
+      }
+    } catch (error) {
+      toast.error("Server error");
+    } finally {
+      setNextLoading(false);
+    }
+  }
+
+  useEffect(()=>{
+
+  }, [filteredUsers])
 
   //? --------------------
   //? user click
   //?---------------------
   function handleUserClick(index) {
     const selectedUser = filteredUsers[index];
-    if(selectedUser){
-      setUserInfo(selectedUser) // Store selected user 
+    if (selectedUser) {
+      setUserInfo(selectedUser); // Store selected user
       setBreadCrumb("Customer info"); // updating breadcrumb
       setIsInfo(true); // changing view
     }
@@ -144,6 +194,17 @@ function ClientDetails({ users }) {
                       <div className="overflow-hidden">{user.totalSpent}</div>
                     </div>
                   ))}
+                {users.length >= orderPage*limit && currentPage === totalPages && (
+                  <div className="flex justify-center">
+                    <button
+                      disabled={nextLoading}
+                      onClick={() => handleNextUsers()}
+                      className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                    >
+                      {nextLoading ? 'loading...' :'Load more'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

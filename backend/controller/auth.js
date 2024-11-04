@@ -157,15 +157,15 @@ const adminLogin = async (req, res) => {
 const getUserByToken = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select("-password -__v -createdAt -updatedAt -totalOrders -totalSpent");
-    if (!res) {
-      return res.status(400).json({ messsage: "no user found" });
+    if (!user) {
+      return res.status(400).json({ msg: "no user found" });
     }
-    return res.status(200).json({ user, message: "user found" });
+    return res.status(200).json({ user, msg: "user found" });
   } catch (err) {
     console.log("error in getUser api", err.message);
     return res
       .status(500)
-      .json({ error: err.message, message: "error in getUser api" });
+      .json({ error: err.message, msg: "error in getUser api" });
   }
 };
 

@@ -5,7 +5,7 @@ import { UseGlobal } from '../context/GlobalContext'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 
-export default function ChangeStatusModal({open, setOpen, order}) {
+export default function ChangeStatusModal({open, setOpen, order, setOrders, setFilteredOrders, setCompleteOrder }) {
 
   const {baseUrl} = UseGlobal()
   const [loading, setLoading] = useState(false)
@@ -17,7 +17,10 @@ export default function ChangeStatusModal({open, setOpen, order}) {
       if(res.status !== 200){
         toast.error(res.data.msg || 'Error updating status. Please try again')
       }else{
-        toast.success('status updated successfully', {position:'top-right'})   
+        toast.success('status updated successfully', {position:'top-right'})
+        setOrders( prev => prev.map((o)=> o._id === order._id ? {...o , status} : o )  )
+        setFilteredOrders( prev => prev.map((o)=> o._id === order._id ? {...o , status} : o )  )
+        setCompleteOrder(prev => ({...prev, status}))
       }
     } catch (error) {
       toast.error('Server Error. Please try again')

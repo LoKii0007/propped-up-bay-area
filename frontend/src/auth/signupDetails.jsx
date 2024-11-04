@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useLocation, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
+import { useAuth } from "../context/AuthContext";
 
 const SignUpDetails = () => {
   const initialState = {
@@ -18,11 +19,9 @@ const SignUpDetails = () => {
     receiveTextNotifications: false,
   };
 
-  // const location = useLocation();
   const navigate = useNavigate();
-  const {baseUrl} = UseGlobal()
-
-  // const user = location.state;
+  const { baseUrl } = UseGlobal();
+  const {currentUser, setCurrentUser} = useAuth()
   const [formData, setFormData] = useState(initialState);
 
   const handleChange = (e) => {
@@ -47,15 +46,16 @@ const SignUpDetails = () => {
         toast.error("something went wrong, try again");
         return;
       }
-      toast.success("submitted succesfully. Please login");
+      toast.success("submitted succesfully");
       setFormData(initialState); // cleanup of form
-      navigate("/login"); // navigating to homepage
+      sessionStorage.setItem('proppedUpUser',JSON.stringify(res.data.user))
+      setCurrentUser(res.data.user)
+      navigate("/"); // navigating to homepage
     } catch (error) {
       toast.error("something went wrong, try again");
     }
   };
 
-  // useEffect(() => {}, [user]);
 
   return (
     <div className="max-w-3xl mx-auto p-8 overflow-y-auto ">

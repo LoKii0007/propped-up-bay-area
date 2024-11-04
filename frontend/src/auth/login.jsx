@@ -27,7 +27,7 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    // try {
+    try {
       const res = await axios.post(
         `${baseUrl}/auth/login`,
         { email, password },
@@ -50,10 +50,10 @@ function Login() {
       } else {
         toast.error(res.data.msg ||"Login failed. Please try again");
       }
-    // } catch (error) {
-    //   toast.error("Server error. Please try again");
-    //   console.log("something went wrong, try again later", error.message);
-    // }
+    } catch (error) {
+      toast.error("Server error. Please try again");
+      console.log("something went wrong, try again later", error.message);
+    }
     setLoading(false);
   }
 

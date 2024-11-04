@@ -2,7 +2,6 @@ import axios from "axios"
 
 // const baseUrl = 'http://localhost:5000/api/orders'
 const baseUrl = 'https://propped-up-backend.vercel.app/api/orders'
-// const authToken = localStorage.getItem('authToken')
 
 //? GET openhouse order api
 export const getOpenHouseOrder = async () => {
@@ -34,39 +33,6 @@ export const getpostOrder = async () => {
         return response
     } catch (error) {
         console.log('Error fetching get-postOrders api', error.message)
-        return ({res : {status : 500 }})
-    }
-}
-
-export const postRemoval = async (data) => {
-    try {
-        const response = await axios.post(`${baseUrl}/postRemoval`, data, {withCredentials : true})
-        return response.data
-    } catch (error) {
-        console.log('Error fetching openhouse orders api', error)
-    }
-}
-
-
-//? GET all order api
-export const getAllOrders = async ({page, limit}) => {
-    try {
-        const response = await axios.get(`${baseUrl}/getAll`,{params : {page , limit } , withCredentials : true})
-        return response
-    } catch (error) {
-        console.log('Error calling allorders api : ', error.message)
-        return ({res : {status : 500 }})
-    }
-}
-
-
-//? update all order api
-export const updateOrder = async (data) => {
-    try {
-        const response = await axios.patch(`${baseUrl}/update`, data ,{withCredentials : true})
-        return response
-    } catch (error) {
-        console.log('Error calling update orders api : ', error.message)
         return ({res : {status : 500 }})
     }
 }

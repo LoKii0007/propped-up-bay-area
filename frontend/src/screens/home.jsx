@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import Order from "../components/order";
-// import PostRemoval from "../forms/postRemoval";
 import CardDetails from "../components/cardDetails";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -31,16 +30,24 @@ const Home = () => {
   }
 
   //? ------------------------------
-  //? logging user by authtoken
+  //? log in user by authtoken
   //? ------------------------------
-  async function handleLogin() {
-    // const res = await getUserByToken()
-    // if (res.status === 200) {
-    //   setCurrentUser(res.data.user);
-    //   console.info("logged in");
-    // }else{
-    //   navigate("/login");
-    // }
+  async function loginByToken() {
+    try {
+      const res = await axios.get(`${baseUrl}/auth/login`,{
+        withCredentials: true,
+        validateStatus: function (status) {
+          return status < 500; // Reject only if the status code is greater than or equal to 500
+        },
+      });
+      if(res.status === 200){
+        setCurrentUser(res.data.user)
+      }else{
+        navigate('/login')
+      }
+    } catch (error) {
+      navigate('/login')
+    }
   }
 
   //? ----------------------------------
@@ -70,7 +77,6 @@ const Home = () => {
       // Handle error, e.g., show a toast notification
     }
   }
-  
 
 
   //? ----------------------------------
@@ -97,16 +103,22 @@ const Home = () => {
     }
   }
 
+
+  //? ----------------------------------
+  //? logic on initial site load
+  //? ---------------------------------
   useEffect(() => {
     if (!currentUser) {
+      //? check session storage if found set user
       const user = JSON.parse(sessionStorage.getItem('proppedUpUser'))
       if(user){
         setCurrentUser(user)
       }else{
-        navigate("/login");
+        loginByToken()
       }
     }
     else if (currentUser) {
+      console.log('Current user:', currentUser)
       if (!currentUser.profileCompleted) {
         navigate('/signup/details')
         return
@@ -114,7 +126,7 @@ const Home = () => {
       handleOrders();
       handleUserDetails()
     }
-  }, [currentUser, setCurrentUser]);
+  }, [currentUser]);
 
   useEffect(()=>{}, [postOrders])
 

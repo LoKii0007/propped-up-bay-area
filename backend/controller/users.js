@@ -22,6 +22,12 @@ const userDetails = async (req, res) => {
     } = req.body;
 
     const userId = req.user.userId;
+
+    const user = await User.findById(req.user.userId).select("-password -__v -createdAt -updatedAt -totalOrders -totalSpent");
+    if (!user) {
+      return res.status(400).json({ msg: "no user found" });
+    }
+
     // Creaing a new record with the signup details
     const profileComplete = await SignUpDetails.create({
       userId,
@@ -39,23 +45,22 @@ const userDetails = async (req, res) => {
 
     if (!profileComplete) {
       return res.status(500).json({
-        message: "User details could not be saved",
+        msg: "User details could not be saved",
       });
     }
 
-    const statusUpdated = await User.findByIdAndUpdate(
-      userId,
-      { profileCompleted: true },
-      { new: true }
-    );
+    user.profileCompleted = true
+
+    const updatedUser = await user.save()
 
     return res.status(201).json({
-      message: "User details saved successfully",
+      user: updatedUser,
+      msg: "User details saved successfully",
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: "User details could not be saved",
+      msg: "User details could not be saved",
       error: error.message,
     });
   }
