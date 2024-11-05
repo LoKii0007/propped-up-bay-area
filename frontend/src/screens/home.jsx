@@ -14,8 +14,8 @@ import PostRemoval from "../components/PostRemoval";
 
 const Home = () => {
   const [activeView, setActiveView] = useState("dashboard");
-  const { currentUser, setCurrentUser } = useAuth();
-  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const {currentUser, setCurrentUser } = useAuth();
+  const {breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
   const [orders, setOrders] = useState([]);
   const [userDetails, setUserDetails] = useState({});
   const [postOrders, setPostOrders] = useState([])
@@ -36,9 +36,6 @@ const Home = () => {
     try {
       const res = await axios.get(`${baseUrl}/auth/login`,{
         withCredentials: true,
-        validateStatus: function (status) {
-          return status < 500; // Reject only if the status code is greater than or equal to 500
-        },
       });
       if(res.status === 200){
         setCurrentUser(res.data.user)
@@ -166,7 +163,7 @@ const Home = () => {
           <div className="active-bottom h-[87vh] overflow-y-auto p-7">
             {activeView === "dashboard" && <ClieentOrders orders={orders} />}
             {activeView === "order" && <Order />}
-            {activeView === "removal" && <PostRemoval setPostOrders={setPostOrders} postOrders={postOrders} />}
+            {activeView === "removal" && <PostRemoval setOrders={setOrders} setPostOrders={setPostOrders} postOrders={postOrders} />}
             {activeView === "profile" && <EditProfileForm userDetails={userDetails} user={currentUser} />}
             {activeView === "payment info" && <CardDetails />}
           </div>

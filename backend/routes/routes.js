@@ -2,7 +2,7 @@ const express = require('express')
 const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails} = require('../controller/users')
 const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails } = require('../controller/auth')
-const { postRemovalApi, createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
+const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const Routes = express.Router()
 
@@ -12,7 +12,7 @@ const Routes = express.Router()
 //? -----------------------------
 Routes.post('/auth/signUp', signUp) // initial signup
 Routes.post('/auth/login', login) // custom login
-Routes.get('/auth/login/', verifyUser, getUserByToken ) // getting user by token
+Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating pass
 Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 
@@ -30,7 +30,6 @@ Routes.get('/api/get/userDetails',verifyUser, getUserDetailsApi) //get user deta
 //? -----------------------------
 Routes.post('/api/orders/open-house-order', checkPaymentStatus ,verifyUser, createOpenHouseOrderApi) //openhouse new order
 Routes.post('/api/orders/post-order',checkPaymentStatus, verifyUser, createPostOrderApi) // new postorder
-Routes.post('/api/orders/postRemoval',verifyUser, postRemovalApi) //postremoval
 
 Routes.get('/api/orders/openHouseOrder', verifyUser , getOpenHouseOrderApi) //openhouse get
 Routes.get('/api/orders/postOrder',verifyUser, getPostOrderApi) // postorder get
@@ -53,7 +52,7 @@ Routes.patch('/auth/profile/update',verifyUser, updateAdminDetails) // admin pro
 Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
 Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
 Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
-Routes.patch('/api/orders/postOrder/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription
+Routes.patch('/api/orders/postOrder/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
 
 module.exports = Routes

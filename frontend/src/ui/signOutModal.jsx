@@ -20,7 +20,6 @@ export default function SignOutModal({ open, setOpen, text, btnText }) {
 
       if (res.status === 200) {
         setCurrentUser(null);
-        setUserLoggedIn(false);
         toast.success('Signed out successfully');
         navigate('/login')
       } else {

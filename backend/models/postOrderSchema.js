@@ -60,7 +60,7 @@ const formSchema = new Schema({
     type : Boolean,
     default : true
   },
-  subId : {
+  sessionId : {
     type : String,
     required : true
   },
@@ -69,6 +69,9 @@ const formSchema = new Schema({
     default: Date.now,
   }
 });
+
+//? indexing
+formSchema.index({userId : 1, subActive : 1})
 
 const postOrderSchema = mongoose.model("postOrderForm", formSchema);
 

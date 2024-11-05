@@ -10,7 +10,7 @@ function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOr
   const { admin } = useAuth();
 
   useEffect(()=>{
-  }, [order])
+  }, [order, setOrders, setPostOrders])
 
   return (
     <>
@@ -123,6 +123,9 @@ function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOr
                   <span>Phone Number:</span> {order.phone}
                 </p>
                 <p className="text-md grid grid-cols-2">
+                  <span>Subscription :</span> {order.subActive ? 'Active' : 'Cancelled'}
+                </p>
+                <p className="text-md grid grid-cols-2">
                   <span>Requested Date:</span> {parseDate(order.requestedDate)}
                 </p>
                 <p className="text-md grid grid-cols-2">
@@ -199,8 +202,9 @@ function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOr
         <CancelSubModal
           postOrders={postOrders}
           setPostOrders={setPostOrders}
+          setOrders={setOrders}
           orderId={order._id}
-          subscriptionId={order.subId}
+          sessionId={order.subId}
           open={modalOpen}
           setOpen={setModalOpen}
         />

@@ -243,9 +243,9 @@ const signOutApi = async (req, res) => {
 
     // Clear the authToken cookie, specifying the domain for cross-site compatibility
     res.clearCookie("authToken", {
-      httpOnly: true,
+      // httpOnly: true,
       secure: true,
-      sameSite: "None", // Allows cross-site cookie usage
+      sameSite: "None", 
       domain: "propped-up-backend.vercel.app", 
     });
 

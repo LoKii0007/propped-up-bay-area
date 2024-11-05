@@ -4,24 +4,25 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/re
 import toast from 'react-hot-toast';
 import { UseGlobal } from '../context/GlobalContext';
 
-export default function CancelSubModal({ open, setOpen, orderId,subscriptionId, setPostOrders, postOrders }) {
+export default function CancelSubModal({ open, setOpen, orderId,sessionId,setOrders , setPostOrders, postOrders }) {
   const [loading, setLoading] = useState(false);
   const {baseUrl} = UseGlobal()
 
   async function handleCancelOrder() {
     setLoading(true);
     try {
-      const res = await axios.patch(`${baseUrl}/api/orders/postOrder/cancel-subscription`, {orderId, subscriptionId} , {withCredentials : true})
+      const res = await axios.patch(`${baseUrl}/api/orders/postOrder/cancel-subscription`, {orderId, sessionId} , {withCredentials : true})
       if(res.status === 200){
         const filtered = postOrders.filter(order => order._id !== orderId )
+        setPostOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
+        setOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
         setPostOrders(filtered)
         toast.success(res.data.messsage || 'Subscription cancelled')
       }else{
         toast.error(res.data.messsage || 'Error updating. Please try again')
       }
     } catch (error) {
-      console.error("cancel subscription :", error);
-      toast.error('Server error . Please try again.');
+      toast.error('Server error. Please try again.');
     } finally {
       setLoading(false);
       setOpen(false);

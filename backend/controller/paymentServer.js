@@ -1,5 +1,6 @@
 
 const { postOrderSchema } = require("../models/postOrderSchema");
+const User = require("../models/user");
 require("dotenv").config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -92,28 +93,57 @@ const stripeSubscription = async (req, res) => {
 //? cancel stripe subscription
 //? ----------------------------
 const cancelSubscription = async (req, res) => {
+  const { sessionId, orderId } = req.body;
+  const userId = req.user.userId;
+
   try {
-    const { subscriptionId, orderId } = req.body;
+    // Retrieve the session to get the subscription ID
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    const order = await postOrderSchema.findById(orderId);
-    if (!order) {
-      return res.status(404).json({ msg: 'Order not found' });
+    // Check if the session has a subscription
+    if (session.subscription) {
+      // Cancel the subscription
+      const canceledSubscription = await stripe.subscriptions.cancel(session.subscription);
+
+      if (!canceledSubscription) {
+        return res.status(400).json({ msg: "Error from Stripe" });
+      }
+
+      // Update the specific post order to mark subActive as false
+      const orderUpdated = await postOrderSchema.findByIdAndUpdate(
+        orderId,
+        { subActive: false },
+        { new: true }
+      );
+
+      if (!orderUpdated) {
+        return res.status(400).json({ msg: "Error updating order details" });
+      }
+
+      // Check if any other post orders for the user have subActive set to true
+      const activeSubscriptionExists = await postOrderSchema.exists({
+        userId: userId,
+        subActive: true
+      });
+
+      // If no active subscriptions remain, set user.isSubscribed to false
+      if (!activeSubscriptionExists) {
+        await User.findByIdAndUpdate(userId, { isSubscribed: false });
+      }
+
+      res.status(200).json({
+        message: "Subscription canceled successfully",
+        subscription: canceledSubscription,
+      });
+    } else {
+      res.status(400).json({ message: "No subscription found for this session" });
     }
-
-    // Cancel the subscription immediately
-    const deletedSubscription = await stripe.subscriptionSchedules.cancel(subscriptionId);
-    
-    if (deletedSubscription) {
-      order.subActive = false; // Set subActive to false
-      await order.save(); // Save the updated order
-    }
-
-    res.status(200).json({ msg: "Subscription canceled successfully", subscription: deletedSubscription });
   } catch (error) {
-    console.log("Error in subscription cancellation: ", error.message);
-    res.status(500).json({ msg: "Error in subscription cancellation", err: error });
+    console.error("Error in canceling subscription: ", error.message);
+    res.status(500).json({ message: "Failed to cancel subscription", error });
   }
 };
+
 
 //? ----------------------------
 //? stripe subscription webhook
@@ -123,9 +153,9 @@ const stipeSubscriptionWebhook = async(req, res) => {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    res.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
 
