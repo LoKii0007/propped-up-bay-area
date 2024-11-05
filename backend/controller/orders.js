@@ -176,7 +176,11 @@ const createPostOrderApi = async (req, res) => {
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(userId, {
-      $inc: { totalOrders: 1, totalSpent: total, isSubscribed : true }
+      $inc: { totalOrders: 1, totalSpent: total }
+    });
+
+    await User.findByIdAndUpdate(userId, {
+       isSubscribed : true
     });
 
     res.status(201).json({ savedForm, message: "Post order created successfully" });
