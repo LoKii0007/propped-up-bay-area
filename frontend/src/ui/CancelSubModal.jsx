@@ -11,18 +11,19 @@ export default function CancelSubModal({ open, setOpen, orderId,sessionId,setOrd
   async function handleCancelOrder() {
     setLoading(true);
     try {
-      const res = await axios.patch(`${baseUrl}/api/orders/post-order/cancel-subscription`, {orderId, sessionId} , {withCredentials : true})
+      const res = await axios.patch(`${baseUrl}/api/orders/post-order/cancel-subscription`, {orderId, sessionId} , {withCredentials : true , validateStatus : (status) => status < 500 })
       if(res.status === 200){
-        const filtered = postOrders.filter(order => order._id !== orderId )
-        setPostOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
-        setOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
-        setPostOrders(filtered)
-        toast.success(res.data.messsage || 'Subscription cancelled')
+        // const filtered = postOrders.filter(order => order._id !== orderId )
+        // setPostOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
+        // setOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
+        // setPostOrders(filtered)
+        toast.success(res.data.msg || 'Subscription cancelled')
       }else{
-        toast.error(res.data.messsage || 'Error updating. Please try again')
+        toast.error(res.data.msg || 'Error updating. Please try again')
       }
     } catch (error) {
       toast.error('Server error. Please try again.');
+      console.log(error)
     } finally {
       setLoading(false);
       setOpen(false);

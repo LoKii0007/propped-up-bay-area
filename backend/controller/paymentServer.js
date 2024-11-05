@@ -65,7 +65,7 @@ const stripeSubscription = async (req, res) => {
           price_data: {
             currency: "usd", // Change to your currency
             product_data: {
-              name: "open house order", // Optional: provide a product name
+              name: "Post order first month fee", // Optional: provide a product name
             },
             unit_amount: amountInCents, // Use the custom amount
           },
@@ -97,19 +97,21 @@ const cancelSubscription = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    // Retrieve the session to get the subscription ID
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    // Check if the session has a subscription
     if (session.subscription) {
-      // Cancel the subscription
-      const canceledSubscription = await stripe.subscriptions.cancel(session.subscription);
+      const subscription = await stripe.subscriptions.retrieve(session.subscription);
+
+      if (subscription.status === 'canceled') {
+        return res.status(400).json({ msg: "Subscription is already canceled." });
+      }
+
+      const canceledSubscription = await stripe.subscriptions.cancel(subscription.id);
 
       if (!canceledSubscription) {
         return res.status(400).json({ msg: "Error from Stripe" });
       }
 
-      // Update the specific post order to mark subActive as false
       const orderUpdated = await postOrderSchema.findByIdAndUpdate(
         orderId,
         { subActive: false },
@@ -120,27 +122,24 @@ const cancelSubscription = async (req, res) => {
         return res.status(400).json({ msg: "Error updating order details" });
       }
 
-      // Check if any other post orders for the user have subActive set to true
       const activeSubscriptionExists = await postOrderSchema.exists({
         userId: userId,
         subActive: true
       });
 
-      // If no active subscriptions remain, set user.isSubscribed to false
       if (!activeSubscriptionExists) {
         await User.findByIdAndUpdate(userId, { isSubscribed: false });
       }
 
       res.status(200).json({
-        message: "Subscription canceled successfully",
-        subscription: canceledSubscription,
+        msg: "Subscription canceled successfully"
       });
     } else {
-      res.status(400).json({ message: "No subscription found for this session" });
+      res.status(400).json({ msg: "No subscription found for this session" });
     }
   } catch (error) {
-    console.error("Error in canceling subscription: ", error.message);
-    res.status(500).json({ message: "Failed to cancel subscription", error });
+    console.error("Error in canceling subscription: ", error);
+    res.status(500).json({ msg: "Failed to cancel subscription", error });
   }
 };
 

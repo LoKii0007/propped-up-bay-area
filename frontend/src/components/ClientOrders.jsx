@@ -8,7 +8,7 @@ import OrderInfo from "./OrderInfo";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 
-function ClieentOrders({ orders }) {
+function ClieentOrders({ orders, loadingOrders }) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
@@ -168,6 +168,7 @@ function ClieentOrders({ orders }) {
     orderType,
     orderStatus,
     completeOrder,
+    loadingOrders
   ]);
 
   return (
@@ -328,7 +329,7 @@ function ClieentOrders({ orders }) {
                   ))
               ) : (
                 <div className=" text-gray-500 p-12 text-center">
-                  you dont have any orders
+                {loadingOrders ? 'loading...' : 'You dont have any orders' }
                 </div>
               )}
             </div>

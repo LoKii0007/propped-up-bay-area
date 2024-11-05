@@ -19,6 +19,8 @@ const Home = () => {
   const [orders, setOrders] = useState([]);
   const [userDetails, setUserDetails] = useState({});
   const [postOrders, setPostOrders] = useState([])
+  const [loadingOrders, setLoadingOrders] = useState(false)
+  const [loadingDetails, setLoadingDetails] = useState(false)
   const navigate = useNavigate();
 
   //? ------------------------------
@@ -51,6 +53,7 @@ const Home = () => {
   //? loading orders
   //?  ---------------------------------
   async function handleOrders() {
+    setLoadingOrders(true)
     try {
       const openHouseOrderResponse = await getOpenHouseOrder();
       const postOrderResponse = await getpostOrder();
@@ -72,6 +75,8 @@ const Home = () => {
       toast.error('server error')
       console.error("Error fetching orders:", error);
       // Handle error, e.g., show a toast notification
+    }finally{
+      setLoadingOrders(false)
     }
   }
 
@@ -80,6 +85,7 @@ const Home = () => {
   //? loading userDetails
   //?  ---------------------------------
   async function handleUserDetails() {
+    setLoadingDetails(true)
     try {
       const res = await axios.get(`${baseUrl}/api/get/userDetails`, { withCredentials: true })
 
@@ -97,6 +103,8 @@ const Home = () => {
     } catch (error) {
       toast.error('error fetching user details.')
       console.log(error.message)
+    }finally{
+      setLoadingDetails(false)
     }
   }
 
@@ -161,10 +169,10 @@ const Home = () => {
             </div>
           </div>
           <div className="active-bottom h-[87vh] overflow-y-auto p-7">
-            {activeView === "dashboard" && <ClieentOrders orders={orders} />}
+            {activeView === "dashboard" && <ClieentOrders orders={orders} loadingOrders={loadingOrders} />}
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval setOrders={setOrders} setPostOrders={setPostOrders} postOrders={postOrders} />}
-            {activeView === "profile" && <EditProfileForm userDetails={userDetails} user={currentUser} />}
+            {activeView === "profile" && <EditProfileForm loadingDetails={loadingDetails} userDetails={userDetails} user={currentUser} />}
             {activeView === "payment info" && <CardDetails />}
           </div>
         </div>
