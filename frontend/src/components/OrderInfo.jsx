@@ -122,8 +122,8 @@ function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOr
                 <p className="text-md grid grid-cols-2">
                   <span>Phone Number:</span> {order.phone}
                 </p>
-                <p className="text-md grid grid-cols-2">
-                  <span>Subscription :</span> {order.subActive ? 'Active' : 'Cancelled'}
+                <p className="text-md grid grid-cols-2 font-semibold ">
+                  <span>Subscription :</span>  {order.subActive ? <span className="text-green-800" >Active</span> : <span className="text-red-800" >Cancelled</span> }
                 </p>
                 <p className="text-md grid grid-cols-2">
                   <span>Requested Date:</span> {parseDate(order.requestedDate)}
@@ -204,7 +204,7 @@ function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOr
           setPostOrders={setPostOrders}
           setOrders={setOrders}
           orderId={order._id}
-          sessionId={order.subId}
+          sessionId={order.sessionId}
           open={modalOpen}
           setOpen={setModalOpen}
         />

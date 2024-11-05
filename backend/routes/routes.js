@@ -52,7 +52,7 @@ Routes.patch('/auth/profile/update',verifyUser, updateAdminDetails) // admin pro
 Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
 Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
 Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
-Routes.patch('/api/orders/postOrder/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
+Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
 
 module.exports = Routes
