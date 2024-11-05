@@ -76,6 +76,9 @@ const stripeSubscription = async (req, res) => {
           quantity : 1
         }
       ],
+      subscription_data: {
+        trial_period_days: 30,  // Add 30-day free trial to the subscription
+      },
       mode: "subscription",
       success_url: `${frontendUrl}/order/postOrder/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendUrl}/order/postOrder/payment?canceled=true`,

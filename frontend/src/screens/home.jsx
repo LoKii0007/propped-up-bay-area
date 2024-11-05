@@ -169,7 +169,7 @@ const Home = () => {
             </div>
           </div>
           <div className="active-bottom h-[87vh] overflow-y-auto p-7">
-            {activeView === "dashboard" && <ClieentOrders orders={orders} loadingOrders={loadingOrders} />}
+            {activeView === "dashboard" && <ClieentOrders orders={orders} setOrders={setOrders} setPostOrders={setPostOrders} loadingOrders={loadingOrders} />}
             {activeView === "order" && <Order />}
             {activeView === "removal" && <PostRemoval setOrders={setOrders} setPostOrders={setPostOrders} postOrders={postOrders} />}
             {activeView === "profile" && <EditProfileForm loadingDetails={loadingDetails} userDetails={userDetails} user={currentUser} />}

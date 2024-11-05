@@ -8,13 +8,13 @@ import OrderInfo from "./OrderInfo";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 
-function ClieentOrders({ orders, loadingOrders }) {
+function ClieentOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo, breadCrumb } = UseGlobal();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [completeOrder, setCompleteOrder] = useState("");
@@ -164,12 +164,15 @@ function ClieentOrders({ orders, loadingOrders }) {
   //?---------------------
   useEffect(() => {}, [
     filteredOrders,
-    orders,
     orderType,
     orderStatus,
     completeOrder,
     loadingOrders
   ]);
+
+  useEffect(()=>{
+    setFilteredOrders(orders)
+  }, [orders])
 
   return (
     <>
@@ -348,7 +351,7 @@ function ClieentOrders({ orders, loadingOrders }) {
           </div>
         </div>
       ) : (
-        <OrderInfo order={completeOrder} />
+        <OrderInfo order={completeOrder} setOrders={setOrders} setPostOrders={setPostOrders} />
       )}
     </>
   );

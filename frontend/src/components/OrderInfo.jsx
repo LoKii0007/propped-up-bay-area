@@ -5,9 +5,9 @@ import { useAuth } from "../context/AuthContext";
 import CancelSubModal from "../ui/CancelSubModal";
 import { parseDate } from "../helpers/utilities";
 
-function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOrders, setCompleteOrder }) {
+function OrderInfo({ order, setPostOrders , setOrders, setCompleteOrder }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { admin } = useAuth();
+  const {admin } = useAuth();
 
   useEffect(()=>{
   }, [order, setOrders, setPostOrders])
@@ -200,7 +200,6 @@ function OrderInfo({ order, setPostOrders, postOrders , setOrders, setFilteredOr
         <ChangeStatusModal setCompleteOrder={setCompleteOrder} order={order} open={modalOpen} setOpen={setModalOpen} setOrders={setOrders} setFilteredOrders={setFilteredOrders} />
       ) : (
         <CancelSubModal
-          postOrders={postOrders}
           setPostOrders={setPostOrders}
           setOrders={setOrders}
           orderId={order._id}
