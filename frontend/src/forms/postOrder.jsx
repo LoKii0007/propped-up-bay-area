@@ -146,6 +146,11 @@ function PostOrder() {
         {withCredentials : true }
       );
 
+      if(payment.status !== 200 ){
+        toast.error(payment.data.msg || 'Error creating checkout session')
+        return
+      }
+
       sessionStorage.setItem("orderData", JSON.stringify(formData));
 
       // Step 2: Redirect to the Stripe checkout session

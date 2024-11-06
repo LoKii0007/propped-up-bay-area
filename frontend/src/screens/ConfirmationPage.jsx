@@ -29,11 +29,11 @@ const ConfirmationPage = () => {
         orderData,
         { params: { sessionId }, withCredentials: true }
       );
-      if (res.status === 200) {
+      if (res.status === 201) {
         setOrderPlaced(true)
-        toast.success("Order placed successfully", { position: "top-right" });
+        toast.success(res.data.msg || "Order placed successfully", { position: "top-right" });
       } else {
-        toast.success(res.data.message || "Error placing order", {
+        toast.success(res.data.msg || "Error placing order", {
           position: "top-right",
         });
       }

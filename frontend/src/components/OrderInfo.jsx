@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ActionsDropdown from "../ui/ActionsDropdown";
 import ChangeStatusModal from "../ui/ChangeStatusModal";
 import { useAuth } from "../context/AuthContext";
 import CancelSubModal from "../ui/CancelSubModal";
 import { parseDate } from "../helpers/utilities";
 
-function OrderInfo({ order, setPostOrders , setOrders, setCompleteOrder }) {
+function OrderInfo({ order, setPostOrders , setOrders, setCompleteOrder, setFilteredOrders }) {
   const [modalOpen, setModalOpen] = useState(false);
   const {admin } = useAuth();
 

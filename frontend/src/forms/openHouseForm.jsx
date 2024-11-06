@@ -224,6 +224,11 @@ const OpenHouseForm = () => {
         {withCredentials : true }
       );
 
+      if(payment.status !== 200 ){
+        toast.error(payment.data.msg || 'Error creating checkout session')
+        return
+      }
+
       // Store order data in sessionStorage
       sessionStorage.setItem("orderData", JSON.stringify(data));
 
@@ -233,7 +238,7 @@ const OpenHouseForm = () => {
     } catch (error) {
       toast.error("Server Error");
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   }
 
