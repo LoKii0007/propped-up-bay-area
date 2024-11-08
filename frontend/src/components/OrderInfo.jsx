@@ -3,13 +3,132 @@ import ChangeStatusModal from "../ui/ChangeStatusModal";
 import { useAuth } from "../context/AuthContext";
 import CancelSubModal from "../ui/CancelSubModal";
 import { parseDate } from "../helpers/utilities";
+import axios from "axios";
+import { UseGlobal } from "../context/GlobalContext";
+import toast from "react-hot-toast";
 
-function OrderInfo({ order, setPostOrders , setOrders, setCompleteOrder, setFilteredOrders }) {
+function OrderInfo({
+  order,
+  setPostOrders,
+  setOrders,
+  setCompleteOrder,
+  setFilteredOrders,
+}) {
   const [modalOpen, setModalOpen] = useState(false);
-  const {admin } = useAuth();
+  const { admin } = useAuth();
+  const [selectedImage, setSelectedImage] = useState(null); // State for selected image
+  const [uploading, setUploading] = useState(false); // State for upload status
+  const { baseUrl, currentUser } = UseGlobal();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [isLoading, setisLoading] = useState(true);
 
-  useEffect(()=>{
-  }, [order, setOrders, setPostOrders])
+  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl]);
+
+  // Function to handle file selection
+  const handleFileChange = (e) => {
+    setSelectedImage(e.target.files[0]);
+  };
+
+  // Function to upload image
+  const uploadImage = async () => {
+    if (!selectedImage) return alert("Please select an image.");
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("image", selectedImage);
+      formData.append("orderId", order._id); // Assuming order ID is available
+
+      const res = await axios.post(
+        `${baseUrl}/api/${
+          order.type === "openHouse" ? "open-house" : "post-order"
+        }/image-upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log(res.data);
+      if (res.status !== 200) {
+        toast.error(res.data.msg || "Upload failed. Please try again");
+        return;
+      }
+      setImageUrl(res.data.url);
+      setSelectedImage(null)
+      toast.success(res.data.msg || "Upload successfull");
+    } catch (error) {
+      setUploading(false);
+      toast.error("Server error. Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Function to update image
+  const updateImage = async () => {
+    if (!selectedImage) return toast.error("Please select an image.");
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("image", selectedImage);
+      formData.append("orderId", order._id); // Assuming order ID is available
+
+      const res = await axios.patch(
+        `${baseUrl}/api/${
+          order.type === "openHouse" ? "open-house" : "post-order"
+        }/image-update`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log(res.data);
+      if (res.status !== 200) {
+        toast.error(res.data.msg || "Upload failed. Please try again");
+        return;
+      }
+      setImageUrl(res.data.url);
+      setSelectedImage(null)
+      toast.success(res.data.msg || "Upload successfull");
+    } catch (error) {
+      toast.error("Server error. Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // function to get image
+  const getImage = async () => {
+    try {
+      const res = await axios.get(`${baseUrl}/api/orders/image-get`, {
+        params: { orderId: order._id, type: order.type },
+        withCredentials: true,
+      });
+
+      if (res.status === 200 && res.data.url) {
+        setImageUrl(res.data.url);
+      } else {
+        setImageUrl(null); 
+      }
+    } catch (error) {
+      // toast.error("Server error. Upload failed");
+    } finally {
+      setisLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getImage();
+  }, []);
 
   return (
     <>
@@ -27,16 +146,18 @@ function OrderInfo({ order, setPostOrders , setOrders, setCompleteOrder, setFilt
                 Change Status
               </button>
             )}
-            {!admin && order?.type === 'postOrder' && order?.subActive === true &&
-              <>
-                <button
-                  onClick={() => setModalOpen(true)}
-                  className="text-white bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600"
-                >
-                  Cancel subscription
-                </button>
-              </>
-            }
+            {!admin &&
+              order?.type === "postOrder" &&
+              order?.subActive === true && (
+                <>
+                  <button
+                    onClick={() => setModalOpen(true)}
+                    className="text-white bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600"
+                  >
+                    Cancel subscription
+                  </button>
+                </>
+              )}
           </div>
         </div>
 
@@ -122,7 +243,12 @@ function OrderInfo({ order, setPostOrders , setOrders, setCompleteOrder, setFilt
                   <span>Phone Number:</span> {order.phone}
                 </p>
                 <p className="text-md grid grid-cols-2 font-semibold ">
-                  <span>Subscription :</span>  {order.subActive ? <span className="text-green-800" >Active</span> : <span className="text-red-800" >Cancelled</span> }
+                  <span>Subscription :</span>{" "}
+                  {order.subActive ? (
+                    <span className="text-green-800">Active</span>
+                  ) : (
+                    <span className="text-red-800">Cancelled</span>
+                  )}
                 </p>
                 <p className="text-md grid grid-cols-2">
                   <span>Requested Date:</span> {parseDate(order.requestedDate)}
@@ -192,11 +318,84 @@ function OrderInfo({ order, setPostOrders , setOrders, setCompleteOrder, setFilt
             )}
           </div>
         </div>
+
+        {(admin?.role === "admin" || admin?.role === "superuser") && (
+          <>
+            {!isLoading ? (
+              <div className="px-12 mx-auto w-8/12 py-6 flex flex-col gap-5 justify-center text-center ">
+                {imageUrl ? (
+                  <>
+                    <img width={400} src={imageUrl} alt="" />
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      className=""
+                    />
+                    <button
+                      onClick={() => updateImage()}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                      disabled={uploading}
+                    >
+                      {uploading ? "Uploading..." : "Update Image"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <label className="block font-medium text-gray-700 text-center ">
+                      Upload Order Image
+                    </label>
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      className=""
+                    />
+                    <button
+                      onClick={() => uploadImage()}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                      disabled={uploading}
+                    >
+                      {uploading ? "Uploading..." : "Upload Image"}
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="text-center">Loading...</div>
+              </>
+            )}
+          </>
+        )}
+
+        {currentUser && (
+          <>
+            {!isLoading ? (
+              <div className="px-12 mx-auto w-8/12 py-6 flex justify-center text-center ">
+                {imageUrl ? (
+                  <img width={400} src={imageUrl} alt="image" />
+                ) : (
+                  "Image not uploaded yet."
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="text-center">Loading...</div>
+              </>
+            )}
+          </>
+        )}
       </div>
 
       {/* -------------------------modals ---------------- */}
       {admin?.role === "admin" ? (
-        <ChangeStatusModal setCompleteOrder={setCompleteOrder} order={order} open={modalOpen} setOpen={setModalOpen} setOrders={setOrders} setFilteredOrders={setFilteredOrders} />
+        <ChangeStatusModal
+          setCompleteOrder={setCompleteOrder}
+          order={order}
+          open={modalOpen}
+          setOpen={setModalOpen}
+          setOrders={setOrders}
+          setFilteredOrders={setFilteredOrders}
+        />
       ) : (
         <CancelSubModal
           setPostOrders={setPostOrders}

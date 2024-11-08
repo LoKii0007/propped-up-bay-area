@@ -11,7 +11,7 @@ const verifyUser = (req, res, next) => {
   const token = req.cookies.authToken;
 
   if (!token) {
-    return res.status(401).json({ message: "Access denied. Not authorized" });
+    return res.status(401).json({ msg: "Access denied. Not authorized" });
   }
 
   try {
@@ -20,7 +20,7 @@ const verifyUser = (req, res, next) => {
     next();
   } catch (error) {
     console.error("Token verification failed:", error);
-    res.status(400).json({ message: "Invalid token." });
+    res.status(400).json({ msg: "Invalid token." });
   }
 };
 

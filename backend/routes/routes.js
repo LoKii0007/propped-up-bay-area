@@ -4,7 +4,10 @@ const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSin
 const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails } = require('../controller/auth')
 const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
+const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // This stores the file temporarily in 'uploads/' folder
 
 
 //? -----------------------------
@@ -44,6 +47,14 @@ Routes.patch('/api/orders/change-status',verifyUser, updateOrderApi) // updation
 Routes.get('/api/users/get',verifyUser, getAllUsersApi) // get all users
 Routes.post('/auth/adminLogin', adminLogin) // custom admin login
 Routes.patch('/auth/profile/update',verifyUser, updateAdminDetails) // admin profile update
+
+//* -------------------
+//* image routes
+Routes.post('/api/open-house/image-upload', verifyUser, upload.single('image'), openHouseImage)  // upload openhouse image
+Routes.post('/api/post-order/image-upload', verifyUser,upload.single('image'), postOrderImage)  // upload postorder image
+Routes.patch('/api/open-house/image-update', verifyUser,upload.single('image'), updateOpenHouseImage)  // update openhouse
+Routes.patch('/api/post-order/image-update', verifyUser,upload.single('image'), updatePostOrderImage)  // update postorder
+Routes.get('/api/orders/image-get', getOrderImage)  // get image
 
 
 //? -----------------------------
