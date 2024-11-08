@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { UseGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import toast from "react-hot-toast";
+import ConnectedAccounts from "./ConnectedAccounts";
 
 const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   const initialState = {
@@ -359,7 +360,9 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
           {passLoading ? "changing..." : "Change Password"}
         </button>
       </form>
-      {/* <svg className="animate-spin fill-green-800 h-5 w-5 mr-3 " viewBox="0 0 24 24"></svg> */}
+      
+       <ConnectedAccounts />      
+
     </div>
   );
 };

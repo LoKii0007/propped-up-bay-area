@@ -1,7 +1,7 @@
 const express = require('express')
 const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails} = require('../controller/users')
-const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails } = require('../controller/auth')
+const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate } = require('../controller/auth')
 const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
@@ -17,6 +17,7 @@ Routes.post('/auth/signUp', signUp) // initial signup
 Routes.post('/auth/login', login) // custom login
 Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating pass
+Routes.patch('/auth/update/connected-accounts', verifyUser, authUpdate ) // updating pass
 Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 
 

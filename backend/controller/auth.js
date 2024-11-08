@@ -231,6 +231,85 @@ const updateAdminDetails = async (req, res) => {
   }
 };
 
+
+//? ------------------------
+//? auth update for user
+//? ------------------------
+const authUpdate = async (req, res) => {
+  try {
+    const { email, password, googleId } = req.body;
+
+    const existingUser = await User.findById(req.user.userId);
+    if (!existingUser) {
+      return res.status(400).json({ msg: "no user found" });
+    }
+
+    // Find the user by email
+    let user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    if (user._id !== existingUser._id) {
+      return res.status(404).json({ msg: "not authorized" });
+    }
+
+    // If Google ID is provided and we want to link it to an email/password account
+    if (googleId) {
+      if (user.googleId) {
+        // Check if the provided Google ID matches the existing one
+        if (user.googleId !== googleId) {
+          return res.status(400).json({ msg: "Invalid Google ID for this user" });
+        }
+      } else {
+        user.googleId = googleId; // Add Google ID if it does not exist
+      }
+    }
+
+    // If password is provided and we want to link it to a Google-authenticated account
+    if (password) {
+      if (user.password) {
+        // Check if the provided password matches the existing one
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(400).json({ msg: "Invalid password for this user" });
+        }
+      } else {
+        // Hash the new password and add it to the account
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+      }
+    }
+
+    // Save the updated user information
+    await user.save();
+
+    // Generate and send a new JWT token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    res.cookie("authToken", token, {
+      secure: true,
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+    });
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    delete userResponse.__v;
+    delete userResponse.createdAt;
+    delete userResponse.updatedAt;
+    delete userResponse.totalOrders;
+    delete userResponse.totalSpent;
+    delete userResponse._id;
+
+    res.status(200).json({ msg: "User updated with new auth method", user: userResponse });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+
 //? ------------------------
 //? signout api
 //? ------------------------
@@ -265,5 +344,6 @@ module.exports = {
   updatePassword,
   adminLogin,
   signOutApi,
-  updateAdminDetails
+  updateAdminDetails,
+  authUpdate
 };

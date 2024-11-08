@@ -120,7 +120,6 @@ const openHouseImage = async (req, res) => {
 const updatePostOrderImage = async (req, res) => {
   try {
     const { orderId } = req.body;
-    const fileStr = req.file;
     const userId = req.user.userId;
 
     // Check if the user is authorized
@@ -139,28 +138,39 @@ const updatePostOrderImage = async (req, res) => {
       return res.status(404).json({ msg: "Image not found for this order" });
     }
 
-    // Upload the new image to Cloudinary
-    const uploadedResponse = await cloudinary.uploader.upload(fileStr.path);
+    // Upload the new image to Cloudinary directly from the buffer
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { resource_type: 'image' },
+      async (error, result) => {
+        if (error) {
+          return res.status(500).json({ msg: "Cloudinary upload failed", error: error.message });
+        }
 
-    // Update the image URL in the database
-    existingImage.imageUrl = uploadedResponse.secure_url;
-    await existingImage.save();
+        // Update the image URL in the database
+        existingImage.imageUrl = result.secure_url;
+        await existingImage.save();
 
-    res.status(200).json({
-      msg: "Image updated successfully!",
-      url: uploadedResponse.secure_url,
-    });
+        res.status(200).json({
+          msg: "Image updated successfully!",
+          url: result.secure_url,
+        });
+      }
+    );
+
+    // Pipe the file buffer to the Cloudinary upload stream
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
+    console.error("Error in image update:", error);
     res.status(500).json({ msg: "Image update failed!", error: error.message });
   }
 };
+
 
 //? ------------------------------
 //? UPDATE open house order image
 const updateOpenHouseImage = async (req, res) => {
   try {
     const { orderId } = req.body;
-    const fileStr = req.file;
     const userId = req.user.userId;
 
     // Check if the user is authorized
@@ -179,21 +189,33 @@ const updateOpenHouseImage = async (req, res) => {
       return res.status(404).json({ msg: "Image not found for this order" });
     }
 
-    // Upload the new image to Cloudinary
-    const uploadedResponse = await cloudinary.uploader.upload(fileStr.path);
+    // Upload the new image to Cloudinary directly from the buffer
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { resource_type: 'image' },
+      async (error, result) => {
+        if (error) {
+          return res.status(500).json({ msg: "Cloudinary upload failed", error: error.message });
+        }
 
-    // Update the image URL in the database
-    existingImage.imageUrl = uploadedResponse.secure_url;
-    await existingImage.save();
+        // Update the image URL in the database
+        existingImage.imageUrl = result.secure_url;
+        await existingImage.save();
 
-    res.status(200).json({
-      msg: "Image updated successfully!",
-      url: uploadedResponse.secure_url,
-    });
+        res.status(200).json({
+          msg: "Image updated successfully!",
+          url: result.secure_url,
+        });
+      }
+    );
+
+    // Pipe the file buffer to the Cloudinary upload stream
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
+    console.error("Error in image update:", error);
     res.status(500).json({ msg: "Image update failed!", error: error.message });
   }
 };
+
 
 const getOrderImage = async (req, res) => {
   const { orderId, type } = req.query;
