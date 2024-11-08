@@ -38,14 +38,12 @@ function Register() {
         setCurrentUser(res.data.user);
 
         //? adding data in google sheets
-        const formData = new FormData(userData)
-
         const sheetRes = await fetch(`${import.meta.env.VITE_GOOGLE_SHEET_API}`, {
           method: 'POST',
-          // headers: {
-          //   'Content-Type': 'application/json',
-          // },
-          body: formData,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
         });
   
         // Extract JSON response from the fetch request
@@ -81,8 +79,8 @@ function Register() {
     <>
       <ProppedUpLogo />
       <div className="min-h-screen flex items-center justify-center bg-[#4c9a2a10]">
-        <div className="flex bg-white shadow-lg rounded-[20px] w-[90%] md:w-[80%] lg:w-[70%] justify-center items-center">
-          <div className="signup-client w-[90%] md:w-[90%] lg:w-3/4 flex justify-center items-center py-10 gap-8">
+        <div className="flex bg-white shadow-lg rounded-[20px] mx-[10%] justify-center items-center">
+          <div className="signup-client w-full md:w-[90%] flex justify-center items-center py-10 gap-8">
             {/* Image section */}
             <div className="hidden md:flex md:w-1/2">
               <img
