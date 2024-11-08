@@ -1,6 +1,7 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
-import LinkGoogleAccount from "./LinkGoogleAccount";
+import LinkGoogleAccount from "../auth/LinkGoogleAccount";
+
 
 const ConnectedAccounts = () => {
   const { currentUser } = useAuth();
