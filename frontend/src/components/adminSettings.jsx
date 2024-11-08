@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChangePassword from "./changePassword";
 import ProfileSettings from "./ProfileSettings";
-import AccountSettings from "./AccountSettings";
 import { UseGlobal } from "../context/GlobalContext";
 
 function AdminSettings() {
@@ -50,7 +49,7 @@ function AdminSettings() {
         <div className="st-bottom">
           {activeView === "profileSettings" && <ProfileSettings />}
           {activeView === "password" && <ChangePassword />}
-          {activeView === "connectedAccounts" && <AccountSettings />}
+          {/* {activeView === "connectedAccounts" && <AccountSettings />} */}
       </div>
       </div>
     </>

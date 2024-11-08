@@ -1,13 +1,18 @@
 import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/AuthContext";
 import { UseGlobal } from "../context/GlobalContext";
 import axios from "axios";
+import { useState } from "react";
 
 function LinkGoogleAccount() {
   const { setCurrentUser, currentUser } = useAuth();
   const { baseUrl } = UseGlobal();
+
+  const [password, setPassword] = useState(""); // State to store password input
+  const [connect, setConnect] = useState(false); // State to toggle connect form
+  const [loading, setLoading] = useState(false); // State to handle loading status
 
   const linkGoogleAccount = async (res) => {
     const decoded = jwtDecode(res.credential);
@@ -16,23 +21,31 @@ function LinkGoogleAccount() {
       return;
     }
 
-    if(currentUser.email !== decoded.email){
-        toast.error('Please add the same email for google')
-        return
+    if (currentUser.email !== decoded.email) {
+      toast.error("Please add the same email for Google.");
+      return;
     }
 
+    // Include password if provided
     const userData = {
-      email: currentUser.email, // Ensure we're updating the existing user's email
+      email: currentUser.email,
       googleId: decoded.sub,
+      password, // Add password if entered
     };
 
     try {
-      const response = await axios.post(`${baseUrl}/auth/updateAuth`, userData, {
-        withCredentials: true,
-      });
+      setLoading(true);
+      const response = await axios.post(
+        `${baseUrl}/auth/update/connected-accounts`,
+        userData,
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.status === 200) {
         setCurrentUser(response.data.user);
+        sessionStorage.setItem('proppedUpUser',JSON.stringify(response.data.user))
         toast.success("Google account linked successfully!");
       } else if (response.status === 404) {
         toast.error("User not found. Please sign up first.");
@@ -42,6 +55,8 @@ function LinkGoogleAccount() {
     } catch (apiError) {
       toast.error("Server error. Please try again.");
       console.error("API call error:", apiError);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,7 +66,40 @@ function LinkGoogleAccount() {
 
   return (
     <div className="link-google">
-      <GoogleLogin onSuccess={linkGoogleAccount} onError={linkError} />
+      {connect ? (
+        <div className="flex flex-col gap-3">
+          <div className="password-input flex flex-col gap-3 ">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Enter your password to confirm:
+            </label>
+            <input
+              type="password"
+              id="password"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setConnect(false)}
+            className="px-4 py-2 border border-[#638856] text-[#638856] rounded-md "
+          >
+            Cancel
+          </button>
+
+          <GoogleLogin onSuccess={linkGoogleAccount} onError={linkError} />
+        </div>
+      ) : (
+        <button
+          className="px-4 py-1 border border-[#638856] text-[#638856] rounded-md"
+          onClick={() => setConnect(true)}
+        >
+          Connect 
+        </button>
+      )}
     </div>
   );
 }

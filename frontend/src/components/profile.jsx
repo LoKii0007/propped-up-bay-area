@@ -111,11 +111,11 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     }
   }
 
-  useEffect(()=>{}, [loadingDetails])
+  useEffect(() => {}, [loadingDetails, formData]);
 
-  useEffect(()=>{
-    setFormData(initialState)
-  }, [formData, user , userDetails])
+  useEffect(() => {
+    setFormData(initialState);
+  }, [user, userDetails]);
 
   return (
     <div className="bg-white rounded-lg p-12 flex flex-col gap-12 mx-auto">
@@ -305,64 +305,65 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         <div className="text-center">Loading...</div>
       )}
 
-      <form
-        onSubmit={handleChangePassword}
-        className="space-y-6 p-6 rounded-2xl client-form "
-      >
-        <div className="font-semibold grid text-lg">Change password</div>
-        <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
-          <label className="block text-xs text-gray-700">Old password</label>
-          <div className="relative mt-1">
-            <input
-              type={showOldPass ? "text" : "password"}
-              value={currentPass}
-              onChange={(e) => setCurrentPass(e.target.value)}
-              className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowOldPass(!showOldPass)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-            >
-              {showOldPass ? "Hide" : "Show"}
-            </button>
-          </div>
-        </div>
-
-        <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
-          <label className="block text-xs text-gray-700">New password</label>
-          <div className="relative mt-1">
-            <input
-              type={showNewPass ? "text" : "password"}
-              value={newPass}
-              onChange={(e) => setNewPass(e.target.value)}
-              className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
-              required
-              minLength={6}
-            />
-            <button
-              type="button"
-              onClick={() => setShowNewPass(!showNewPass)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-            >
-              {showNewPass ? "Hide" : "Show"}
-            </button>
-          </div>
-          <p className="text-xs text-gray-500">Minimum 6 characters</p>
-        </div>
-
-        <button
-          disabled={passLoading}
-          type="submit"
-          className="m-3 w-[180px] border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+      {!user?.googleId && (
+        <form
+          onSubmit={handleChangePassword}
+          className="space-y-6 p-6 rounded-2xl client-form "
         >
-          {passLoading ? "changing..." : "Change Password"}
-        </button>
-      </form>
-      
-       <ConnectedAccounts />      
+          <div className="font-semibold grid text-lg">Change password</div>
+          <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
+            <label className="block text-xs text-gray-700">Old password</label>
+            <div className="relative mt-1">
+              <input
+                type={showOldPass ? "text" : "password"}
+                value={currentPass}
+                onChange={(e) => setCurrentPass(e.target.value)}
+                className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowOldPass(!showOldPass)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+              >
+                {showOldPass ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
 
+          <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
+            <label className="block text-xs text-gray-700">New password</label>
+            <div className="relative mt-1">
+              <input
+                type={showNewPass ? "text" : "password"}
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPass(!showNewPass)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+              >
+                {showNewPass ? "Hide" : "Show"}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500">Minimum 6 characters</p>
+          </div>
+
+          <button
+            disabled={passLoading}
+            type="submit"
+            className="m-3 w-[180px] border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+          >
+            {passLoading ? "changing..." : "Change Password"}
+          </button>
+        </form>
+      )}
+
+      <ConnectedAccounts />
     </div>
   );
 };

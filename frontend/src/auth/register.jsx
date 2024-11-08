@@ -1,8 +1,8 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import SignInwithGoogle from "./signInWithGoogle";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import {  useAuth } from "../context/AuthContext";
 import ProppedUpLogo from "../ui/proppedUpLogo";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
@@ -14,8 +14,7 @@ function Register() {
   const [lname, setLname] = useState("");
   const [agreeTerms, setAgreeterms] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { setCurrentUser, setUserLoggedIn, currentUser } =
-    useContext(AuthContext);
+  const { setCurrentUser } = useAuth()
   const navigate = useNavigate();
   const { baseUrl } = UseGlobal();
 
@@ -28,7 +27,7 @@ function Register() {
       email: email,
       password: password,
     };
-    console.log("userdata", userData);
+
     try {
       const res = await axios.post(`${baseUrl}/auth/signUp`, userData, {
         withCredentials: true,
@@ -37,7 +36,23 @@ function Register() {
       if (res.status === 201) {
         toast.success("User registered successfully");
         setCurrentUser(res.data.user);
-        setUserLoggedIn(true);
+
+        //? adding data in google sheets
+        const formData = new FormData(userData)
+
+        const sheetRes = await fetch(`${import.meta.env.VITE_GOOGLE_SHEET_API}`, {
+          method: 'POST',
+          // headers: {
+          //   'Content-Type': 'application/json',
+          // },
+          body: formData,
+        });
+  
+        // Extract JSON response from the fetch request
+        const sheetData = await sheetRes.json();
+        console.log(sheetData);
+  
+        //? navigate to details page
         navigate("/signup/details", { state: { user: res.data.user } });
       } else {
         toast.error(res.data.msg || "Signup failed. Please try again");

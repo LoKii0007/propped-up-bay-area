@@ -16,15 +16,18 @@ const signUp = async (req, res) => {
       return res.status(400).json({ msg: "User already exists" });
     }
 
-    let newUserData = { firstName, lastName, email };
+    // Initialize newUserData and ensure connectedAccounts is an array
+    let newUserData = { firstName, lastName, email, connectedAccounts: [] };
 
     if (googleId) {
       // If Google ID is provided, it's a Google-authenticated user
       newUserData.googleId = googleId;
+      newUserData.connectedAccounts.push("Google");
     } else if (password) {
       // For email/password signup, hash the password
       const salt = await bcrypt.genSalt(10);
       newUserData.password = await bcrypt.hash(password, salt);
+      newUserData.connectedAccounts.push("Email");
     } else {
       return res
         .status(400)
@@ -48,18 +51,19 @@ const signUp = async (req, res) => {
     const userResponse = user.toObject();
     delete userResponse.password;
     delete userResponse.__v;
-    delete userResponse.createdAt
-    delete userResponse.updatedAt
-    delete userResponse.totalOrders
-    delete userResponse.totalSpent
-    delete userResponse._id
+    delete userResponse.createdAt;
+    delete userResponse.updatedAt;
+    delete userResponse.totalOrders;
+    delete userResponse.totalSpent;
+    delete userResponse._id;
 
-    res.status(201).json({msg:'user saved', user });
+    res.status(201).json({ msg: 'User saved', user: userResponse });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ msg: "signup Server error" });
+    res.status(500).json({ msg: "Signup server error" });
   }
 };
+
 
 //?------------------------------
 //? login
@@ -239,19 +243,18 @@ const authUpdate = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
 
-    const existingUser = await User.findById(req.user.userId);
-    if (!existingUser) {
+    const tokenUser = await User.findById(req.user.userId);
+    if (!tokenUser) {
       return res.status(400).json({ msg: "no user found" });
     }
 
     // Find the user by email
     let user = await User.findOne({ email });
-    
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    if (user._id !== existingUser._id) {
+    if (user._id.toString() !== tokenUser._id.toString() ) {
       return res.status(404).json({ msg: "not authorized" });
     }
 
@@ -264,6 +267,7 @@ const authUpdate = async (req, res) => {
         }
       } else {
         user.googleId = googleId; // Add Google ID if it does not exist
+        user.connectedAccounts.push("Google")
       }
     }
 
@@ -279,6 +283,7 @@ const authUpdate = async (req, res) => {
         // Hash the new password and add it to the account
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
+        user.connectedAccounts.push("Email")
       }
     }
 

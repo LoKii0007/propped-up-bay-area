@@ -17,7 +17,7 @@ Routes.post('/auth/signUp', signUp) // initial signup
 Routes.post('/auth/login', login) // custom login
 Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating pass
-Routes.patch('/auth/update/connected-accounts', verifyUser, authUpdate ) // updating pass
+Routes.post('/auth/update/connected-accounts', verifyUser, authUpdate ) // updating pass
 Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 
 
