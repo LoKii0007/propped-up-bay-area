@@ -2,6 +2,7 @@ const OpenHouseImageSchema = require("../models/OpenHouseImages");
 const PostOrderImageSchema = require("../models/PostOrderImages");
 const { postOrderSchema } = require("../models/postOrderSchema");
 const SuperUser = require("../models/superUser");
+const streamifier = require('streamifier')
 
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
@@ -17,42 +18,49 @@ cloudinary.config({
 const postOrderImage = async (req, res) => {
   try {
     const { orderId } = req.body;
-    const fileStr = req.file;
     const userId = req.user.userId;
 
     const user = await SuperUser.findById(userId);
 
-    // check if user is authorized
+    // Check if user is authorized
     if (!user) {
-      return res.status(404).json({ msg: "user not found" });
+      return res.status(404).json({ msg: "User not found" });
     }
 
     if (user.role !== "superuser" && user.role !== "admin") {
       return res.status(401).json({ msg: "Not authorized" });
     }
 
-    // Upload to Cloudinary
-    const uploadedResponse = await cloudinary.uploader.upload(fileStr.path);
-    console.log("image : ", uploadedResponse);
+    // Upload to Cloudinary directly from buffer
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { resource_type: 'image' },
+      async (error, result) => {
+        if (error) {
+          return res.status(500).json({ msg: "Cloudinary upload failed", error: error.message });
+        }
 
-    // save in databse
-    const image = await PostOrderImageSchema.create({
-      orderId,
-      imageUrl: uploadedResponse.secure_url,
-    });
+        // Save in database
+        const image = await PostOrderImageSchema.create({
+          orderId,
+          imageUrl: result.secure_url,
+        });
 
-    if (!image) {
-      return res.status(400).json({ msg: "error saving image" });
-    }
+        if (!image) {
+          return res.status(400).json({ msg: "Error saving image" });
+        }
 
-    res.status(200).json({
-      msg: "Image uploaded successfully!",
-      url: uploadedResponse.secure_url,
-    });
+        res.status(200).json({
+          msg: "Image uploaded successfully!",
+          url: result.secure_url,
+        });
+      }
+    );
+
+    // Pipe the file buffer to the Cloudinary upload stream
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Image upload failed!", error: error.message });
+    console.error("Error in image upload:", error);
+    res.status(500).json({ message: "Image upload failed!", error: error.message });
   }
 };
 
@@ -61,41 +69,49 @@ const postOrderImage = async (req, res) => {
 const openHouseImage = async (req, res) => {
   try {
     const { orderId } = req.body;
-    const fileStr = req.file;
     const userId = req.user.userId;
 
     const user = await SuperUser.findById(userId);
 
-    // check if user is authorized
+    // Check if user is authorized
     if (!user) {
-      return res.status(404).json({ msg: "user not found" });
+      return res.status(404).json({ msg: "User not found" });
     }
 
     if (user.role !== "superuser" && user.role !== "admin") {
       return res.status(401).json({ msg: "Not authorized" });
     }
 
-    // Upload to Cloudinary
-    const uploadedResponse = await cloudinary.uploader.upload(fileStr.path);
+    // Upload to Cloudinary directly from buffer
+    const uploadedResponse = await cloudinary.uploader.upload_stream(
+      { resource_type: 'image' },
+      async (error, result) => {
+        if (error) {
+          return res.status(500).json({ msg: "Cloudinary upload failed", error: error.message });
+        }
 
-    // save in databse
-    const image = await OpenHouseImageSchema.create({
-      orderId,
-      imageUrl: uploadedResponse.secure_url,
-    });
+        // Save in database
+        const image = await OpenHouseImageSchema.create({
+          orderId,
+          imageUrl: result.secure_url,
+        });
 
-    if (!image) {
-      return res.status(400).json({ msg: "error saving image" });
-    }
+        if (!image) {
+          return res.status(400).json({ msg: "Error saving image" });
+        }
 
-    res.status(200).json({
-      msg: "Image uploaded successfully!",
-      url: uploadedResponse.secure_url,
-    });
+        res.status(200).json({
+          msg: "Image uploaded successfully!",
+          url: result.secure_url,
+        });
+      }
+    );
+
+    // Pipe the file buffer to the Cloudinary upload stream
+    streamifier.createReadStream(req.file.buffer).pipe(uploadedResponse);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Image upload failed!", error: error.message });
+    console.error("Error in image upload:", error);
+    res.status(500).json({ message: "Image upload failed!", error: error.message });
   }
 };
 

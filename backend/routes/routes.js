@@ -7,7 +7,7 @@ const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' }); // This stores the file temporarily in 'uploads/' folder
+const upload = multer({ storage: multer.memoryStorage() }); 
 
 
 //? -----------------------------
