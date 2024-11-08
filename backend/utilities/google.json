@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "propped-up",
+  "private_key_id": "fa76981b4df411ee80f4325e8dc09a7df9cba2c3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCzEQKdJ7jaSBXq\nAN4u71lur+YLzrv9aFbaGNgqmRCNMvK5OKoEgBrMhUqs42mR4a3c1d8B2ivnl0JG\n0gBf8y/F1SwSxcDmDmdCkek3538Coe7lTUqk8Tm25m+o5F71hywpXk/q356nqrEa\nt1xjAmenjkr5W/UjK3IofGFB1cge7MRs1sKFMMR9bw6n9+JCwUhntb0FuceFzlWW\nPnkWVE4SRI33UsgKGfOeU6j0Yjww8LhQNL8nTLvvoFp8hdCwEapCgUz643LIalEy\nAiS5j/o6yBOqWNvgaTki+kDDw3MhC+wcBujghCUYYzgmLx/clWqpA8azDa2im/Ds\nR+0B+LVfAgMBAAECggEABf9U2hShgVYWvc6nomTL1wQ3LUAQVc1v00AvxUV5I3GI\nZaG7OAleXGk+dgnr2EH5w8K6BGLdQ5VyV9LixlPrzrF0F3DeJBZpaPZgHEo5m8n2\nqWFsVZfqufB/3uU/NPQBC6WoAZLZyn3SDrYDdyF2fUsrwaxNyo7C9Q4tZ7oUSMzQ\n2G682cGNO39jN4KkM8ctESylduIPNGF7t1jZdMcHusv7+E1RR9QO3LHKxugRwmOZ\nV7X6eIbFGvEJ42kFj1z8DtHJkXojkDIXUQm8o72EyxcaSUsCEmT6j73YNj5CQgUs\nSRESsZzIq4GRi98UrIntVoZ8gxO3XK9bRCwZqlusKQKBgQDx5Uailss6iHp/9lnE\nrnSBaXBbqruKIheFMaiJqHmmHkeU9j76WMR5X6UBHFZCBe0gT7RAVOCRxk2uU89q\n59s70eBOxGXSVwghdpEKDk06aAFmCBtjSLPMy8WGcGjp+s3AYTWNYOR2T4fdXetL\nDQ5BrhO1drfQYZr3hm1yR67IjQKBgQC9geWUnnWEs+u6F3N2hKCmw0pSIciybvJm\nZa+d1SFj+o2AugRXLlIDx2lSvXkuP2HcbUdxWczkkVbGO0RWk1D5QD76zL4eIS7t\nPSBvSShUOH0KqEU+HVv5YJsEQgmnUtyEVvEbvUO/FCvSgjbwQ0UpoJItRwnjRZXM\nUUi2Y1xomwKBgQC4O0Ey79pU+EEkWIJCNARz09RJXJ19NT3oqcuNHI2aIZGvOGT6\n0sTBFEFduTFRE6ZoZ4wHOx3WqMvdK+Pbrj7hLpXCJ/7M1pBQvDb3C7Fx/GikRyRk\n16hpIAGOxOqC2gv+q4rX5KXcHfKCfNeJz6W+DFDickrJIK2gO/f7g/DwuQKBgFWQ\nzC9hqOBFOL9qjUjLM5p4fRs+g9cFP0+6xCO4sv3oiHHCC+mtUXzBUi34vTmDhtU3\nRlXI3Tmq4gpZgk6w75PLTWSCg6kpBH475mQ5HQuCAfuI5NLaAMhFtVij1KYHROhA\nNVd4CpnBKtQ+1T2Asj7McJQfCjjjF3MMlI89p+DXAoGAK8xBdSv/Fh3i+hWY6ty6\n0DVZpArPv8drv+B5igQM5iPa5WYLiCnNUAIFBsBjDp2boTsyiyNzgaauODvPdTVT\nFaoEm8H24xPaYcnyAJmXT7hRsRTbZ0h5YUgUf+iCWjtrRap+2qbZAzkKWPzm/puK\nka6F42+D52wjBjk5GDZ225I=\n-----END PRIVATE KEY-----\n",
+  "client_email": "lokesh@propped-up.iam.gserviceaccount.com",
+  "client_id": "106942508792376457229",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/lokesh%40propped-up.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

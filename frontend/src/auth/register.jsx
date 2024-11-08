@@ -36,19 +36,6 @@ function Register() {
       if (res.status === 201) {
         toast.success("User registered successfully");
         setCurrentUser(res.data.user);
-
-        //? adding data in google sheets
-        const sheetRes = await fetch(`${import.meta.env.VITE_GOOGLE_SHEET_API}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userData),
-        });
-  
-        // Extract JSON response from the fetch request
-        const sheetData = await sheetRes.json();
-        console.log(sheetData);
   
         //? navigate to details page
         navigate("/signup/details", { state: { user: res.data.user } });
@@ -66,14 +53,6 @@ function Register() {
     }
     
   }
-
-  // useEffect(() => {
-  //   if (currentUser) {
-  //     navigate("/");
-  //   } else if (currentUser && !currentUser.profileCompleted) {
-  //     navigate("/signup/details");
-  //   }
-  // }, []);
 
   return (
     <>

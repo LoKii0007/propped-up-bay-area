@@ -5,6 +5,7 @@ const User = require("../models/user");
 const verifyOpenHouseTotal = require("../utilities/verifyTotal");
 const SuperUser = require("../models/superUser");
 const { gmailTemplate, nodemailerTransport } = require("../utilities/gmail");
+const { addToSheet } = require("../utilities/test");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -83,6 +84,33 @@ const createOpenHouseOrderApi = async (req, res) => {
       additionalInstructions,
       total,
     });
+
+    googleSheetdata = [
+      firstName, 
+      lastName,  
+      email,     
+      phone,     
+      requestedDate,
+      firstEventStartTime,
+      firstEventEndTime,
+      firstEventAddress?.streetAddress,
+      firstEventAddress?.city,
+      firstEventAddress?.state,
+      firstEventAddress?.postalCode,
+      requiredZone?.name,
+      pickSign,
+      additionalSignQuantity,
+      twilightTourSlot,
+      printAddressSign,
+      printAddress?.streetAddress,
+      printAddress?.city,
+      printAddress?.state,
+      printAddress?.postalCode,
+      additionalInstructions,
+      total
+    ]
+
+    addToSheet(googleSheetdata)
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(userId, {

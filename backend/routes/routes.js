@@ -7,6 +7,7 @@ const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
 const multer = require('multer');
+const { addToSheet } = require('../utilities/test')
 const upload = multer({ storage: multer.memoryStorage() }); 
 
 
@@ -66,5 +67,15 @@ Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSub
 Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
+
+Routes.post('/add-to-sheet', async (req, res) => {
+    try {
+      const data = req.body.data; // data should be an array of values
+      const result = await addToSheet(data);
+      res.status(200).json({ message: 'Data added successfully', result });
+    } catch (error) {
+      res.status(500).json({ message: 'Error adding data', error: error.message });
+    }
+  });
 
 module.exports = Routes
