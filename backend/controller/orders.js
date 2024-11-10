@@ -5,7 +5,7 @@ const User = require("../models/user");
 const verifyOpenHouseTotal = require("../utilities/verifyTotal");
 const SuperUser = require("../models/superUser");
 const { gmailTemplate, nodemailerTransport } = require("../utilities/gmail");
-const { addToSheet } = require("../utilities/test");
+const { addToSheet } = require("../utilities/googleSheet");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -118,11 +118,12 @@ const createOpenHouseOrderApi = async (req, res) => {
     });
 
     // Send email with Nodemailer
+    const invoiceUrl = req.stripe?.invoiceUrl || false
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: [email, user.email],
       subject: "Propped up order confirmed",
-      html: gmailTemplate("Your order is placed successfully", req.stripe.invoiceUrl),
+      html: gmailTemplate("Your order is placed successfully", invoiceUrl),
     };
 
     try {
@@ -214,10 +215,31 @@ const createPostOrderApi = async (req, res) => {
       lighting,
       numberOfPosts,
       riders,
-      sessionId: req.sessionId,
+      sessionId: req.stripe.sessionId,
     });
 
     const savedForm = await newForm.save();
+
+    googleSheetdata = [
+      type,
+      firstName,
+      lastName,
+      email,
+      phone,
+      requestedDate,
+      listingAddress,
+      billingAddress,
+      requiredZone,
+      additionalInstructions,
+      total,
+      postColor,
+      flyerBox,
+      lighting,
+      numberOfPosts,
+      riders
+    ]
+
+    addToSheet(googleSheetdata)
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(userId, {
@@ -229,16 +251,17 @@ const createPostOrderApi = async (req, res) => {
     });
 
     // Send email with Nodemailer
+    const invoiceUrl = req.stripe?.invoiceUrl || false
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: [email, user.email],
       subject: "Propped up order confirmed",
-      html: gmailTemplate("Your order is placed successfully", req.stripe.invoiceUrl),
+      html: gmailTemplate("Your order is placed successfully", invoiceUrl),
     };
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      res.status(201).json({ order, msg: "Order placed successfully" });
+      res.status(201).json({ order : savedForm, msg: "Order placed successfully" });
     } catch (error) {
       console.error("Email sending error:", error.message);
       res.status(201).json({
@@ -261,19 +284,19 @@ const getOpenHouseOrderApi = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ message: "User not authorized" });
+      return res.status(401).json({ msg: "User not authorized" });
     }
 
     const userExists = await User.findById(userId);
     if (!userExists) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ msg: "User not found" });
     }
 
     const orders = await openHouseSchema.find({ userId });
     if (!orders.length) {
       // Check if orders array is empty
       console.log("No order found");
-      return res.status(404).json({ message: "No order found" });
+      return res.status(404).json({ msg: "No order found" });
     }
 
     return res.status(200).json({ orders });
@@ -281,7 +304,7 @@ const getOpenHouseOrderApi = async (req, res) => {
     console.log("Error in getOpenHouseOrderApi", error.message);
     return res
       .status(500)
-      .json({ message: "Error in getOpenHouseOrderApi", error: error.message });
+      .json({ msg: "Error in getOpenHouseOrderApi", error: error.message });
   }
 };
 
@@ -292,19 +315,19 @@ const getPostOrderApi = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ message: "User not authorized" });
+      return res.status(401).json({ msg: "User not authorized" });
     }
 
     const userExists = await User.findById(userId);
     if (!userExists) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ msg: "User not found" });
     }
 
     const orders = await postOrderSchema.find({ userId });
     if (!orders.length) {
       // Check if orders array is empty
       console.log("No order found");
-      return res.status(404).json({ message: "No order found" });
+      return res.status(404).json({ msg: "No order found" });
     }
 
     return res.status(200).json({ orders });
@@ -312,7 +335,7 @@ const getPostOrderApi = async (req, res) => {
     console.log("Error in getPostOrderApi", error.message);
     return res
       .status(500)
-      .json({ message: "Error in getPostOrderApi", error: error.message });
+      .json({ msg: "Error in getPostOrderApi", error: error.message });
   }
 };
 

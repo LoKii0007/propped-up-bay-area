@@ -1,10 +1,11 @@
 const { google } = require('googleapis');
 const sheets = google.sheets('v4');
-const path = require('path');
+require("dotenv").config()
+
 
 // Load Google Service Account credentials
 const auth = new google.auth.GoogleAuth({
-    keyFile: './utilities/google.json',
+  keyFile: process.env.GOOGLE_SHEETS_JSON ,
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 

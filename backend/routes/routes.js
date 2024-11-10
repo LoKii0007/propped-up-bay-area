@@ -1,20 +1,19 @@
 const express = require('express')
 const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails} = require('../controller/users')
-const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate } = require('../controller/auth')
+const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword } = require('../controller/auth')
 const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
 const multer = require('multer');
-const { addToSheet } = require('../utilities/test')
 const upload = multer({ storage: multer.memoryStorage() }); 
 
 
 //? -----------------------------
 //? auth route
 //? -----------------------------
-Routes.post('/auth/signUp', signUp) // initial signup
+Routes.post('/auth/sign-up', signUp) // initial signup
 Routes.post('/auth/login', login) // custom login
 Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating pass
@@ -25,9 +24,9 @@ Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 //? -----------------------------
 //? user details routes
 //? -----------------------------
-Routes.post('/auth/signUp/details',verifyUser, userDetails) //user details for complete signup
-Routes.patch('/api/update/userDetails',verifyUser, updateUserDetails) // updation of user details
-Routes.get('/api/get/userDetails',verifyUser, getUserDetailsApi) //get user details
+Routes.post('/auth/sign-up/details',verifyUser, userDetails) //user details for complete signup
+Routes.patch('/api/update/user-details',verifyUser, updateUserDetails) // updation of user details
+Routes.get('/api/get/user-details',verifyUser, getUserDetailsApi) //get user details
 
 
 //? -----------------------------
@@ -36,18 +35,19 @@ Routes.get('/api/get/userDetails',verifyUser, getUserDetailsApi) //get user deta
 Routes.post('/api/orders/open-house-order', checkPaymentStatus ,verifyUser, createOpenHouseOrderApi) //openhouse new order
 Routes.post('/api/orders/post-order',checkPaymentStatus, verifyUser, createPostOrderApi) // new postorder
 
-Routes.get('/api/orders/openHouseOrder', verifyUser , getOpenHouseOrderApi) //openhouse get
-Routes.get('/api/orders/postOrder',verifyUser, getPostOrderApi) // postorder get
+Routes.get('/api/orders/open-house-order', verifyUser , getOpenHouseOrderApi) //openhouse get
+Routes.get('/api/orders/post-order',verifyUser, getPostOrderApi) // postorder get
 
 
 //? -----------------------------
 //? admin only routes
 //? -----------------------------
 Routes.get('/api/orders/get-all',verifyUser, getAllOrdersApi) // get all orders
-Routes.get('/api/userDetails/get',verifyUser, getSingleUserDetails) // get single user detail
+Routes.get('/api/user-details/get',verifyUser, getSingleUserDetails) // get single user detail
 Routes.patch('/api/orders/change-status',verifyUser, updateOrderApi) // updation of user orders
 Routes.get('/api/users/get',verifyUser, getAllUsersApi) // get all users
-Routes.post('/auth/adminLogin', adminLogin) // custom admin login
+Routes.post('/auth/admin-login', adminLogin) // custom admin login
+Routes.post('/auth/admin/password/update', updateAdminPassword) // update admin password
 Routes.patch('/auth/profile/update',verifyUser, updateAdminDetails) // admin profile update
 
 //* -------------------
@@ -67,15 +67,5 @@ Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSub
 Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
-
-Routes.post('/add-to-sheet', async (req, res) => {
-    try {
-      const data = req.body.data; // data should be an array of values
-      const result = await addToSheet(data);
-      res.status(200).json({ message: 'Data added successfully', result });
-    } catch (error) {
-      res.status(500).json({ message: 'Error adding data', error: error.message });
-    }
-  });
 
 module.exports = Routes

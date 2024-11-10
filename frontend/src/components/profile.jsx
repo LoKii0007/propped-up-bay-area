@@ -55,17 +55,17 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         receiveEmailNotifications: emailNotifications,
         receiveTextNotifications: textNotifications,
       };
-      const res = await axios.patch(`${baseUrl}/api/update/userDetails`, data, {
-        withCredentials: true,
+      const res = await axios.patch(`${baseUrl}/api/update/user-details`, data, {
+        withCredentials: true, validateStatus : (status) => status < 500
       });
       if (res.status === 200) {
         toast.success("Profile updated successfully.");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.msg || 'Profile update failed. Please try again');
       }
     } catch (error) {
       console.log("Profile update failed", error.message);
-      toast.error("Profile update failed. Please try again");
+      toast.error("Server error. Please try again");
     } finally {
       setIsEditing(false);
       setLoading(false);
@@ -97,15 +97,15 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
       const res = await axios.patch(
         `${baseUrl}/auth/update/password`,
         { currentPass, newPass },
-        { withCredentials: true }
+        { withCredentials: true, validateStatus : (status) => status < 500 }
       );
       if (res.status === 200) {
-        toast.success("Password changed successfully.");
+        toast.success("Password changed successfully. Password change failed. Please try again.");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.message || 'password change failed. Please try again' );
       }
     } catch (error) {
-      toast.error("Password change failed. Please try again.");
+      toast.error("Server error. Please try again.");
     } finally {
       setPassLoading(false);
     }
@@ -279,6 +279,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
               <button
                 type="button"
                 onClick={handleUpdateProfile}
+                disabled={loading}
                 className="border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
               >
                 Save Changes

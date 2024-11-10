@@ -115,25 +115,25 @@ const getUserDetailsApi = async (req, res) => {
 
     const user = await User.findById(userId).select("-password"); // Exclude password
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ msg: "User not found." });
     }
     if (!user.profileCompleted) {
-      return res.status(400).json({ message: "signup not complete" });
+      return res.status(400).json({ msg: "signup not complete" });
     }
 
     const userDetails = await UserDetails.find({ userId });
     if (!userDetails) {
-      return res.status(404).json({ message: "User details not found." });
+      return res.status(404).json({ msg: "User details not found." });
     }
 
     return res.status(200).json({
-      message: "User details retrieved successfully",
+      msg: "User details retrieved successfully",
       userDetails,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: "Could not retrieve user details",
+      msg: "Could not retrieve user details",
       error: error.message,
     });
   }
@@ -187,17 +187,17 @@ const updateUserDetails = async (req, res) => {
       return res
         .status(200)
         .json({
-          message: "Profile updated successfully",
+          msg: "Profile updated successfully",
           user: userUpdate,
           userDetails: detailsUpdate,
         });
     }
-    res.status(404).json({ message: "User or User Details not found" });
+    res.status(404).json({ msg: "User or User Details not found" });
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ message: "Failed to update profile", error: error.message });
+      .json({ msg: "Failed to update profile", error: error.message });
   }
 };
 

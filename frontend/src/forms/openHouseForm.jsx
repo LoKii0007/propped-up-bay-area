@@ -139,15 +139,15 @@ const OpenHouseForm = () => {
         }
       }
 
-      // ordering on saturday after 4pm for saturday, sunday
-      if (currentDate.getDay() == 6 && currentTime >= 16) {
+      // ordering on saturday at anty time for saturday, sunday
+      if (currentDate.getDay() == 6 ) {
         if (eventDate.getDay() === 6 || eventDate.getDay() === 0) {
           applyRushFee = true;
         }
       }
 
-      // ordering on sunday after 4pm
-      if (currentDate.getDay() == 0 && currentTime >= 16 && isToday) {
+      // ordering on sunday at any time for sunday
+      if (currentDate.getDay() == 0  && isToday) {
         applyRushFee = true;
       }
     }
@@ -221,7 +221,7 @@ const OpenHouseForm = () => {
       const payment = await axios.post(
         `${baseUrl}/api/orders/open-house/create-checkout-session`,
         { total: formData.total },
-        {withCredentials : true }
+        {withCredentials : true, validateStatus : (status) => status < 500 }
       );
 
       if(payment.status !== 200 ){
@@ -237,8 +237,6 @@ const OpenHouseForm = () => {
 
     } catch (error) {
       toast.error("Server Error");
-    } finally {
-      // setLoading(false);
     }
   }
 

@@ -11,7 +11,7 @@ function DetailedInfo({ user }) {
   // Fetch user details from backend
   async function getUserDetails() {
     try {
-      const res = await axios.get(`${baseUrl}/api/userDetails/get`, {
+      const res = await axios.get(`${baseUrl}/api/user-details/get`, {
         params: { userId: user._id },
         withCredentials: true,
       });

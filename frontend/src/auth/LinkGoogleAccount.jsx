@@ -39,7 +39,7 @@ function LinkGoogleAccount() {
         `${baseUrl}/auth/update/connected-accounts`,
         userData,
         {
-          withCredentials: true,
+          withCredentials: true, validateStatus : (status) => status < 500
         }
       );
 
@@ -47,14 +47,12 @@ function LinkGoogleAccount() {
         setCurrentUser(response.data.user);
         sessionStorage.setItem('proppedUpUser',JSON.stringify(response.data.user))
         toast.success("Google account linked successfully!");
-      } else if (response.status === 404) {
-        toast.error("User not found. Please sign up first.");
       } else {
-        toast.error("Failed to link Google account. Please try again.");
+        toast.error( response.data.msg ||"Failed to link google account. Please try again.");
       }
     } catch (apiError) {
       toast.error("Server error. Please try again.");
-      console.error("API call error:", apiError);
+      console.error("Server error:", apiError);
     } finally {
       setLoading(false);
     }

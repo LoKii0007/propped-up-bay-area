@@ -12,7 +12,6 @@ function Register() {
   const [password, setPassword] = useState("");
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
-  const [agreeTerms, setAgreeterms] = useState(false);
   const [loading, setLoading] = useState(false);
   const { setCurrentUser } = useAuth()
   const navigate = useNavigate();
@@ -29,8 +28,8 @@ function Register() {
     };
 
     try {
-      const res = await axios.post(`${baseUrl}/auth/signUp`, userData, {
-        withCredentials: true,
+      const res = await axios.post(`${baseUrl}/auth/sign-up`, userData, {
+        withCredentials: true, validateStatus : (status) => status < 500
       });
     
       if (res.status === 201) {
@@ -43,11 +42,7 @@ function Register() {
         toast.error(res.data.msg || "Signup failed. Please try again");
       }
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        toast.error(error.response.data.msg || "User with the email already exists");
-      } else {
-        toast.error("Server error. Please try again.");
-      }
+      toast.error("Server error. Please try again");
     } finally {
       setLoading(false);
     }
@@ -115,7 +110,6 @@ function Register() {
 
                 <div className="flex items-center mt-2 px-2 ">
                   <input
-                    onChange={(e) => setAgreeterms(e.target.value)}
                     type="checkbox"
                     className="h-4 w-4 text-green-600"
                     required

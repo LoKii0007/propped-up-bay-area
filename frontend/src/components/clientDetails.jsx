@@ -72,13 +72,10 @@ function ClientDetails({ users, setUsers }) {
         params: { page: orderPage + 1, limit },
         withCredentials: true,
         validateStatus: function (status) {
-          return status < 500; // Reject only if the status code is greater than or equal to 500
+          return status < 500; 
         },
-      });
-      if (res.status === 401) {
-        toast.error(`${res.data.message} || 'Unauthorized'`);
-        return;
-      }
+      })
+
       if (res.status === 200) {
         const allUsers = [...users, ...res.data.users];
         setUsers(allUsers);
@@ -87,7 +84,7 @@ function ClientDetails({ users, setUsers }) {
         setTotalPages(Math.ceil(users.length / displayCount));
         resetPagination(allUsers);
       } else {
-        toast(res.data.message || "no more orders found");
+        toast(res.data.message || "no more users found");
       }
     } catch (error) {
       toast.error("Server error");

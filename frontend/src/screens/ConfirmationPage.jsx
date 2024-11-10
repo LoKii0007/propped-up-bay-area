@@ -27,13 +27,13 @@ const ConfirmationPage = () => {
       const res = await axios.post(
         `${baseUrl}/api/orders/${ location.pathname.includes('openHouse') ? 'open-house-order' : 'post-order'}`,
         orderData,
-        { params: { sessionId }, withCredentials: true }
+        { params: { sessionId }, withCredentials: true, validateStatus : (status) => status < 500 }
       );
       if (res.status === 201) {
         setOrderPlaced(true)
         toast.success(res.data.msg || "Order placed successfully", { position: "top-right" });
       } else {
-        toast.success(res.data.msg || "Error placing order", {
+        toast.error(res.data.msg || "Error placing order", {
           position: "top-right",
         });
       }
@@ -60,7 +60,7 @@ const ConfirmationPage = () => {
     }
   }, [location.search]);
 
-  return <div className="w-full h-full flex justify-center items-center text-xl" >Loading...</div>;
+  return <div className="w-screen h-screen flex justify-center items-center text-xl" >Loading...</div>;
 };
 
 export default ConfirmationPage;

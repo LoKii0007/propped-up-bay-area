@@ -29,28 +29,29 @@ const verifyUser = (req, res, next) => {
 //? ----------------------------
 const checkPaymentStatus = async (req, res, next) => {
   const { sessionId } = req.query;
+  console.log('sessionId : ', sessionId )
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     // Check if the payment status is 'paid'
     if (session && session.payment_status === "paid") {
       // Ensure the session has a valid customer ID
-      console.log('session : ',session)
+      console.log('session : ',session.customer)
       if (session.customer) {
         // Retrieve the list of invoices for this customer
         const invoices = await stripe.invoices.list({
           customer: session.customer,
           limit: 1, // Retrieve only the latest invoice
         });
-
+        console.log('invoices : ', invoices.data.length)
         // Ensure there's at least one invoice and it has a hosted URL
         if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
           const invoiceUrl = invoices.data[0].hosted_invoice_url;
 
           // Add sessionId and invoiceUrl to the request object
           req.stripe = {
-            sessionId: sessionId,
-            invoiceUrl: invoiceUrl,
+            sessionId,
+            invoiceUrl
           };
         }
       } else {

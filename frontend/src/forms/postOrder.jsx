@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react"
 import { zones } from "../data/staticData";
-import { postOrder } from "../api/orders";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
@@ -143,7 +142,7 @@ function PostOrder() {
       const payment = await axios.post(
         `${baseUrl}/api/orders/post-order/subscription-schedule`,
         formData,
-        {withCredentials : true }
+        {withCredentials : true, validateStatus : (status) => status < 500 }
       );
 
       if(payment.status !== 200 ){

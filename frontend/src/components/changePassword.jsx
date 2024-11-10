@@ -9,7 +9,6 @@ const ChangePassword = () => {
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false)
     const [passLoading, setPassLoading] = useState(false)
-
     const {baseUrl} = UseGlobal()
 
     const handleSubmit = async(e) => {
@@ -22,14 +21,14 @@ const ChangePassword = () => {
         }
         try {
             const res = await axios.patch(
-                `${baseUrl}/auth/update/password`,
+                `${baseUrl}/auth/admin/password/update`,
                 { currentPass : oldPassword , newPass : newPassword },
-                { withCredentials: true }
+                { withCredentials: true, validateStatus : (status) => status < 500 }
             );
             if (res.status === 200) {
                 toast.success("Password changed successfully.");
             } else {
-                toast.error(res.data.message);
+                toast.error(res.data.message || 'Password change failed. Please try again');
             }
         } catch (error) {
             toast.error("Server error. Please try again.");

@@ -113,49 +113,6 @@ const login = async (req, res) => {
 };
 
 //?------------------------------
-//? admin login
-//?------------------------------
-const adminLogin = async (req, res) => {
-  try {
-    const { email, password, googleId } = req.body;
-
-    const user = await SuperUser.findOne({ email }).select('-__v -createdAt') // Check if user exists
-    if (!user) {
-      return res.status(400).json({ msg: "user not found" });
-    }
-
-    if (user.role !== "admin") {
-      return res.status(400).json({ msg: "unauthorized" });
-    }
-
-    if (password) {
-      const isMatch = bcrypt.compare(password, user.password); // Check password match
-      if (!isMatch) {
-        return res.status(400).json({ msg: "Invalid credentials" });
-      }
-    }
-    if (googleId) {
-      if (user.googleId !== googleId) {
-        return res.status(400).json({ msg: "Invalid credentials" });
-      }
-    }
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
-
-    res.cookie("authToken", token, {
-      // httpOnly: true,
-      secure: true, // Only set secure flag in production
-      sameSite: "None",
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-    });
-    res.status(200).json({ user, msg : 'logged in' });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ msg: "login Server error" });
-  }
-};
-
-//?------------------------------
 //? login by authtoken
 //?------------------------------
 const getUserByToken = async (req, res) => {
@@ -205,36 +162,6 @@ const updatePassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-//?------------------------------
-//? update admin details
-//?------------------------------
-const updateAdminDetails = async (req, res) => {
-  try {
-    const userId = req.user.userId ; // Extract userId from token middleware 
-    const { firstName, lastName, email, phone } = req.body;
-
-    // Find the admin user by ID
-    const user = await SuperUser.findById(userId);
-    if (!user || (user.role !== "admin" && user.role !== 'superuser')) {
-      return res.status(403).json({ message: "Unauthorized or user not found" });
-    }
-
-    // Update fields if they exist in the request body
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (email) user.email = email;
-    if (phone) user.phone = phone;
-
-    await user.save(); // Save updated user details to the database
-
-    res.status(200).json({ user, message: "Profile updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error while updating profile" });
-  }
-};
-
 
 //? ------------------------
 //? auth update for user
@@ -341,6 +268,118 @@ const signOutApi = async (req, res) => {
   }
 };
 
+//* --------------admin routes----------------------
+
+//?------------------------------
+//? admin login
+//?------------------------------
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password, googleId } = req.body;
+
+    const user = await SuperUser.findOne({ email }).select('-__v -createdAt') // Check if user exists
+    if (!user) {
+      return res.status(400).json({ msg: "user not found" });
+    }
+
+    if (user.role !== "admin") {
+      return res.status(400).json({ msg: "unauthorized" });
+    }
+
+    if (password) {
+      const isMatch = bcrypt.compare(password, user.password); // Check password match
+      if (!isMatch) {
+        return res.status(400).json({ msg: "Invalid credentials" });
+      }
+    }
+    if (googleId) {
+      if (user.googleId !== googleId) {
+        return res.status(400).json({ msg: "Invalid credentials" });
+      }
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+
+    res.cookie("authToken", token, {
+      // httpOnly: true,
+      secure: true, // Only set secure flag in production
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+    });
+    res.status(200).json({ user, msg : 'logged in' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ msg: "login Server error" });
+  }
+};
+
+
+//?------------------------------
+//? update admin password
+//?------------------------------
+const updateAdminPassword = async (req, res) => {
+  try {
+    const { currentPass, newPass } = req.body;
+
+    // Find the user by ID
+    const user = await SuperUser.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    if(user.role !== 'superuser' && user.role !== 'admin'){
+      return res.status(401).json({ msg: "Not authorized" });
+    }
+
+    // Check if the current password is correct
+    const isMatch = await bcrypt.compare(currentPass, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Current password is incorrect" });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPass, salt);
+
+    // Save the updated user
+    await user.save();
+
+    res.status(200).json({ msg: "Password updated successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+//?------------------------------
+//? update admin details
+//?------------------------------
+const updateAdminDetails = async (req, res) => {
+  try {
+    const userId = req.user.userId ; // Extract userId from token middleware 
+    const { firstName, lastName, email, phone } = req.body;
+
+    // Find the admin user by ID
+    const user = await SuperUser.findById(userId);
+    if (!user || (user.role !== "admin" && user.role !== 'superuser')) {
+      return res.status(403).json({ message: "Unauthorized or user not found" });
+    }
+
+    // Update fields if they exist in the request body
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+
+    await user.save(); // Save updated user details to the database
+
+    res.status(200).json({ user, message: "Profile updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error while updating profile" });
+  }
+};
+
 
 module.exports = {
   signUp,
@@ -350,5 +389,6 @@ module.exports = {
   adminLogin,
   signOutApi,
   updateAdminDetails,
-  authUpdate
+  authUpdate,
+  updateAdminPassword
 };

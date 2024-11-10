@@ -32,7 +32,7 @@ const ProfileSettings = () => {
     } else {
       setLoading(true);
       try {
-        const res = await axios.patch(`${baseUrl}/auth/profile/update`, { profilePic, firstName, lastName, email, phone }, {withCredentials : true});
+        const res = await axios.patch(`${baseUrl}/auth/profile/update`, { profilePic, firstName, lastName, email, phone }, {withCredentials : true, validateStatus : (status) => status < 500});
         if(res.status !== 200){
           toast.error(res.data.message || 'Profile update failed. Please try again')
         }

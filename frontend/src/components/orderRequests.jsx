@@ -44,21 +44,21 @@ function OrderRequests() {
     try {
       const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
         params: { page: orderPage, limit },
-        withCredentials: true,
+        withCredentials: true, validateStatus : (status) => status < 500
       });
-      if (res.status === 401) {
-        toast.error(`${res.data.message} || 'Unauthorized'`);
-        return;
+      if (res.status === 200) {
+        const allOrders = res.data.orders;
+        console.log(allOrders);
+        setOrders(allOrders);
+        setFilteredOrders(allOrders);
+        setTotalPages(Math.ceil(allOrders.length / displayCount));
       }
-      if (res.status === 404) {
+      else if (res.status === 404) {
         toast.custom(`${res.data.message} || 'no orders found'`);
-        return;
       }
-      const allOrders = res.data.orders;
-      console.log(allOrders);
-      setOrders(allOrders);
-      setFilteredOrders(allOrders);
-      setTotalPages(Math.ceil(allOrders.length / displayCount));
+      else {
+        toast.error(`${res.data.message} || 'Unauthorized'`);
+      }
     } catch (error) {
       toast.error("Server error. Please try again");
     } finally {
@@ -75,9 +75,7 @@ function OrderRequests() {
       const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
         params: { page: orderPage + 1, limit },
         withCredentials: true,
-        validateStatus: function (status) {
-          return status < 500; // Reject only if the status code is greater than or equal to 500
-        },
+        validateStatus : (status) => status < 500
       });
       if (res.status === 200) {
         setOrderPage((prev) => prev + 1);
@@ -91,7 +89,7 @@ function OrderRequests() {
         toast(res.data.message || "no more orders found");
       }
     } catch (error) {
-      toast.error("Server error");
+      toast.error("Server error. Please try again");
     } finally {
       setnextLoading(false);
     }

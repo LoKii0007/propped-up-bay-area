@@ -23,15 +23,15 @@ const AdminLogin = () => {
 
     try {
       const response = await axios.post(
-        `${baseUrl}/auth/adminLogin`,
+        `${baseUrl}/auth/admin-login`,
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true, validateStatus : (status) => status < 500 }
       );
       if (response.status === 200) {
         toast.success("Login successful");
         setAdmin(response.data.user);
       } else {
-        toast.error(response.data.msg);
+        toast.error(response.data.msg || 'Login failed. Please try again');
       }
     } catch (err) {
       toast.error('Server error. Please try again');

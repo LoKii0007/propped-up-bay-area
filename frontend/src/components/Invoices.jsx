@@ -41,34 +41,24 @@ function Invoices() {
   //? loading initial orders
   //? ---------------------------------
   async function handleOrders() {
-    const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
-      params: { page: orderPage, limit },
-      withCredentials: true,
-    });
-    if (res.status === 401) {
-      toast.error(`${res.data.message} || 'Unauthorized'`);
-      return;
+    try {
+      const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
+        params: { page: orderPage, limit },
+        withCredentials: true, validateStatus : (status) => status < 500
+      });
+      if (res.status === 404) {
+        toast.custom(res.data.message || 'no orders found');
+      }else if(res.status === 200){
+        const allOrders = res.data.orders;
+        setOrders(allOrders);
+        setFilteredInvoices(allOrders);
+        setTotalPages(Math.ceil(allOrders.length / displayCount));
+      }else{
+        toast.error(res.data.message || 'Error fetching invoices. Please try again')
+      } 
+    } catch (error) {
+      toast.error('Server error. Please try again')
     }
-    if (res.status === 404) {
-      toast.custom(`${res.data.message} || 'no orders found'`);
-      return;
-    }
-    if (res.status === 401) {
-      toast.error(`${res.data.message} || 'Unauthorized'`);
-      return;
-    }
-    if (res.status === 500) {
-      toast.error(`${res.data.message} || 'error fetching orders'`);
-      return;
-    }
-    if (res.status === 404) {
-      toast.custom(`${res.data.message} || 'no orders found'`);
-      return;
-    }
-    const allOrders = res.data.orders;
-    setOrders(allOrders);
-    setFilteredInvoices(allOrders);
-    setTotalPages(Math.ceil(allOrders.length / displayCount));
   }
 
   //? ----------------------------------
@@ -80,11 +70,12 @@ function Invoices() {
       const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
         params: { page: orderPage + 1, limit },
         withCredentials: true,
-        validateStatus: function (status) {
-          return status < 500; // Reject only if the status code is greater than or equal to 500
-        },
+        validateStatus : (status) => status < 500
       });
-      if (res.status === 200) {
+      if(res.status === 404){
+        toast(res.data.message || "no more orders found")
+      }
+      else if (res.status === 200) {
         setOrderPage((prev) => prev + 1);
         const allOrders = [...orders, ...res.data.orders];
         setFilteredInvoices(allOrders);
@@ -93,10 +84,10 @@ function Invoices() {
         resetPagination(allOrders);
         console.log("res : ", allOrders);
       } else {
-        toast(res.data.message || "no more orders found");
+        toast.error(res.data.message || "Error fetching invoices. Please try again");
       }
     } catch (error) {
-      toast.error("Server error");
+      toast.error("Server error. Please try again");
     } finally {
       setnextLoading(false);
     }

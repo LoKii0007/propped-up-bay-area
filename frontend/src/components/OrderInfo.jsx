@@ -48,11 +48,11 @@ function OrderInfo({
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true,
+          withCredentials: true, validateStatus : (status) => status < 500
         }
       );
 
-      console.log(res.data);
+      // console.log(res.data);
       if (res.status !== 200) {
         toast.error(res.data.msg || "Upload failed. Please try again");
         return;
@@ -87,11 +87,11 @@ function OrderInfo({
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true,
+          withCredentials: true, validateStatus : (status) => status < 500
         }
       );
 
-      console.log(res.data);
+      // console.log(res.data);
       if (res.status !== 200) {
         toast.error(res.data.msg || "Upload failed. Please try again");
         return;
@@ -111,7 +111,7 @@ function OrderInfo({
     try {
       const res = await axios.get(`${baseUrl}/api/orders/image-get`, {
         params: { orderId: order._id, type: order.type },
-        withCredentials: true,
+        withCredentials: true, validateStatus : (status) => status < 500
       });
 
       if (res.status === 200 && res.data.url) {

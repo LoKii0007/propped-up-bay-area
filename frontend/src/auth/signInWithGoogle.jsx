@@ -12,7 +12,7 @@ function SignInwithGoogle() {
   const { baseUrl } = UseGlobal();
 
   const loginCredentials = async (res) => {
-    console.log(res);
+    // console.log(res);
     const decoded = jwtDecode(res.credential); // decodeiing google credentials
     if (!decoded) {
       toast.error("some error ocuured");
@@ -25,18 +25,16 @@ function SignInwithGoogle() {
     };
 
     try {
-      const response = await axios.post(`${baseUrl}/auth/signUp`, userData, {
-        withCredentials: true,
+      const res = await axios.post(`${baseUrl}/auth/sign-up`, userData, {
+        withCredentials: true, validateStatus : (status) => status < 500
       });
 
-      if (response.status === 201) {
-        setCurrentUser(response.data.user);
+      if (res.status === 201) {
+        setCurrentUser(res.data.user);
         toast.success("Signup successful! Redirecting...");
         navigate("/");
-      } else if (response.status === 400) {
-        toast.error(res.data.msg || "User with this email already exists.");
       } else {
-        toast.error(res.data.msg || "Signup failed. Please try again.");
+        toast.error(res.data.msg || "Google signup failed. Please try again.");
       }
     } catch (apiError) {
       toast.error("Server error. Please try again.");

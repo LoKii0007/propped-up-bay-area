@@ -12,6 +12,8 @@ function LoginWithGoogle() {
   const { baseUrl } = UseGlobal();
 
   const loginCredentials = async (res) => {
+
+    // loading data via google
     const decoded = jwtDecode(res.credential);
     if (!decoded) {
       toast.error("Google login failed. Please try again.");
@@ -21,26 +23,22 @@ function LoginWithGoogle() {
       googleId: decoded.sub,
     };
     console.log("userdata", userData);
+
+    // api call
     try {
       const response = await axios.post(
         `${baseUrl}/auth/login`,
         { email: userData.email, googleId: userData.googleId },
-        { withCredentials: true }
-      );
-      if (response.status === 400) {
-        toast.error(`${response.data.msg || "Invalid credentials."}`);
-        return;
-      }
+        { withCredentials: true, validateStatus : (status) => status < 500 }
+      )
       if (response.status === 200) {
         setCurrentUser(response.data.user);
         navigate("/");
-        return;
+      }else{
+        toast.error( response.data.msg ||"Google login failed. Please try again.");
       }
-      toast.error("Google login failed. Please try again.");
-      console.log(response.data.msg);
     } catch (error) {
       toast.error("Google login failed. Please try again.");
-      console.log(response.data.msg);
     }
   };
 

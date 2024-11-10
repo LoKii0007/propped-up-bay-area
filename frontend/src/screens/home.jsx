@@ -8,7 +8,6 @@ import { UseGlobal } from "../context/GlobalContext";
 import ClieentOrders from "../components/ClientOrders";
 import { useNavigate } from "react-router-dom";
 import EditProfileForm from "../components/profile";
-import { getOpenHouseOrder, getpostOrder } from "../api/orders";
 import toast from "react-hot-toast";
 import PostRemoval from "../components/PostRemoval";
 
@@ -55,10 +54,10 @@ const Home = () => {
   async function handleOrders() {
     setLoadingOrders(true)
     try {
-      const openHouseOrderResponse = await getOpenHouseOrder();
-      const postOrderResponse = await getpostOrder();
-      
       let combinedOrders = []; // Initialize as an empty array
+
+      const openHouseOrderResponse = await axios.get(`${baseUrl}/api/orders/open-house-order`, {withCredentials : true , validateStatus : (status) => status < 500 });
+      const postOrderResponse = await axios.get(`${baseUrl}/api/orders/post-order`, {withCredentials : true, validateStatus : (status) => status < 500});
   
       if (postOrderResponse.status === 200) {
         combinedOrders = [...postOrderResponse.data.orders];
@@ -87,22 +86,17 @@ const Home = () => {
   async function handleUserDetails() {
     setLoadingDetails(true)
     try {
-      const res = await axios.get(`${baseUrl}/api/get/userDetails`, { withCredentials: true })
+      const res = await axios.get(`${baseUrl}/api/get/user-details`, { withCredentials: true, validateStatus : (status) => status < 500 })
 
       if (res.status === 200) {
         setUserDetails(res.data.userDetails[0])
       }
-      else if (res.status === 404) {
-        toast.error(res.data.message || 'user or user details not found')
-      }
-      else if (res.status === 400) {
-        toast.error(res.data.message || 'error fetching user details')
-      } else {
-        console.log('error fetching user details', error.message)
+      else {
+        toast.error(res.data.msg || 'Error fetching user details.')
       }
     } catch (error) {
-      toast.error('error fetching user details.')
-      console.log(error.message)
+      toast.error('Server error. Please try again')
+      console.log(error.msg)
     }finally{
       setLoadingDetails(false)
     }

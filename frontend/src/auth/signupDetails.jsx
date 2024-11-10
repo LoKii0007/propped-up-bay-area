@@ -23,6 +23,7 @@ const SignUpDetails = () => {
   const { baseUrl } = UseGlobal();
   const {currentUser, setCurrentUser} = useAuth()
   const [formData, setFormData] = useState(initialState);
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,13 +38,14 @@ const SignUpDetails = () => {
   //?---------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setLoading(true)
+    // console.log(formData);
     try {
-      const res = await axios.post(`${baseUrl}/auth/signUp/details`, formData, {
-        withCredentials: true,
+      const res = await axios.post(`${baseUrl}/auth/sign-up/details`, formData, {
+        withCredentials: true, validateStatus : (status) => status < 500
       });
       if (res.status !== 201) {
-        toast.error("something went wrong, try again");
+        toast.error(res.data.msg ||"Error adding details. Please try again");
         return;
       }
       toast.success("submitted succesfully");
@@ -52,7 +54,9 @@ const SignUpDetails = () => {
       setCurrentUser(res.data.user)
       navigate("/"); // navigating to homepage
     } catch (error) {
-      toast.error("something went wrong, try again");
+      toast.error("Server error. Please try again");
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -206,9 +210,10 @@ const SignUpDetails = () => {
         <div className="flex justify-center mt-4 ">
           <button
             type="submit"
+            disabled={loading}
             className="bg-[#4C9A2A] hover:bg-green-700 text-white font-bold py-2 px-10 rounded-md"
           >
-            Sign up
+            {loading ? 'Submitting...' : 'Sign up'}
           </button>
         </div>
 
