@@ -85,32 +85,43 @@ const createOpenHouseOrderApi = async (req, res) => {
       total,
     });
 
+    // adding data to google sheets
     googleSheetdata = [
-      firstName, 
-      lastName,  
-      email,     
-      phone,     
+      firstName,
+      lastName,
+      email,
+      phone,
       requestedDate,
       firstEventStartTime,
       firstEventEndTime,
-      firstEventAddress?.streetAddress,
-      firstEventAddress?.city,
-      firstEventAddress?.state,
-      firstEventAddress?.postalCode,
+      [
+        firstEventAddress?.streetAddress,
+        firstEventAddress?.city,
+        firstEventAddress?.state,
+        firstEventAddress?.postalCode
+      ].filter(Boolean).join(', '),  // Combined firstEventAddress as a single block
+    
+      [
+        printAddress?.streetAddress,
+        printAddress?.city,
+        printAddress?.state,
+        printAddress?.postalCode
+      ].filter(Boolean).join(', '),  // Combined printAddress as a single block
+    
       requiredZone?.name,
       pickSign,
       additionalSignQuantity,
       twilightTourSlot,
       printAddressSign,
-      printAddress?.streetAddress,
-      printAddress?.city,
-      printAddress?.state,
-      printAddress?.postalCode,
       additionalInstructions,
       total
-    ]
+    ];    
 
-    addToSheet(googleSheetdata)
+    try {
+      addToSheet(googleSheetdata) 
+    } catch (error) {
+      console.log('Open house order google sheet api error : ', error.message)
+    }
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(userId, {
@@ -220,26 +231,54 @@ const createPostOrderApi = async (req, res) => {
 
     const savedForm = await newForm.save();
 
-    googleSheetdata = [
+    // adding data to google sheets
+    const listingAddressBlock = [
+      listingAddress.streetAddress,
+      listingAddress.streetAddress2 || "",
+      listingAddress.city,
+      listingAddress.state,
+      listingAddress.postalCode
+    ].filter(Boolean).join(", ");
+    
+    const billingAddressBlock = [
+      billingAddress.streetAddress,
+      billingAddress.streetAddress2 || "",
+      billingAddress.city,
+      billingAddress.state,
+      billingAddress.postalCode
+    ].filter(Boolean).join(", ");
+    
+    const googleSheetdata = [
       type,
       firstName,
       lastName,
       email,
       phone,
       requestedDate,
-      listingAddress,
-      billingAddress,
-      requiredZone,
-      additionalInstructions,
+      listingAddressBlock, // Single string for listing address
+      billingAddressBlock, // Single string for billing address
+      requiredZone.name,
+      requiredZone.text || "",
+      requiredZone.price,
+      additionalInstructions || "",
       total,
-      postColor,
+      postColor || "",
       flyerBox,
       lighting,
       numberOfPosts,
-      riders
-    ]
+      riders.comingSoon,
+      riders.pending,
+      riders.openSatSun,
+      riders.openSat,
+      riders.openSun,
+      riders.doNotDisturb
+    ];
 
-    addToSheet(googleSheetdata)
+    try {
+      addToSheet(googleSheetdata) 
+    } catch (error) {
+      console.log('Post order google sheet api error : ', error.message)
+    }
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(userId, {

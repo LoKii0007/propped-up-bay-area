@@ -7,6 +7,7 @@ const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
 const multer = require('multer');
+const { addToSheet } = require('../utilities/googleSheet')
 const upload = multer({ storage: multer.memoryStorage() }); 
 
 
@@ -67,5 +68,16 @@ Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSub
 Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
+Routes.post('/api/sheets', async(req, res)=>{
+
+    try {
+        const {data} = req.body
+        addToSheet(data)
+        res.status(200)        
+    } catch (error) {
+        res.status(500)
+        console.log(error.message)
+    }
+})
 
 module.exports = Routes

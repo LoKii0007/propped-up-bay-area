@@ -54,10 +54,10 @@ function OrderRequests() {
         setTotalPages(Math.ceil(allOrders.length / displayCount));
       }
       else if (res.status === 404) {
-        toast.custom(`${res.data.message} || 'no orders found'`);
+        toast.custom(res.data.message || 'no orders found');
       }
       else {
-        toast.error(`${res.data.message} || 'Unauthorized'`);
+        toast.error(res.data.message || 'Unauthorized');
       }
     } catch (error) {
       toast.error("Server error. Please try again");

@@ -80,13 +80,13 @@ const login = async (req, res) => {
     if (!password && !googleId) {
       return res.status(400).json({ msg: "Please provide credentials" });
     }
-    if (password) {
+    if ( password && user.connectedAccounts.includes('Email')) {
       const isMatch = await bcrypt.compare(password, user.password); // Check password match
       if (!isMatch) {
         return res.status(400).json({ msg: "Invalid credentials" });
       }
     }
-    if (googleId) {
+    if (googleId && user.connectedAccounts.includes('Google')) {
       if (user.googleId !== googleId) {
         return res.status(400).json({ msg: "Invalid credentials" });
       }
@@ -107,7 +107,7 @@ const login = async (req, res) => {
 
     res.status(200).json({ user : user2 });
   } catch (error) {
-    console.error(error.message);
+    console.error('Login api error',error.message);
     res.status(500).json({ msg: "login Server error" });
   }
 };

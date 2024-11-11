@@ -61,7 +61,7 @@ const AdminSidebar = ({ setActiveView, activeView }) => {
             <p className="text-[20px] font-bold">Admin</p>
           </div>
 
-          {menu?.slice(0, 6).map((data, index) => (
+          {menu?.slice(1, 6).map((data, index) => (
             <button key={index} onClick={() => handleView(data) } className={` ${activeView === data.name.toLowerCase() ? 'bg-[#34CAA5] stroke-[#4C9A2A] text-white font-semibold' : 'text-[#737791] font-medium'} text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-[14px] px-5 w-full`}>
               <div className="icon stroke-none ">
                 {data.svg}

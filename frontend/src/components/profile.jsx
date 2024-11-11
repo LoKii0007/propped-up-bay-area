@@ -3,6 +3,7 @@ import { UseGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import ConnectedAccounts from "./ConnectedAccounts";
+import { useAuth } from "../context/AuthContext";
 
 const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   const initialState = {
@@ -33,6 +34,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   const [showOldPass, setShowOldPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [passLoading, setPassLoading] = useState(false);
+  const {currentUser} = useAuth()
 
   //?--------------------------
   //? Handle form input change
@@ -100,7 +102,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         { withCredentials: true, validateStatus : (status) => status < 500 }
       );
       if (res.status === 200) {
-        toast.success("Password changed successfully. Password change failed. Please try again.");
+        toast.success("Password changed successfully.");
       } else {
         toast.error(res.data.message || 'password change failed. Please try again' );
       }
@@ -111,7 +113,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     }
   }
 
-  useEffect(() => {}, [loadingDetails, formData]);
+  useEffect(() => {}, [loadingDetails, formData, currentUser]);
 
   useEffect(() => {
     setFormData(initialState);
@@ -306,7 +308,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         <div className="text-center">Loading...</div>
       )}
 
-      {!user?.googleId && (
+      {user?.connectedAccounts?.includes('Email') && (
         <form
           onSubmit={handleChangePassword}
           className="space-y-6 p-6 rounded-2xl client-form "

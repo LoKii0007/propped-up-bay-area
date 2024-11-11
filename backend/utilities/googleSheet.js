@@ -2,10 +2,11 @@ const { google } = require('googleapis');
 const sheets = google.sheets('v4');
 require("dotenv").config()
 
+const GOOGLE_SHEETS_CREDENTIALS = JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS)
 
 // Load Google Service Account credentials
 const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_SHEETS_JSON ,
+  credentials: GOOGLE_SHEETS_CREDENTIALS,
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
@@ -28,8 +29,7 @@ async function addToSheet(data) {
 
     return response.data;
   } catch (error) {
-    console.error('Error adding data to sheet:', error);
-    throw error;
+    console.error('Error adding data to sheet:', error.message)
   }
 }
 

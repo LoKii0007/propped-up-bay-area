@@ -44,7 +44,6 @@ function Login() {
         }
         setCurrentUser(res.data.user); //? setting up current user
         sessionStorage.setItem('proppedUpUser',JSON.stringify(res.data.user))
-        setUserLoggedIn(true);
         toast.success("User logged in Successfully");
         navigate("/"); //? navigate to home page
       } else {
