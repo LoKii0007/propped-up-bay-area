@@ -111,11 +111,20 @@ function Invoices() {
   //? ---------------------------
   //? filter date - bulk downloads
   //? ---------------------------
-  function handleFilter() {
+  function handleDateFilter() {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+  
+    // Ensure that startDate is before endDate
+    if (start > end) {
+      toast.error("Start date cannot be after end date");
+      return [];
+    }
+  
     return orders.filter((data) => {
-      const invoiceDate = new Date(data.requestedDate);
+      const invoiceDate = new Date(data.createdAt);
       return (
-        invoiceDate >= new Date(startDate) && invoiceDate <= new Date(endDate)
+        invoiceDate >= start && invoiceDate <= end
       );
     });
   }
@@ -140,11 +149,11 @@ function Invoices() {
     if (!startDate || !endDate) {
       return toast.error("select range");
     }
-    const filtered = handleFilter();
+    const filtered = handleDateFilter();
     if (filtered.length === 0) {
       return toast.error("no invoices found");
     }
-    filteredInvoices.forEach((data, index) => {
+    filtered.forEach((data, index) => {
       const container = document.createElement("div");
       container.style.display = "none";
       document.body.appendChild(container);

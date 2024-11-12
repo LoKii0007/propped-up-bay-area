@@ -122,7 +122,16 @@ const getUserByToken = async (req, res) => {
     if (!user) {
       return res.status(400).json({ msg: "no user found" });
     }
-    return res.status(200).json({ user, msg: "user found" });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+
+    res.cookie("authToken", token, {
+      // httpOnly: true,
+      secure: true, // Only set secure flag in production
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+    });
+
+    return res.status(200).json({ user});
   } catch (err) {
     console.log("error in getUser api", err.message);
     return res
@@ -263,7 +272,7 @@ const signOutApi = async (req, res) => {
       // httpOnly: true,
       secure: true,
       sameSite: "None",
-      domain: "propped-up-backend.vercel.app",
+      // domain: "propped-up-backend.vercel.app",
     });
 
     // Send response indicating sign-out success
