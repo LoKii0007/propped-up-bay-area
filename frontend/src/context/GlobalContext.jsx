@@ -8,9 +8,10 @@ export function GlobalContextProvider({children}){
     const [breadCrumb, setBreadCrumb] = useState('clients')
     const [isInfo, setIsInfo] = useState(false)
     const baseUrl = import.meta.env.VITE_BACKEND_URL
+    const [activeView, setActiveView] = useState('dashboard')
 
     return(
-        <GlobalContext.Provider value={{setSettingsActiveView, settingsActiveView, breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl}} >
+        <GlobalContext.Provider value={{setSettingsActiveView, settingsActiveView, breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl, activeView, setActiveView}} >
            {children}
         </GlobalContext.Provider>
     )

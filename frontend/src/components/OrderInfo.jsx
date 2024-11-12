@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import ChangeStatusModal from "../ui/ChangeStatusModal";
 import { useAuth } from "../context/AuthContext";
 import CancelSubModal from "../ui/CancelSubModal";
 import { parseDate } from "../helpers/utilities";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
 import toast from "react-hot-toast";
+import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
 
 function OrderInfo({
   order,
@@ -48,7 +48,8 @@ function OrderInfo({
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true, validateStatus : (status) => status < 500
+          withCredentials: true,
+          validateStatus: (status) => status < 500,
         }
       );
 
@@ -58,7 +59,7 @@ function OrderInfo({
         return;
       }
       setImageUrl(res.data.url);
-      setSelectedImage(null)
+      setSelectedImage(null);
       toast.success(res.data.msg || "Upload successfull");
     } catch (error) {
       setUploading(false);
@@ -87,7 +88,8 @@ function OrderInfo({
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true, validateStatus : (status) => status < 500
+          withCredentials: true,
+          validateStatus: (status) => status < 500,
         }
       );
 
@@ -97,7 +99,7 @@ function OrderInfo({
         return;
       }
       setImageUrl(res.data.url);
-      setSelectedImage(null)
+      setSelectedImage(null);
       toast.success(res.data.msg || "Upload successfull");
     } catch (error) {
       toast.error("Server error. Upload failed");
@@ -111,13 +113,14 @@ function OrderInfo({
     try {
       const res = await axios.get(`${baseUrl}/api/orders/image-get`, {
         params: { orderId: order._id, type: order.type },
-        withCredentials: true, validateStatus : (status) => status < 500
+        withCredentials: true,
+        validateStatus: (status) => status < 500,
       });
 
       if (res.status === 200 && res.data.url) {
         setImageUrl(res.data.url);
       } else {
-        setImageUrl(null); 
+        setImageUrl(null);
       }
     } catch (error) {
       // toast.error("Server error. Upload failed");
@@ -139,13 +142,15 @@ function OrderInfo({
           </button> */}
           <div className="flex space-x-4">
             {["admin", "superuser"].includes(admin?.role) && (
-              <button
-                onClick={() => setModalOpen(true)}
-                className="text-[#718096] border-[#34CAA5] border px-4 py-2 rounded-lg hover:bg-gray-100"
-              >
-                Change Status
-              </button>
+              <ChangeStatusDropdown
+                order={order}
+                setOrders={setOrders}
+                setFilteredOrders={setFilteredOrders}
+                setCompleteOrder={setCompleteOrder}
+                // value={false}
+              />
             )}
+
             {!admin &&
               order?.type === "postOrder" &&
               order?.subActive === true && (
@@ -387,16 +392,7 @@ function OrderInfo({
       </div>
 
       {/* -------------------------modals ---------------- */}
-      {admin?.role === "admin" ? (
-        <ChangeStatusModal
-          setCompleteOrder={setCompleteOrder}
-          order={order}
-          open={modalOpen}
-          setOpen={setModalOpen}
-          setOrders={setOrders}
-          setFilteredOrders={setFilteredOrders}
-        />
-      ) : (
+      {!admin?.role === "admin" && (
         <CancelSubModal
           setPostOrders={setPostOrders}
           setOrders={setOrders}

@@ -61,3 +61,7 @@ body{
 .poppinns-font{
     font-family: 'poppins';
 }
+
+.custom-transition{
+    transition: .5s ease;
+}

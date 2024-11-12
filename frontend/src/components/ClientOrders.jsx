@@ -8,7 +8,7 @@ import OrderInfo from "./OrderInfo";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 
-function ClieentOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
+function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
@@ -121,7 +121,7 @@ function ClieentOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   //?--------------------------
   function handleDateFilter() {
     if (!startDate || !endDate) {
-      toast.error("please select date range !");
+      toast("Please select date range !");
       return;
     }
 
@@ -229,7 +229,7 @@ function ClieentOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                 </button>
                 <button onClick={handleClearFilter} className="font-semibold">
                   <div className="icon"></div>
-                  clear
+                  Clear
                 </button>
               </div>
             </div>
@@ -320,7 +320,7 @@ function ClieentOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                       <div className="">{order.total}</div>
                       <button
                         onClick={() => setModalOpen(true)}
-                        className={`text-left font-semibold
+                        className={`text-left font-semibold capitalize
                           ${order.status === "pending" && "text-[#F6B73C]"}
                           ${order.status === "installed" && "text-[#4C9A2A]"}
                           ${order.status === "completed" && "text-[#4C9A2A]"}
@@ -357,4 +357,4 @@ function ClieentOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   );
 }
 
-export default ClieentOrders;
+export default ClientOrders;

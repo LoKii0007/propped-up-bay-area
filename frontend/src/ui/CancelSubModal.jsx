@@ -6,7 +6,7 @@ import { UseGlobal } from '../context/GlobalContext';
 
 export default function CancelSubModal({ open, sessionId,setOrders , setPostOrders, setOpen, orderId, }) {
   const [loading, setLoading] = useState(false);
-  const {baseUrl, setIsInfo} = UseGlobal()
+  const {baseUrl, setIsInfo, setBreadCrumb} = UseGlobal()
 
   async function handleCancelOrder() {
     setLoading(true);
@@ -16,6 +16,7 @@ export default function CancelSubModal({ open, sessionId,setOrders , setPostOrde
         setPostOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
         setOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
         setIsInfo(false)
+        setBreadCrumb()
         toast.success(res.data.msg || 'Subscription cancelled')
       }else{
         toast.error(res.data.msg || 'Error updating. Please try again')

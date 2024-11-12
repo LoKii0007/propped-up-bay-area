@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 export default function SignOutModal({ open, setOpen, text, btnText }) {
-  const { setCurrentUser, setUserLoggedIn } = useAuth();
+  const { setCurrentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
 

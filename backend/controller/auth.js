@@ -29,9 +29,7 @@ const signUp = async (req, res) => {
       newUserData.password = await bcrypt.hash(password, salt);
       newUserData.connectedAccounts.push("Email");
     } else {
-      return res
-        .status(400)
-        .json({ msg: "Password or Google ID required" });
+      return res.status(400).json({ msg: "Password or Google ID required" });
     }
 
     // Create new user
@@ -57,13 +55,12 @@ const signUp = async (req, res) => {
     delete userResponse.totalSpent;
     delete userResponse._id;
 
-    res.status(201).json({ msg: 'User saved', user: userResponse });
+    res.status(201).json({ msg: "User saved", user: userResponse });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ msg: "Signup server error" });
   }
 };
-
 
 //?------------------------------
 //? login
@@ -72,7 +69,9 @@ const login = async (req, res) => {
   try {
     const { email, password, googleId } = req.body;
 
-    const user = await User.findOne({ email }).select('-__v -createdAt -updatedAt -totalOrders -totalSpent') // Check if user exists
+    const user = await User.findOne({ email }).select(
+      "-__v -createdAt -updatedAt -totalOrders -totalSpent"
+    ); // Check if user exists
     if (!user) {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
@@ -80,13 +79,13 @@ const login = async (req, res) => {
     if (!password && !googleId) {
       return res.status(400).json({ msg: "Please provide credentials" });
     }
-    if ( password && user.connectedAccounts.includes('Email')) {
+    if (password && user.connectedAccounts.includes("Email")) {
       const isMatch = await bcrypt.compare(password, user.password); // Check password match
       if (!isMatch) {
         return res.status(400).json({ msg: "Invalid credentials" });
       }
     }
-    if (googleId && user.connectedAccounts.includes('Google')) {
+    if (googleId && user.connectedAccounts.includes("Google")) {
       if (user.googleId !== googleId) {
         return res.status(400).json({ msg: "Invalid credentials" });
       }
@@ -101,13 +100,13 @@ const login = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
-    const user2 = user.toObject()
-    delete user2._id
-    delete user2.password
+    const user2 = user.toObject();
+    delete user2._id;
+    delete user2.password;
 
-    res.status(200).json({ user : user2 });
+    res.status(200).json({ user: user2 });
   } catch (error) {
-    console.error('Login api error',error.message);
+    console.error("Login api error", error.message);
     res.status(500).json({ msg: "login Server error" });
   }
 };
@@ -117,7 +116,9 @@ const login = async (req, res) => {
 //?------------------------------
 const getUserByToken = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select("-password -__v -createdAt -updatedAt -totalOrders -totalSpent");
+    const user = await User.findById(req.user.userId).select(
+      "-password -__v -createdAt -updatedAt -totalOrders -totalSpent"
+    );
     if (!user) {
       return res.status(400).json({ msg: "no user found" });
     }
@@ -181,7 +182,7 @@ const authUpdate = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    if (user._id.toString() !== tokenUser._id.toString() ) {
+    if (user._id.toString() !== tokenUser._id.toString()) {
       return res.status(404).json({ msg: "not authorized" });
     }
 
@@ -190,11 +191,13 @@ const authUpdate = async (req, res) => {
       if (user.googleId) {
         // Check if the provided Google ID matches the existing one
         if (user.googleId !== googleId) {
-          return res.status(400).json({ msg: "Invalid Google ID for this user" });
+          return res
+            .status(400)
+            .json({ msg: "Invalid Google ID for this user" });
         }
       } else {
         user.googleId = googleId; // Add Google ID if it does not exist
-        user.connectedAccounts.push("Google")
+        user.connectedAccounts.push("Google");
       }
     }
 
@@ -204,13 +207,15 @@ const authUpdate = async (req, res) => {
         // Check if the provided password matches the existing one
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-          return res.status(400).json({ msg: "Invalid password for this user" });
+          return res
+            .status(400)
+            .json({ msg: "Invalid password for this user" });
         }
       } else {
         // Hash the new password and add it to the account
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
-        user.connectedAccounts.push("Email")
+        user.connectedAccounts.push("Email");
       }
     }
 
@@ -234,13 +239,14 @@ const authUpdate = async (req, res) => {
     delete userResponse.totalSpent;
     delete userResponse._id;
 
-    res.status(200).json({ msg: "User updated with new auth method", user: userResponse });
+    res
+      .status(200)
+      .json({ msg: "User updated with new auth method", user: userResponse });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ msg: "Server error" });
   }
 };
-
 
 //? ------------------------
 //? signout api
@@ -256,8 +262,8 @@ const signOutApi = async (req, res) => {
     res.clearCookie("authToken", {
       // httpOnly: true,
       secure: true,
-      sameSite: "None", 
-      domain: "propped-up-backend.vercel.app", 
+      sameSite: "None",
+      domain: "propped-up-backend.vercel.app",
     });
 
     // Send response indicating sign-out success
@@ -275,27 +281,20 @@ const signOutApi = async (req, res) => {
 //?------------------------------
 const adminLogin = async (req, res) => {
   try {
-    const { email, password, googleId } = req.body;
+    const { email, password } = req.body;
 
-    const user = await SuperUser.findOne({ email }).select('-__v -createdAt') // Check if user exists
+    const user = await SuperUser.findOne({ email }).select("-__v -createdAt -updatedAt"); // Check if user exists
     if (!user) {
       return res.status(400).json({ msg: "user not found" });
     }
 
-    if (user.role !== "admin") {
+    if (user.role !== "admin" && user.role !== "superuser") {
       return res.status(400).json({ msg: "unauthorized" });
     }
 
-    if (password) {
-      const isMatch = bcrypt.compare(password, user.password); // Check password match
-      if (!isMatch) {
-        return res.status(400).json({ msg: "Invalid credentials" });
-      }
-    }
-    if (googleId) {
-      if (user.googleId !== googleId) {
-        return res.status(400).json({ msg: "Invalid credentials" });
-      }
+    const isMatch = bcrypt.compare(password, user.password); // Check password match
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
@@ -306,13 +305,16 @@ const adminLogin = async (req, res) => {
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
-    res.status(200).json({ user, msg : 'logged in' });
+
+    const user2 = user.toObject()
+    delete user2.password
+
+    res.status(200).json({ user, msg: "logged in" });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ msg: "login Server error" });
   }
 };
-
 
 //?------------------------------
 //? update admin password
@@ -327,7 +329,7 @@ const updateAdminPassword = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    if(user.role !== 'superuser' && user.role !== 'admin'){
+    if (user.role !== "superuser" && user.role !== "admin") {
       return res.status(401).json({ msg: "Not authorized" });
     }
 
@@ -356,13 +358,16 @@ const updateAdminPassword = async (req, res) => {
 //?------------------------------
 const updateAdminDetails = async (req, res) => {
   try {
-    const userId = req.user.userId ; // Extract userId from token middleware 
+    const userId = req.user.userId;
     const { firstName, lastName, email, phone } = req.body;
 
     // Find the admin user by ID
-    const user = await SuperUser.findById(userId);
-    if (!user || (user.role !== "admin" && user.role !== 'superuser')) {
-      return res.status(403).json({ message: "Unauthorized or user not found" });
+    const user = await SuperUser.findById(userId).select(
+      "-__v -createdAt -updatedAt -password"
+    );
+
+    if (!user || (user.role !== "admin" && user.role !== "superuser")) {
+      return res.status(403).json({ msg: "Unauthorized or user not found" });
     }
 
     // Update fields if they exist in the request body
@@ -373,13 +378,12 @@ const updateAdminDetails = async (req, res) => {
 
     await user.save(); // Save updated user details to the database
 
-    res.status(200).json({ user, message: "Profile updated successfully" });
+    res.status(200).json({ user, msg: "Profile updated successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error while updating profile" });
+    res.status(500).json({ msg: "Server error while updating profile" });
   }
 };
-
 
 module.exports = {
   signUp,
@@ -390,5 +394,5 @@ module.exports = {
   signOutApi,
   updateAdminDetails,
   authUpdate,
-  updateAdminPassword
+  updateAdminPassword,
 };

@@ -98,29 +98,33 @@ const createOpenHouseOrderApi = async (req, res) => {
         firstEventAddress?.streetAddress,
         firstEventAddress?.city,
         firstEventAddress?.state,
-        firstEventAddress?.postalCode
-      ].filter(Boolean).join(', '),  // Combined firstEventAddress as a single block
-    
+        firstEventAddress?.postalCode,
+      ]
+        .filter(Boolean)
+        .join(", "), // Combined firstEventAddress as a single block
+
       [
         printAddress?.streetAddress,
         printAddress?.city,
         printAddress?.state,
-        printAddress?.postalCode
-      ].filter(Boolean).join(', '),  // Combined printAddress as a single block
-    
+        printAddress?.postalCode,
+      ]
+        .filter(Boolean)
+        .join(", "), // Combined printAddress as a single block
+
       requiredZone?.name,
       pickSign,
       additionalSignQuantity,
       twilightTourSlot,
       printAddressSign,
       additionalInstructions,
-      total
-    ];    
+      total,
+    ];
 
     try {
-      addToSheet(googleSheetdata) 
+      addToSheet(googleSheetdata);
     } catch (error) {
-      console.log('Open house order google sheet api error : ', error.message)
+      console.log("Open house order google sheet api error : ", error.message);
     }
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
@@ -129,7 +133,7 @@ const createOpenHouseOrderApi = async (req, res) => {
     });
 
     // Send email with Nodemailer
-    const invoiceUrl = req.stripe?.invoiceUrl || false
+    const invoiceUrl = req.stripe?.invoiceUrl || `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: [email, user.email],
@@ -237,17 +241,21 @@ const createPostOrderApi = async (req, res) => {
       listingAddress.streetAddress2 || "",
       listingAddress.city,
       listingAddress.state,
-      listingAddress.postalCode
-    ].filter(Boolean).join(", ");
-    
+      listingAddress.postalCode,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
     const billingAddressBlock = [
       billingAddress.streetAddress,
       billingAddress.streetAddress2 || "",
       billingAddress.city,
       billingAddress.state,
-      billingAddress.postalCode
-    ].filter(Boolean).join(", ");
-    
+      billingAddress.postalCode,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
     const googleSheetdata = [
       type,
       firstName,
@@ -271,13 +279,13 @@ const createPostOrderApi = async (req, res) => {
       riders.openSatSun,
       riders.openSat,
       riders.openSun,
-      riders.doNotDisturb
+      riders.doNotDisturb,
     ];
 
     try {
-      addToSheet(googleSheetdata) 
+      addToSheet(googleSheetdata);
     } catch (error) {
-      console.log('Post order google sheet api error : ', error.message)
+      console.log("Post order google sheet api error : ", error.message);
     }
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
@@ -290,7 +298,7 @@ const createPostOrderApi = async (req, res) => {
     });
 
     // Send email with Nodemailer
-    const invoiceUrl = req.stripe?.invoiceUrl || false
+    const invoiceUrl = req.stripe?.invoiceUrl || false;
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: [email, user.email],
@@ -300,7 +308,9 @@ const createPostOrderApi = async (req, res) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      res.status(201).json({ order : savedForm, msg: "Order placed successfully" });
+      res
+        .status(201)
+        .json({ order: savedForm, msg: "Order placed successfully" });
     } catch (error) {
       console.error("Email sending error:", error.message);
       res.status(201).json({
@@ -391,8 +401,37 @@ const postRemovalApi = async (req, res) => {
   }
 };
 
+
 //? ---------------------------
-//? -------update Orders Api
+//? -------get openhouse invoice
+//? ---------------------------
+const getOpenHouseInvoiceApi = async (req, res) => {
+  try {
+    const {orderId} = req.query
+    if(!orderId){
+      return res.status(404).json({ msg: "No order found" })
+    }
+
+    const order = await openHouseSchema.findById(orderId);
+    if (!order) {
+      console.log("No order found");
+      return res.status(404).json({ msg: "No order found" });
+    }
+
+    return res.status(200).json({ invoice : order });
+  } catch (error) {
+    console.log("Error in getOpenHouseInvoiceApi", error.message);
+    return res
+      .status(500)
+      .json({ msg: "Error in getOpenHouseInvoiceApi", error: error.message });
+  }
+};
+
+//*--------------------------------
+//*----------admin api
+
+//? ---------------------------
+//? -------update Orders Api 
 //? ---------------------------
 const updateOrderApi = async (req, res) => {
   try {
@@ -437,7 +476,7 @@ const updateOrderApi = async (req, res) => {
 };
 
 //? ---------------------------
-//? -------get all Orders API --admin
+//? -------get all Orders API 
 //? ---------------------------
 const getAllOrdersApi = async (req, res) => {
   let orders = [];
@@ -451,14 +490,19 @@ const getAllOrdersApi = async (req, res) => {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    const page = parseInt(req.query.page) || 1; // Get page number from query, default to 1
-    const limit = parseInt(req.query.limit) || 10; // Get limit from query, default to 10
-    const skip = (page - 1) * limit; // Calculate how many orders to skip
+    const page = parseInt(req.query.page) || 1; // Get page number 
+    const limit = parseInt(req.query.limit) || 20;  // get limit
+    const skip = (page - 1) * limit; //  how many orders to skip
 
-    const openHouseOrders = await openHouseSchema
-      .find()
-      .skip(skip)
-      .limit(limit);
+    // Find total users
+    let totalOrderCount = 0 
+    if (page === 1) {
+      totalOrderCount = await openHouseSchema.countDocuments();
+      totalOrderCount += await postOrderSchema.countDocuments();
+    }
+
+    const openHouseOrders = await openHouseSchema.find().skip(skip).limit(limit);
+
     const postOrders = await postOrderSchema.find().skip(skip).limit(limit);
 
     orders.push(...openHouseOrders, ...postOrders);
@@ -468,7 +512,7 @@ const getAllOrdersApi = async (req, res) => {
       return res.status(404).json({ message: "No orders found" });
     }
 
-    return res.status(200).json({ orders, message: "orders found ." });
+    return res.status(200).json({ orders, message: "orders found .", count : totalOrderCount });
   } catch (error) {
     console.log("Error in getAllOrdersApi", error.message);
     return res
@@ -485,4 +529,5 @@ module.exports = {
   createPostOrderApi,
   updateOrderApi,
   getAllOrdersApi,
+  getOpenHouseInvoiceApi
 };

@@ -69,15 +69,15 @@ const AdminLogin = () => {
             <div className="w-full md:w-1/2 py-16 px-12">
               <div className="flex  justify-center mb-8 w-full">
                 <img src="/logo.png" alt="Logo" className="h-8 mr-2" />
-                <h2 className="text-2xl text-[26.3px] poppinns-font font-semibold text-[#151D48]">
+                <h2 className="text-2xl text-[26.3px] font-semibold text-[#151D48]">
                   Propped up
                 </h2>
               </div>
-              <h1 className="text-2xl mb-4 text-[#252733] font-semibold w-full text-center">
+              <h1 className="text-xl mb-4 text-[#252733] font-semibold w-full text-center">
                 Log In to Admin Panel
               </h1>
               <p className="mb-4 text-[#9FA2B4] text-sm w-full text-center">
-                Enter your phone number and password below
+                {/* Enter your phone number and password below */}
               </p>
               <form onSubmit={handleSubmit}>
                 <div className="mt-5 flex flex-col gap-2">

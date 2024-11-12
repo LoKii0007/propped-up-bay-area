@@ -5,10 +5,10 @@ import OrderTypeDropdown from "../ui/orderTypeDropdown";
 import OrderStatusdropdown from "../ui/orderStatusdropdown";
 import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
-import ChangeStatusModal from "../ui/ChangeStatusModal";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 import axios from "axios";
+import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
 
 function OrderRequests() {
   const [orders, setOrders] = useState([]);
@@ -16,13 +16,13 @@ function OrderRequests() {
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const {setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
   const [completeOrder, setCompleteOrder] = useState({});
   const [loading, setLoading] = useState(false);
   const [nextLoading, setnextLoading] = useState(false);
   const [orderPage, setOrderPage] = useState(1);
-  const limit = 20
+  const limit = 10;
+  const [totalOrderCount, setTotalOrderCount] = useState(0)
 
   //? ------------------------
   //? pagination
@@ -44,7 +44,8 @@ function OrderRequests() {
     try {
       const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
         params: { page: orderPage, limit },
-        withCredentials: true, validateStatus : (status) => status < 500
+        withCredentials: true,
+        validateStatus: (status) => status < 500,
       });
       if (res.status === 200) {
         const allOrders = res.data.orders;
@@ -52,12 +53,11 @@ function OrderRequests() {
         setOrders(allOrders);
         setFilteredOrders(allOrders);
         setTotalPages(Math.ceil(allOrders.length / displayCount));
-      }
-      else if (res.status === 404) {
-        toast.custom(res.data.message || 'no orders found');
-      }
-      else {
-        toast.error(res.data.message || 'Unauthorized');
+        setTotalOrderCount(res.data.count)
+      } else if (res.status === 404) {
+        toast.custom(res.data.message || "no orders found");
+      } else {
+        toast.error(res.data.message || "Unauthorized");
       }
     } catch (error) {
       toast.error("Server error. Please try again");
@@ -75,7 +75,7 @@ function OrderRequests() {
       const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
         params: { page: orderPage + 1, limit },
         withCredentials: true,
-        validateStatus : (status) => status < 500
+        validateStatus: (status) => status < 500,
       });
       if (res.status === 200) {
         setOrderPage((prev) => prev + 1);
@@ -205,7 +205,7 @@ function OrderRequests() {
     orderType,
     orderStatus,
     completeOrder,
-    setOrders
+    setOrders,
   ]);
 
   //? --------------------
@@ -327,7 +327,6 @@ function OrderRequests() {
                       <div>
                         <button
                           onClick={() => {
-                            setModalOpen(true);
                             handleUpdateOrderStatus(index);
                           }}
                           className={`text-left font-semibold capitalize
@@ -336,7 +335,14 @@ function OrderRequests() {
                             ${order.status === "completed" && "text-[#4C9A2A]"}
                           }`}
                         >
-                          {order.status}
+                          {/* {order.status} */}
+                          <ChangeStatusDropdown
+                            order={completeOrder}
+                            setOrders={setOrders}
+                            setFilteredOrders={setFilteredOrders}
+                            setCompleteOrder={setCompleteOrder}
+                            status={order.status}
+                          />
                         </button>
                       </div>
                     </div>
@@ -346,17 +352,17 @@ function OrderRequests() {
                   {loading ? "loading..." : "You don't have any orders yet."}
                 </div>
               )}
-              {orders.length >= orderPage * limit && currentPage === totalPages && (
-                <div className="flex justify-center">
-                  <button
-                    disabled={nextLoading}
-                    onClick={() => handleNextOrders()}
-                    className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
-                  >
-                    {nextLoading ? "loading..." : "Load more"}
-                  </button>
-                </div>
-              )}
+              {orders.length < totalOrderCount && currentPage === totalPages && (
+                  <div className="flex justify-center">
+                    <button
+                      disabled={nextLoading}
+                      onClick={() => handleNextOrders()}
+                      className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                    >
+                      {nextLoading ? "loading..." : "Load more"}
+                    </button>
+                  </div>
+                )}
             </div>
 
             <Pagination
@@ -373,18 +379,13 @@ function OrderRequests() {
           </div>
         </div>
       ) : (
-        <OrderInfo setOrders={setOrders} order={completeOrder} setCompleteOrder={setCompleteOrder} setFilteredOrders={setFilteredOrders} />
+        <OrderInfo
+          setOrders={setOrders}
+          order={completeOrder}
+          setCompleteOrder={setCompleteOrder}
+          setFilteredOrders={setFilteredOrders}
+        />
       )}
-
-      {/* -------------modal---------------  */}
-      <ChangeStatusModal
-        order={completeOrder}
-        open={modalOpen}
-        setOpen={setModalOpen}
-        setOrders={setOrders}
-        setFilteredOrders={setFilteredOrders}
-        setCompleteOrder={setCompleteOrder}
-      />
     </>
   );
 }

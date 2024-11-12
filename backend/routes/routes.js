@@ -2,7 +2,7 @@ const express = require('express')
 const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails} = require('../controller/users')
 const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword } = require('../controller/auth')
-const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi } = require('../controller/orders')
+const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
@@ -39,6 +39,8 @@ Routes.post('/api/orders/post-order',checkPaymentStatus, verifyUser, createPostO
 Routes.get('/api/orders/open-house-order', verifyUser , getOpenHouseOrderApi) //openhouse get
 Routes.get('/api/orders/post-order',verifyUser, getPostOrderApi) // postorder get
 
+Routes.get('/api/invoice/open-house-order', getOpenHouseInvoiceApi) // openhouse invoice get
+
 
 //? -----------------------------
 //? admin only routes
@@ -47,9 +49,10 @@ Routes.get('/api/orders/get-all',verifyUser, getAllOrdersApi) // get all orders
 Routes.get('/api/user-details/get',verifyUser, getSingleUserDetails) // get single user detail
 Routes.patch('/api/orders/change-status',verifyUser, updateOrderApi) // updation of user orders
 Routes.get('/api/users/get',verifyUser, getAllUsersApi) // get all users
+
 Routes.post('/auth/admin-login', adminLogin) // custom admin login
-Routes.post('/auth/admin/password/update', updateAdminPassword) // update admin password
-Routes.patch('/auth/profile/update',verifyUser, updateAdminDetails) // admin profile update
+Routes.patch('/auth/admin/password/update',verifyUser, updateAdminPassword) // update admin password
+Routes.patch('/auth/admin/profile/update',verifyUser, updateAdminDetails) // admin profile update
 
 //* -------------------
 //* image routes

@@ -67,46 +67,6 @@ const userDetails = async (req, res) => {
 };
 
 //?------------------------------
-//? getting all users -- admin route
-//?------------------------------
-const getAllUsersApi = async (req, res) => {
-  try {
-    // Find the requesting user
-    const requestingUser = await SuperUser.findById(req.user.userId);
-    if (!requestingUser) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Check if the requesting user has the necessary role
-    if (
-      requestingUser.role !== "superuser" &&
-      requestingUser.role !== "admin"
-    ) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // Set pagination parameters
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    // Find users with pagination
-    const users = await User.find().skip(skip).limit(limit);
-
-    if (users.length === 0) {
-      return res.status(404).json({ message: "No users found" });
-    }
-
-    return res.status(200).json({ users, message: "Users found." });
-  } catch (error) {
-    console.log("Error in getAllUsersApi", error.message);
-    return res
-      .status(500)
-      .json({ message: "Error in getAllUsersApi", error: error.message });
-  }
-};
-
-//?------------------------------
 //? getting user details
 //?------------------------------
 const getUserDetailsApi = async (req, res) => {
@@ -201,6 +161,51 @@ const updateUserDetails = async (req, res) => {
   }
 };
 
+//?------------------------------
+//? getting all users -- admin route
+//?------------------------------
+const getAllUsersApi = async (req, res) => {
+  try {
+    // Find the requesting user
+    const requestingUser = await SuperUser.findById(req.user.userId);
+    if (!requestingUser) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Check if the requesting user has the necessary role
+    if (
+      requestingUser.role !== "superuser" &&
+      requestingUser.role !== "admin"
+    ) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Set pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // Find total users
+    let totalUsersCount = 0
+    if(page === 1){
+      totalUsersCount = await User.countDocuments();
+    }
+
+    // Find users with pagination
+    const users = await User.find().skip(skip).limit(limit).select('-__v -createdAt -googleId -password -updatedAt ');
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    return res.status(200).json({ users, message: "Users found.", count : totalUsersCount });
+  } catch (error) {
+    console.log("Error in getAllUsersApi", error.message);
+    return res
+      .status(500)
+      .json({ message: "Error in getAllUsersApi", error: error.message });
+  }
+};
 
 //?------------------------------
 //? get single userDetails -- admin route

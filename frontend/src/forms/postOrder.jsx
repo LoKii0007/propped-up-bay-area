@@ -285,7 +285,7 @@ function PostOrder() {
             />
           </div>
           <input
-            type="text"
+            type="number"
             name="postalCode"
             placeholder="Postal / Zip Code"
             value={formData.listingAddress.postalCode}
@@ -383,12 +383,12 @@ function PostOrder() {
         </div>
 
         {/* Post Color Section */}
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2">
           <label className="font-medium text-sm">
             What color would you like your post?{" "}
             <span className="text-red-500">*</span>
           </label>
-          <div className="flex gap-4">
+          <div className="flex gap-4 text-sm ">
             <div className="flex gap-2">
               <input
                 type="radio"
@@ -397,6 +397,7 @@ function PostOrder() {
                 checked={formData.postColor === "Black"}
                 onChange={handleInputChange}
                 required
+                className="h-4 w-4"
               />
               <label>Black</label>
             </div>
@@ -407,6 +408,7 @@ function PostOrder() {
                 value="White"
                 checked={formData.postColor === "White"}
                 onChange={handleInputChange}
+                className="h-4 w-4"
                 required
               />
               <label>White</label>
@@ -419,6 +421,7 @@ function PostOrder() {
                 checked={formData.postColor === "Grey"}
                 onChange={handleInputChange}
                 required
+                className="h-4 w-4"
               />
               <label>Grey</label>
             </div>

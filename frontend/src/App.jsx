@@ -10,6 +10,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GlobalContextProvider } from "./context/GlobalContext";
 import SignUpDetails from "./auth/signupDetails";
 import ConfirmationPage from "./screens/ConfirmationPage";
+import UserInvoice from "./components/UserInvoice";
 
 function App() {
 
@@ -21,13 +22,14 @@ function App() {
         <AuthProvider>
           <GlobalContextProvider>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/signup" element={<Register />} />
-              <Route path="/signup/details" element={<SignUpDetails />} />
-              <Route path="/order/openHouse/payment" element={<ConfirmationPage />} />
-              <Route path="/order/postOrder/payment" element={<ConfirmationPage />} />
-              <Route path="/login" element={<Login />} />
+              <Route exact path="/" element={<Home />} />
+              <Route exact path="/admin" element={<Admin />} />
+              <Route exact path="/signup" element={<Register />} />
+              <Route exact path="/signup/details" element={<SignUpDetails />} />
+              <Route exact path="/order/openHouse/payment" element={<ConfirmationPage />} />
+              <Route exact path="/order/postOrder/payment" element={<ConfirmationPage />} />
+              <Route exact path="/login" element={<Login />} />
+              <Route exact path="/download/invoice/:orderId" element={<UserInvoice />} />
             </Routes>
             <Toaster />
           </GlobalContextProvider>

@@ -23,7 +23,8 @@ function Invoices() {
   const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
   const [nextLoading, setnextLoading] = useState(false);
   const [orderPage, setOrderPage] = useState(1);
-  const limit = 20;
+  const [totalOrderCount, setTotalOrderCount] = useState(0)
+  const limit = 10;
 
   //? ------------------------
   //? pagination
@@ -51,6 +52,7 @@ function Invoices() {
       }else if(res.status === 200){
         const allOrders = res.data.orders;
         setOrders(allOrders);
+        setTotalOrderCount(res.data.couunt)
         setFilteredInvoices(allOrders);
         setTotalPages(Math.ceil(allOrders.length / displayCount));
       }else{
@@ -262,8 +264,8 @@ function Invoices() {
   //? updating render
   //? ---------------------------
   useEffect(() => {
-    console.log(filteredInvoices);
-  }, [filteredInvoices, orders]);
+    // console.log(filteredInvoices);
+  }, [filteredInvoices, orders, totalOrderCount]);
 
   return (
     <>
@@ -407,8 +409,7 @@ function Invoices() {
                     </button>
                   </div>
                 ))}
-              {orders.length >= orderPage * limit &&
-                currentPage === totalPages && (
+              {orders.length < totalOrderCount && currentPage === totalPages && (
                   <div className="flex justify-center">
                     {nextLoading ? (
                       "loading..."

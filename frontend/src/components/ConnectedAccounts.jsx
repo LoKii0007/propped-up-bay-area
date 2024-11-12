@@ -9,7 +9,7 @@ const ConnectedAccounts = () => {
 
   return (
     <div className="connected p-6 rounded-2xl client-form flex flex-col gap-6">
-      <div className="text-xl font-semibold">Connected Accounts</div>
+      <div className="text-xl font-semibold">Connected accounts</div>
       <div className="flex flex-col gap-4">
 
         {/* Email Account */}

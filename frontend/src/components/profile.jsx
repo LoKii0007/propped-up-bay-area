@@ -4,9 +4,10 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import ConnectedAccounts from "./ConnectedAccounts";
 import { useAuth } from "../context/AuthContext";
+import { Switch } from "@/components/ui/switch";
 
 const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
-  const initialState = {
+  const [initialState, setInitialState] = useState({
     firstName: user?.firstName,
     lastName: user?.lastName,
     company: userDetails?.company,
@@ -17,7 +18,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     zipCode: userDetails?.zipCode,
     caDreLicense: userDetails?.caDreLicense,
     address: userDetails?.address,
-  };
+  });
 
   const [formData, setFormData] = useState({});
   const [emailNotifications, setEmailNotifications] = useState(
@@ -34,7 +35,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   const [showOldPass, setShowOldPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [passLoading, setPassLoading] = useState(false);
-  const {currentUser} = useAuth()
+  const { currentUser, setCurrentUser } = useAuth();
 
   //?--------------------------
   //? Handle form input change
@@ -49,7 +50,8 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   //?--------------------------
   //? Handle update profile (save and disable form)
   //?--------------------------
-  const handleUpdateProfile = async () => {
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault()
     setLoading(true);
     try {
       const data = {
@@ -57,13 +59,20 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         receiveEmailNotifications: emailNotifications,
         receiveTextNotifications: textNotifications,
       };
-      const res = await axios.patch(`${baseUrl}/api/update/user-details`, data, {
-        withCredentials: true, validateStatus : (status) => status < 500
-      });
+      const res = await axios.patch(
+        `${baseUrl}/api/update/user-details`,
+        data,
+        {
+          withCredentials: true,
+          validateStatus: (status) => status < 500,
+        }
+      );
       if (res.status === 200) {
+        setCurrentUser(res.data.user);
+        setInitialState(formData);
         toast.success("Profile updated successfully.");
       } else {
-        toast.error(res.data.msg || 'Profile update failed. Please try again');
+        toast.error(res.data.msg || "Profile update failed. Please try again");
       }
     } catch (error) {
       console.log("Profile update failed", error.message);
@@ -99,12 +108,14 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
       const res = await axios.patch(
         `${baseUrl}/auth/update/password`,
         { currentPass, newPass },
-        { withCredentials: true, validateStatus : (status) => status < 500 }
+        { withCredentials: true, validateStatus: (status) => status < 500 }
       );
       if (res.status === 200) {
         toast.success("Password changed successfully.");
       } else {
-        toast.error(res.data.message || 'password change failed. Please try again' );
+        toast.error(
+          res.data.message || "password change failed. Please try again"
+        );
       }
     } catch (error) {
       toast.error("Server error. Please try again.");
@@ -113,7 +124,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     }
   }
 
-  useEffect(() => {}, [loadingDetails, formData, currentUser]);
+  useEffect(() => {}, [loadingDetails, formData, currentUser, initialState]);
 
   useEffect(() => {
     setFormData(initialState);
@@ -253,12 +264,14 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
               <label className="text-[#6C737F] ">
                 Receive email notifications:
               </label>
-              <input
-                type="checkbox"
+              <Switch
                 checked={emailNotifications}
-                onChange={() => setEmailNotifications(!emailNotifications)}
+                onCheckedChange={() =>
+                  setEmailNotifications(!emailNotifications)
+                }
                 className="toggle toggle-primary"
                 disabled={!isEditing}
+                id="switch"
               />
             </div>
 
@@ -266,10 +279,9 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
               <label className="text-[#6C737F] ">
                 Receive text notifications:
               </label>
-              <input
-                type="checkbox"
+              <Switch
                 checked={textNotifications}
-                onChange={() => setTextNotifications(!textNotifications)}
+                onCheckedChange={() => setTextNotifications(!textNotifications)}
                 className="toggle toggle-primary"
                 disabled={!isEditing}
               />
@@ -297,6 +309,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
             )}
             <button
               type="button"
+              disabled={!isEditing}
               onClick={() => handleCancel()} // Cancel editing
               className="text-gray-700 font-semibold px-4 py-2 rounded-md hover:"
             >
@@ -308,7 +321,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         <div className="text-center">Loading...</div>
       )}
 
-      {user?.connectedAccounts?.includes('Email') && (
+      {user?.connectedAccounts?.includes("Email") && (
         <form
           onSubmit={handleChangePassword}
           className="space-y-6 p-6 rounded-2xl client-form "

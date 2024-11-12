@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Pagination from "./pagination";
 import RowHeading from "../ui/rowHeading";
-import Modal from "../ui/ChangeStatusModal";
 import DetailedInfo from "./DetailedInfo";
 import { UseGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-function ClientDetails({ users, setUsers }) {
+function ClientDetails({ users, setUsers, sub, totalCount }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [searchTerm, setSearchTerm] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
   const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
   const [userInfo, setUserInfo] = useState(null);
   const [nextLoading, setNextLoading] = useState(false);
@@ -72,9 +70,9 @@ function ClientDetails({ users, setUsers }) {
         params: { page: orderPage + 1, limit },
         withCredentials: true,
         validateStatus: function (status) {
-          return status < 500; 
+          return status < 500;
         },
-      })
+      });
 
       if (res.status === 200) {
         const allUsers = [...users, ...res.data.users];
@@ -93,9 +91,7 @@ function ClientDetails({ users, setUsers }) {
     }
   }
 
-  useEffect(()=>{
-
-  }, [filteredUsers])
+  useEffect(() => {}, [filteredUsers]);
 
   //? --------------------
   //? user click
@@ -138,9 +134,6 @@ function ClientDetails({ users, setUsers }) {
             </div>
           </div>
 
-          {/* ------------------------- modal----------- */}
-          <Modal open={modalOpen} setOpen={setModalOpen} />
-
           <div className="dashboard-bottom w-full gap-6 flex flex-col justify-between h-full">
             <div className="order-list w-full flex flex-col">
               <div className="order-top text-[#718096] grid grid-cols-4 px-5 gap-2">
@@ -168,6 +161,14 @@ function ClientDetails({ users, setUsers }) {
                   data={filteredUsers}
                   text="Spent"
                 />
+                {/* {sub && (
+                  <RowHeading
+                    setFilteredData={setFilteredUsers}
+                    filterValue={"isSubscribed"}
+                    data={filteredUsers}
+                    text="Subscription"
+                  />
+                )} */}
               </div>
               <div className="order-bottom flex flex-col">
                 {filteredUsers
@@ -189,19 +190,21 @@ function ClientDetails({ users, setUsers }) {
                       <div className="overflow-hidden">{user.email}</div>
                       <div className="overflow-hidden">{user.totalOrders}</div>
                       <div className="overflow-hidden">{user.totalSpent}</div>
+                      {/* {sub && <div className="overflow-hidden">{user.isSubscribed}</div>} */}
                     </div>
                   ))}
-                {users.length >= orderPage*limit && currentPage === totalPages && (
-                  <div className="flex justify-center">
-                    <button
-                      disabled={nextLoading}
-                      onClick={() => handleNextUsers()}
-                      className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
-                    >
-                      {nextLoading ? 'loading...' :'Load more'}
-                    </button>
-                  </div>
-                )}
+                {users.length < totalCount &&
+                  currentPage === totalPages && (
+                    <div className="flex justify-center">
+                      <button
+                        disabled={nextLoading}
+                        onClick={() => handleNextUsers()}
+                        className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                      >
+                        {nextLoading ? "loading..." : "Load more"}
+                      </button>
+                    </div>
+                  )}
               </div>
             </div>
 

@@ -18,32 +18,34 @@ function Admin() {
   const { breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
   const [activeView, setActiveView] = useState("clients");
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [subscribedUsers, setSubscribedUsers] = useState([]);
   const { admin } = useAuth();
   const page = 1;
   const limit = 20;
+  const [totalUserCount, setTotalUserCount] = useState(0)
 
+  //? loading initial users
   async function handleUsers() {
     try {
       const res = await axios.get(`${baseUrl}/api/users/get`, {
         params: { page, limit },
-        withCredentials: true,
+        withCredentials: true, validateStatus : (status) => status < 500
       });
 
       if (res.status === 401) {
         toast.error(res.data.message || 'Unauthorized');
         return;
       }
-      if (res.status === 404) {
+      else if (res.status === 404) {
         toast.custom(res.data.message || 'No users found');
-        return;
       }
-
-      const allUsers = res.data.users;
-      setUsers(allUsers);
-      const subscribedUsers = allUsers.filter(user => user.isSubscribed);
-      setFilteredUsers(subscribedUsers);
-
+      else if (res.status === 200) {
+        const allUsers = res.data.users;
+        setUsers(allUsers);
+        setTotalUserCount(res.data.count)
+        const subs = allUsers.filter(user => user.isSubscribed);
+        setSubscribedUsers(subs);
+      }
     } catch (error) {
       console.error("Error fetching users:", error.message);
       toast.error('Error fetching users');
@@ -74,7 +76,7 @@ function Admin() {
       <div className="active-content w-full">
         <div className="active-top flex justify-between items-center px-12 h-[13vh] py-8 bg-[#F4FFF0]">
           <div className="text-2xl font-bold flex gap-3 items-center capitalize">
-            <button onClick={handleView} className="chevron-icon px-3 py-1">
+            {isInfo && <button onClick={handleView} className="chevron-icon px-3 py-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 16 16">
                 <path
                   stroke="#000000"
@@ -83,7 +85,7 @@ function Admin() {
                   d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"
                 />
               </svg>
-            </button>
+            </button>}
             {breadCrumb}
           </div>
           <div className="flex gap-8 items-center">
@@ -99,9 +101,9 @@ function Admin() {
         <div className="p-7 bg-white h-[87vh]">
           <div className="active-bottom h-full overflow-y-auto">
             {activeView === "dashboard" && <Salesreport />}
-            {activeView === "clients" && <ClientDetails users={users} setUsers={setUsers} />}
+            {activeView === "clients" && <ClientDetails users={users} setUsers={setUsers} sub={false} totalUserCount={totalUserCount} />}
             {activeView === "order requests" && <OrderRequests />}
-            {activeView === "subscription" && <ClientDetails users={filteredUsers} />}
+            {activeView === "subscriptions" && <ClientDetails users={subscribedUsers} setUsers={setSubscribedUsers} totalUserCount={totalUserCount} sub={true} />}
             {activeView === "sales report" && <Salesreport />}
             {activeView === "invoices" && <Invoices />}
             {activeView === "settings" && <AdminSettings />}

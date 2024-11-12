@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { UseGlobal } from '../context/GlobalContext';
 
 const ProfileSettings = () => {
-  const { admin } = useAuth();
+  const { admin, setAdmin } = useAuth();
   const [profilePic, setProfilePic] = useState(null);
   const [firstName, setFirstName] = useState(admin?.firstName || '');
   const [lastName, setLastName] = useState(admin?.lastName || '');
@@ -32,12 +32,12 @@ const ProfileSettings = () => {
     } else {
       setLoading(true);
       try {
-        const res = await axios.patch(`${baseUrl}/auth/profile/update`, { profilePic, firstName, lastName, email, phone }, {withCredentials : true, validateStatus : (status) => status < 500});
+        const res = await axios.patch(`${baseUrl}/auth/admin/profile/update`, { profilePic, firstName, lastName, email, phone }, {withCredentials : true, validateStatus : (status) => status < 500});
         if(res.status !== 200){
-          toast.error(res.data.message || 'Profile update failed. Please try again')
+          toast.error(res.data.msg || 'Profile update failed. Please try again')
         }
         toast.success("Profile updated successfully!");
-        
+        setAdmin(res.data.user)
       } catch (error) {
         toast.error("Failed to update profile.");
       } finally {
@@ -51,6 +51,8 @@ const ProfileSettings = () => {
   const handleFileChange = (e) => {
     setProfilePic(e.target.files[0]);
   };
+
+  useEffect(()=> {}, [admin])
 
   return (
     <div className="w-full max-w-4xl">
@@ -109,7 +111,7 @@ const ProfileSettings = () => {
           </button>
           <button type="button" onClick={handleReset}
             className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
-            disabled={loading}>
+            disabled={!isEditable}>
             Reset
           </button>
         </div>

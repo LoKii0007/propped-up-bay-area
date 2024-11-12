@@ -1,6 +1,7 @@
 import React, {useState} from "react"
 import SignOutModal from "../ui/signOutModal"
 import { UseGlobal } from "../context/GlobalContext"
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ setActiveView, activeView }) => {
   const menu = [
@@ -28,6 +29,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
 
   const [modalOpen, setModalOpen] = useState(false)
   const {setBreadCrumb, isInfo, setIsInfo, breadCrumb} = UseGlobal()
+  const navigate = useNavigate()
 
   function handleView(data){
     let view = data.name.toLowerCase()
@@ -40,7 +42,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
     <>
       <div className="admin-board w-full flex flex-col py-1 items-center justify-between h-full gap-2 ">
         <div className="sidebar-top w-full ">
-          <div className="logo flex items-center gap-2 py-10 w-full justify-center">
+          <div onClick={()=>navigate('/')} className="logo flex items-center hover:cursor-pointer gap-2 py-10 w-full justify-center">
             <img src="/logo.png" alt="logo" />
             <p className="text-[20px] font-bold">Propped Up</p>
           </div>
