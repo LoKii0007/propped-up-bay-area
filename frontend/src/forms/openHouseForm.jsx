@@ -74,9 +74,6 @@ const OpenHouseForm = () => {
         ...formData,
         [name]: value,
       });
-      if (name === "requestedDate") {
-        checkRushFee(value);
-      }
     }
   };
   

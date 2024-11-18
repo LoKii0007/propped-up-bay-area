@@ -70,6 +70,14 @@ function PostOrder() {
     });
   };
 
+    // Handle date selection
+    const handleDateChange = (date) => {
+      setFormData({
+        ...formData,
+        requestedDate: date,  // This updates the requestedDate in the state
+      });
+    }
+
   const handleAddressChange = (e, addressType) => {
     const { name, value } = e.target;
     setFormData({
@@ -163,7 +171,7 @@ function PostOrder() {
   }
 
   useEffect(() => {
-
+     console.log(formData)
   }, [formData])
 
   return (
@@ -247,7 +255,7 @@ function PostOrder() {
             onChange={handleInputChange}
             className="border border-gray-300 p-2 rounded"
           /> */}
-          <DatePickerDemo date={formData.requestedDate} selectedDate={handleInputChange} />
+          <DatePickerDemo date={formData.requestedDate} selectedDate={handleDateChange} />
         </div>
 
         {/*listing Address Section */}

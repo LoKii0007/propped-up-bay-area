@@ -6,6 +6,7 @@ const verifyOpenHouseTotal = require("../utilities/verifyTotal");
 const SuperUser = require("../models/superUser");
 const { gmailTemplate, nodemailerTransport } = require("../utilities/gmail");
 const { addToSheet } = require("../utilities/googleSheet");
+const { addDataToMultipleSheet } = require("../utilities/sheetautomation");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -122,7 +123,8 @@ const createOpenHouseOrderApi = async (req, res) => {
     ];
 
     try {
-      addToSheet(googleSheetdata);
+      // addToSheet(googleSheetdata);
+      addDataToMultipleSheet(googleSheetdata)
     } catch (error) {
       console.log("Open house order google sheet api error : ", error.message);
     }
@@ -283,7 +285,8 @@ const createPostOrderApi = async (req, res) => {
     ];
 
     try {
-      addToSheet(googleSheetdata);
+      // addToSheet(googleSheetdata);
+      addDataToMultipleSheet(googleSheetdata)
     } catch (error) {
       console.log("Post order google sheet api error : ", error.message);
     }

@@ -1,10 +1,9 @@
 import * as React from "react";
 import { CalendarIcon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { format, isBefore, startOfDay } from "date-fns"
+import { format, isBefore, startOfDay } from "date-fns";
 import {
   Popover,
   PopoverContent,
@@ -13,9 +12,15 @@ import {
 
 export default function DatePickerDemo({ date, selectedDate }) {
   const today = startOfDay(new Date());
+  const [isOpen, setIsOpen] = React.useState(false); // Track the popover state
+
+  const handleSelectDate = (date) => {
+    selectedDate(date); // Update the parent state with the selected date
+    setIsOpen(false); // Close the popover after selecting the date
+  };
 
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
@@ -32,7 +37,7 @@ export default function DatePickerDemo({ date, selectedDate }) {
         <Calendar
           mode="single"
           selected={date}
-          onSelect={selectedDate}
+          onSelect={handleSelectDate} // Use the new handler for date selection
           initialFocus
           disabled={(date) => isBefore(date, today)} // Disable past dates
         />

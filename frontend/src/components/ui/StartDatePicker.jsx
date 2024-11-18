@@ -13,8 +13,15 @@ import {
 
 export default function StartDatePicker({ date, selectedDate }) {
 
+  const [isOpen, setIsOpen] = React.useState(false); // Track the popover state
+
+  const handleSelectDate = (date) => {
+    selectedDate(date); // Update the parent state with the selected date
+    setIsOpen(false); // Close the popover after selecting the date
+  };
+
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
@@ -31,7 +38,7 @@ export default function StartDatePicker({ date, selectedDate }) {
         <Calendar
           mode="single"
           selected={date}
-          onSelect={selectedDate}
+          onSelect={handleSelectDate}
           initialFocus
         />
       </PopoverContent>
