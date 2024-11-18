@@ -157,6 +157,7 @@ function PostOrder() {
 
     } catch (error) {
       toast.error('Server error')
+      setLoading(false)
     }
   }
 

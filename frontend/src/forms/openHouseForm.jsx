@@ -3,6 +3,7 @@ import { zones } from "../data/staticData";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { UseGlobal } from "../context/GlobalContext";
+import DatePickerDemo from "@/components/ui/DatePicker";
 
 const OpenHouseForm = () => {
   const initialState = {
@@ -57,16 +58,28 @@ const OpenHouseForm = () => {
   // ----------------------------------
   // handling inputs
   //  ---------------------------------
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    if (name === "requestedDate") {
+  const handleInputChange = (input) => {
+    if (input instanceof Date) {
+      // For the Calendar component
+      const value = input.toISOString().split("T")[0]; // Format as yyyy-MM-dd
+      setFormData({
+        ...formData,
+        requestedDate: value,
+      });
       checkRushFee(value);
+    } else if (input.target) {
+      // For standard input elements
+      const { name, value } = input.target;
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+      if (name === "requestedDate") {
+        checkRushFee(value);
+      }
     }
   };
+  
 
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
@@ -237,71 +250,14 @@ const OpenHouseForm = () => {
 
     } catch (error) {
       toast.error("Server Error");
+      setLoading(false)
     }
   }
 
   //? ----------------------------------
   //? updating render
   //?  ---------------------------------
-  useEffect(() => {}, [formData]);
-
-  const apiKey = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID;
-  const sheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
-  const range = "Sheet1!A1";
-
-  const handleSheets = async (e) => {
-    e.preventDefault();
-    const formattedData = [
-      formData.firstName,
-      formData.lastName,
-      formData.email,
-      formData.phone,
-      formData.requestedDate,
-      formData.firstEventStartTime,
-      formData.firstEventEndTime,
-      formData.firstEventAddress.streetAddress,
-      formData.firstEventAddress.streetAddress2,
-      formData.firstEventAddress.city,
-      formData.firstEventAddress.state,
-      formData.firstEventAddress.postalCode,
-      formData.requiredZone.name,
-      formData.requiredZone.text,
-      formData.requiredZone.price,
-      formData.requiredZone.resetPrice,
-      formData.pickSign,
-      formData.additionalSignQuantity,
-      formData.twilightTourSlot,
-      formData.printAddressSign,
-      formData.printAddress.streetAddress,
-      formData.printAddress.streetAddress2,
-      formData.printAddress.city,
-      formData.printAddress.state,
-      formData.printAddress.postalCode,
-      formData.additionalInstructions,
-      formData.total,
-    ];
-
-    try {
-      await axios.post(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}:append`,
-        {
-          range: range,
-          majorDimension: "ROWS",
-          values: [formattedData],
-        },
-        {
-          params: {
-            valueInputOption: "RAW",
-            key: apiKey,
-          },
-        }
-      );
-      alert("Data saved successfully!");
-    } catch (error) {
-      console.error("Error saving data:", error);
-      alert("Error saving data!");
-    }
-  };
+  useEffect(() => {console.log(formData)}, [formData]);
 
   return (
     <>
@@ -321,7 +277,7 @@ const OpenHouseForm = () => {
               value={formData.firstName}
               onChange={handleInputChange}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
           </div>
           <div className="flex flex-col">
@@ -334,7 +290,7 @@ const OpenHouseForm = () => {
               value={formData.lastName}
               onChange={handleInputChange}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
           </div>
         </div>
@@ -351,7 +307,7 @@ const OpenHouseForm = () => {
             value={formData.email}
             onChange={handleInputChange}
             required
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 p-2 rounded-sm"
           />
         </div>
 
@@ -367,7 +323,7 @@ const OpenHouseForm = () => {
             value={formData.phone}
             onChange={handleInputChange}
             required
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 p-2 rounded-sm"
           />
           <span className="text-xs text-gray-500">
             Please enter a valid phone number.
@@ -379,14 +335,17 @@ const OpenHouseForm = () => {
           <label className="font-medium text-sm">
             Date of First Event <span className="text-red-500">*</span>
           </label>
-          <input
+          {/* <input
             type="date"
             name="requestedDate"
             value={formData.requestedDate}
             onChange={handleInputChange}
             required
-            className="border border-gray-300 p-2 rounded"
-          />
+            className="border border-gray-300 p-2 rounded-sm"
+          /> */}
+          <div className="pb-1" >
+          <DatePickerDemo date={formData.requestedDate} selectedDate={handleInputChange} />
+          </div>
           <span className="text-xs text-gray-500">
             $25 Rush fee gets applied for same day orders and orders on Friday
             after 4 pm
@@ -410,7 +369,7 @@ const OpenHouseForm = () => {
               value={formData.firstEventStartTime}
               onChange={handleInputChange}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
           </div>
           <div className="flex flex-col">
@@ -423,7 +382,7 @@ const OpenHouseForm = () => {
               value={formData.firstEventEndTime}
               onChange={handleInputChange}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
           </div>
         </div>
@@ -458,7 +417,7 @@ const OpenHouseForm = () => {
               value={formData.firstEventAddress.city}
               onChange={(e) => handleAddressChange(e, "firstEventAddress")}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
             <input
               type="text"
@@ -467,7 +426,7 @@ const OpenHouseForm = () => {
               value={formData.firstEventAddress.state}
               onChange={(e) => handleAddressChange(e, "firstEventAddress")}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
           </div>
           <input
@@ -500,7 +459,7 @@ const OpenHouseForm = () => {
             }
             onChange={handleZoneChange}
             required
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 p-2 rounded-sm"
           >
             <option value="">Please Select</option>
             {zones.map((data, index) => (
@@ -551,7 +510,7 @@ const OpenHouseForm = () => {
             value={formData.additionalSignQuantity}
             onChange={handleInputChange}
             min="0"
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 p-2 rounded-sm"
           />
         </div>
 
@@ -654,7 +613,7 @@ const OpenHouseForm = () => {
               value={formData.printAddress.city}
               onChange={(e) => handleAddressChange(e, "printAddress")}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
             <input
               type="text"
@@ -663,7 +622,7 @@ const OpenHouseForm = () => {
               value={formData.printAddress.state}
               onChange={(e) => handleAddressChange(e, "printAddress")}
               required
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded-sm"
             />
           </div>
           <input
@@ -684,7 +643,7 @@ const OpenHouseForm = () => {
             name="additionalInstructions"
             value={formData.additionalInstructions}
             onChange={handleInputChange}
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 p-2 rounded-sm"
           ></textarea>
         </div>
 
@@ -699,7 +658,7 @@ const OpenHouseForm = () => {
         <button
           disabled={loading}
           type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-sm"
         >
           {loading ? "placing order..." : "Submit"}
         </button>

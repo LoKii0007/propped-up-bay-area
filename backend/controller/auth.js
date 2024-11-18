@@ -267,13 +267,12 @@ const signOutApi = async (req, res) => {
       return res.status(400).json({ message: "User ID is missing" });
     }
 
-    // Clear the authToken cookie, specifying the domain for cross-site compatibility
-    res.clearCookie("authToken", {
-      // httpOnly: true,
+    // Clear the authToken cookie
+    res.cookie("authToken", "", {
+      expires: new Date(0), // Setting expiry to a past date
       secure: true,
       sameSite: "None",
-      // domain: "propped-up-backend.vercel.app",
-    });
+    })
 
     // Send response indicating sign-out success
     return res.status(200).json({ message: "Successfully signed out" });

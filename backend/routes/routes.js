@@ -7,7 +7,7 @@ const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
 const multer = require('multer');
-const { addToSheet } = require('../utilities/googleSheet')
+const { generateAuthUrl, addDataToMultipleSheet, getTokens } = require('../utilities/sheetautomation')
 const upload = multer({ storage: multer.memoryStorage() }); 
 
 
@@ -69,18 +69,15 @@ Routes.get('/api/orders/image-get', getOrderImage)  // get image
 Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
 Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
 Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
+Routes.post('/webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
-Routes.post('/api/sheets', async(req, res)=>{
 
-    try {
-        const {data} = req.body
-        addToSheet(data)
-        res.status(200)        
-    } catch (error) {
-        res.status(500)
-        console.log(error.message)
-    }
-})
+// google sheets admin
+Routes.get('/api/sheets/auth', verifyUser, generateAuthUrl)     
+Routes.get('/api/sheets/add-callback', getTokens )     
+
+// test for sheets
+Routes.post('/api/sheets', addDataToMultipleSheet)
 
 module.exports = Routes

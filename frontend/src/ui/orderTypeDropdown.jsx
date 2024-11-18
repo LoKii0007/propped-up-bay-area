@@ -5,9 +5,9 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid'
 function OrderTypeDropdown({handleOrderType, filterType}) {
     return (
         <>
-            <Menu as="div" className="relative inline-block py-1">
-                <div>
-                    <MenuButton className="inline-flex capitalize w-full justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+            <Menu as="div" className="relative inline-block hover:bg-gray-50 py-2 px-6 rounded-md">
+                <div className='' >
+                    <MenuButton className="inline-flex capitalize w-full justify-center gap-x-1.5 rounded-md text-sm font-semibold text-gray-900">
                         Order Type
                         <ChevronDownIcon aria-hidden="true" className="-mr-1 h-5 w-5 text-gray-400" />
                     </MenuButton>

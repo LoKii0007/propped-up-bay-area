@@ -21,10 +21,10 @@ const Sidebar = ({ setActiveView, activeView }) => {
       name: "Profile",
       svg: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-user-round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
     },
-    {
-      name: "Payment Info",
-      svg : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-    },
+    // {
+    //   name: "Payment Info",
+    //   svg : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+    // },
   ]
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -32,9 +32,9 @@ const Sidebar = ({ setActiveView, activeView }) => {
   const navigate = useNavigate()
 
   function handleView(data){
-    let view = data.name.toLowerCase()
+    let view = data.toLowerCase()
     setActiveView(view)
-    if(breadCrumb !== view) setBreadCrumb(data.name)
+    if(breadCrumb !== view) setBreadCrumb(data)
     if(isInfo) setIsInfo(false)
   }
 
@@ -42,7 +42,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
     <>
       <div className="admin-board w-full flex flex-col py-1 items-center justify-between h-full gap-2 ">
         <div className="sidebar-top w-full ">
-          <div onClick={()=>navigate('/')} className="logo flex items-center hover:cursor-pointer gap-2 py-10 w-full justify-center">
+          <div onClick={()=>handleView('dashboard')} className="logo flex items-center hover:cursor-pointer gap-2 py-10 w-full justify-center">
             <img src="/logo.png" alt="logo" />
             <p className="text-[20px] font-bold">Propped Up</p>
           </div>
@@ -50,7 +50,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
           {menu?.slice(0, 3).map((data, index) => (
             <button
               key={index}
-              onClick={() => handleView(data)}
+              onClick={() => handleView(data.name)}
               className={` ${
                 activeView === data.name.toLowerCase()
                   ? "bg-[#638856] text-white font-semibold"
@@ -69,7 +69,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
           {menu?.slice(3, menu.length).map((data, index) => (
             <button
               key={index}
-              onClick={() => handleView(data)}
+              onClick={() => handleView(data.name)}
               className={` ${
                 activeView === data.name.toLowerCase()
                   ? "bg-[#638856] text-white font-semibold"

@@ -6,9 +6,9 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const frontendUrl = process.env.FRONTEND_URL;
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 
-//? ----------------------------
+//? ----------------------------------------
 //? stripe one time payment for openHouse
-//? ----------------------------
+//? ----------------------------------------
 const stripeCustomPayment = async (req, res) => {
   const { total } = req.body;
 
@@ -59,9 +59,10 @@ const stripeCustomPayment = async (req, res) => {
   }
 };
 
-//? ----------------------------
+
+//? ----------------------------------------
 //? stripe subscription
-//? ----------------------------
+//? ----------------------------------------
 const stripeSubscription = async (req, res) => {
   const { total } = req.body;
   const amountInCents = total * 100;
@@ -105,9 +106,10 @@ const stripeSubscription = async (req, res) => {
   }
 };
 
-//? ----------------------------
+
+//? ----------------------------------------
 //? cancel stripe subscription
-//? ----------------------------
+//? ----------------------------------------
 const cancelSubscription = async (req, res) => {
   const { sessionId, orderId } = req.body;
   const userId = req.user.userId;
@@ -165,29 +167,32 @@ const cancelSubscription = async (req, res) => {
   }
 };
 
-//? ----------------------------
+
+//? ----------------------------------------
 //? stripe subscription webhook
-//? ----------------------------
+//? ----------------------------------------
 const stipeSubscriptionWebhook = async (req, res) => {
   const sig = request.headers["stripe-signature"];
+  console.log('sig : ', sig)
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    res.status(400).send(`Webhook Error: ${err.message}`);
+    console.log('Webhook Error: ',err.message)
     return;
   }
 
   // Handle the event
   switch (event.type) {
     case "checkout.session.completed":
-      const checkoutSessionCompleted = event.data.object;
-      const session = await stripe.checkout.sessions.retrieve(
-        checkoutSessionCompleted
-      );
-      const customerDetails = session.customer_details;
-      console.log("monthly payment completed :", customerDetails?.email);
+      // const checkoutSessionCompleted = event.data.object;
+      // const session = await stripe.checkout.sessions.retrieve(
+      //   checkoutSessionCompleted
+      // );
+      // const customerDetails = session.customer_details;
+      // console.log("monthly payment completed :", customerDetails?.email);
+      console.log("webhook hit :");
 
       break;
     default:
@@ -196,6 +201,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
   res.status(200).json({ msg: "order placed" });
 };
+
 
 module.exports = {
   stripeSubscription,

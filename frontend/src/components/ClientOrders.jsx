@@ -7,14 +7,15 @@ import { UseGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
+import StartDatePicker from "./ui/StartDatePicker";
+import EndDatePicker from "./ui/EndDatePicker";
 
 function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const { setBreadCrumb, isInfo, setIsInfo, breadCrumb } = UseGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [completeOrder, setCompleteOrder] = useState("");
@@ -125,10 +126,10 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
       return;
     }
 
-    console.log("date : ", startDate);
+    console.log("date : ", parseDate(startDate));
     const filtered = orders.filter((order) => {
       const orderDate = parseDate(order.requestedDate);
-      return orderDate >= startDate && orderDate <= endDate;
+      return orderDate >= parseDate(startDate) && orderDate <= parseDate(endDate);
     });
 
     setFilteredOrders(filtered);
@@ -167,12 +168,12 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
     orderType,
     orderStatus,
     completeOrder,
-    loadingOrders
+    loadingOrders,
   ]);
 
-  useEffect(()=>{
-    setFilteredOrders(orders)
-  }, [orders])
+  useEffect(() => {
+    setFilteredOrders(orders);
+  }, [orders]);
 
   return (
     <>
@@ -204,31 +205,27 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                   />
                 </div>
               </div>
-              <div className="filter-right mx-auto grid grid-cols-5 gap-3 w-2/3">
-                <OrderTypeDropdown
+              <div className="filter-right items-center justify-end px-6 flex gap-3 w-2/3">
+
+                <div className="" >
+                 <OrderTypeDropdown
                   filterType={orderType}
                   handleOrderType={handleOrderType}
-                />
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                  className="p-2 border rounded flex items-center justify-center "
-                />
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                  className="p-2 border rounded"
-                />
-                <button onClick={handleDateFilter} className="font-semibold">
-                  <div className="icon"></div>
-                  Filter
-                </button>
-                <button onClick={handleClearFilter} className="font-semibold">
-                  <div className="icon"></div>
+                  />
+                </div>
+
+                <div className=" grid grid-cols-3 gap-3 items-center border rounded-md px-1 " >
+
+                  <StartDatePicker date={startDate} selectedDate={(newDate) => setStartDate(newDate)} />
+
+                  <EndDatePicker date={endDate} selectedDate={(newDate) => setEndDate(newDate)} />
+
+                  <button onClick={handleDateFilter} className="font-semibold rounded-md py-2 hover:bg-gray-50">
+                    Filter
+                  </button>
+                </div>
+
+                <button onClick={handleClearFilter} className=" font-semibold rounded-md py-2 hover:bg-gray-50">
                   Clear
                 </button>
               </div>
@@ -319,7 +316,6 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                       <div className="">{parseDate(order.requestedDate)}</div>
                       <div className="">{order.total}</div>
                       <button
-                        onClick={() => setModalOpen(true)}
                         className={`text-left font-semibold capitalize
                           ${order.status === "pending" && "text-[#F6B73C]"}
                           ${order.status === "installed" && "text-[#4C9A2A]"}
@@ -332,7 +328,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                   ))
               ) : (
                 <div className=" text-gray-500 p-12 text-center">
-                {loadingOrders ? 'loading...' : 'You dont have any orders' }
+                  {loadingOrders ? "loading..." : "You dont have any orders"}
                 </div>
               )}
             </div>
@@ -351,7 +347,11 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
           </div>
         </div>
       ) : (
-        <OrderInfo order={completeOrder} setOrders={setOrders} setPostOrders={setPostOrders} />
+        <OrderInfo
+          order={completeOrder}
+          setOrders={setOrders}
+          setPostOrders={setPostOrders}
+        />
       )}
     </>
   );

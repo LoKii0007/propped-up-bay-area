@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ChangePassword from "./changePassword";
 import ProfileSettings from "./ProfileSettings";
 import { UseGlobal } from "../context/GlobalContext";
+import ConnectSheets from "./ConnectSheets";
 
 function AdminSettings() {
   const [activeView, setActiveView] = useState("profileSettings");
@@ -13,7 +14,7 @@ function AdminSettings() {
 
   return (
     <>
-      <div className="admin-st">
+      <div className="admin-st h-full ">
         <div className="st-top flex space-x-4 mb-6">
           <button
             onClick={() => setActiveView("profileSettings")}
@@ -35,7 +36,7 @@ function AdminSettings() {
           >
             Password
           </button>
-          {/* <button
+          <button
             onClick={() => setActiveView("connectedAccounts")}
             className={` ${
               activeView === "connectedAccounts"
@@ -44,12 +45,12 @@ function AdminSettings() {
             } px-4 py-2 font-medium hover:text-teal-600 focus:text-teal-600`}
           >
             Connected Accounts
-          </button> */}
+          </button>
         </div>
         <div className="st-bottom">
           {activeView === "profileSettings" && <ProfileSettings />}
           {activeView === "password" && <ChangePassword />}
-          {/* {activeView === "connectedAccounts" && <AccountSettings />} */}
+          {activeView === "connectedAccounts" && <ConnectSheets />}
       </div>
       </div>
     </>

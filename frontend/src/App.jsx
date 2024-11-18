@@ -11,6 +11,7 @@ import { GlobalContextProvider } from "./context/GlobalContext";
 import SignUpDetails from "./auth/signupDetails";
 import ConfirmationPage from "./screens/ConfirmationPage";
 import UserInvoice from "./components/UserInvoice";
+import SheetsCallback from "./components/SheetsCallback";
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
             <Routes>
               <Route exact path="/" element={<Home />} />
               <Route exact path="/admin" element={<Admin />} />
+              <Route exact path="/admin/sheets/auth-callback" element={<SheetsCallback />} />
               <Route exact path="/signup" element={<Register />} />
               <Route exact path="/signup/details" element={<SignUpDetails />} />
               <Route exact path="/order/openHouse/payment" element={<ConfirmationPage />} />

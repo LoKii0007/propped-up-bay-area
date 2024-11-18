@@ -12,7 +12,6 @@ import toast from "react-hot-toast";
 import PostRemoval from "../components/PostRemoval";
 
 const Home = () => {
-  // const [activeView, setActiveView] = useState("dashboard");
   const { currentUser, setCurrentUser } = useAuth();
   const {
     breadCrumb,
