@@ -3,6 +3,7 @@ import { zones } from "../data/staticData";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { UseGlobal } from "../context/GlobalContext";
+import DatePickerDemo from "@/components/ui/DatePicker";
 
 function PostOrder() {
 
@@ -239,13 +240,14 @@ function PostOrder() {
         {/* Date needed Section */}
         <div className="flex flex-col">
           <label className="font-medium text-sm">Date needed by <span className="text-red-500">*</span></label>
-          <input
+          {/* <input
             type="date"
             name="requestedDate"
             value={formData.requestedDate}
             onChange={handleInputChange}
             className="border border-gray-300 p-2 rounded"
-          />
+          /> */}
+          <DatePickerDemo date={formData.requestedDate} selectedDate={handleInputChange} />
         </div>
 
         {/*listing Address Section */}

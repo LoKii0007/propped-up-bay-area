@@ -172,34 +172,86 @@ const cancelSubscription = async (req, res) => {
 //? stripe subscription webhook
 //? ----------------------------------------
 const stipeSubscriptionWebhook = async (req, res) => {
-  const sig = req.headers["stripe-signature"];
-  console.log('sig : ', sig)
+  const sig = req.headers['stripe-signature'];
+
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    console.log('Webhook Error: ',err.message)
-    return;
+    console.log('Webhook Error: ', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Handle the event
   switch (event.type) {
-    case "checkout.session.completed":
-      // const checkoutSessionCompleted = event.data.object;
-      // const session = await stripe.checkout.sessions.retrieve(
-      //   checkoutSessionCompleted
-      // );
-      // const customerDetails = session.customer_details;
-      // console.log("monthly payment completed :", customerDetails?.email);
-      console.log("webhook hit :");
+    case 'checkout.session.completed':
+      const checkoutSessionCompleted = event.data.object;
+      const sessionId = checkoutSessionCompleted.id;
 
+      if(checkoutSessionCompleted.subscription){
+        try {
+          // Find the post-order form associated with the sessionId
+          const order = await postOrderSchema.findOne({ sessionId });
+  
+          if (!order) {
+            console.log('No order found for session ID:', sessionId);
+            return res.status(404).send('Order not found.');
+          }
+  
+          // Retrieve the user's email (from Stripe)
+          const customerDetails = checkoutSessionCompleted.customer_details;
+          const stripeEmail = customerDetails.email;
+  
+          // Find the user in the database by userId from the order
+          const user = await User.findById(order.userId);
+          if (!user) {
+            console.log('User not found for userId:', order.userId);
+            return res.status(404).send('User not found.');
+          }
+  
+          // Send the invoice email to both the user email and Stripe email
+          const invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+          const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: [stripeEmail, user.email, order.email], // Send to all emails
+            subject: 'Propped Up Order Confirmed',
+            html: gmailTemplate('Your order is placed successfully', invoiceUrl),
+          };
+  
+          // Increment the user's total orders and spent amount
+          await User.findByIdAndUpdate(order.userId, {
+            $inc: { totalOrders: 1, totalSpent: order.total },
+          });
+  
+          // Send the email
+          const nodemailerTransport = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.SENDER_EMAIL,
+              pass: process.env.SENDER_PASSWORD,
+            },
+          });
+  
+          try {
+            await nodemailerTransport.sendMail(mailOptions);
+            console.log('Invoice email sent successfully.');
+          } catch (error) {
+            console.error('Error sending email:', error.message);
+          }
+  
+          res.status(200).json({ msg: 'Order processed successfully.' });
+        } catch (error) {
+          console.error('Error handling checkout session completed:', error.message);
+          res.status(500).send('Internal Server Error');
+        }
+      }
       break;
+
     default:
       console.log(`Unhandled event type ${event.type}`);
+      res.status(200).json({ msg: 'Event received' });
   }
-
-  res.status(200).json({ msg: "order placed" });
 };
 
 
