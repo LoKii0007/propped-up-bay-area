@@ -45,7 +45,7 @@ function InvoiceDownload({ invoiceDetails }) {
             className="py-2 px-5 border-[1px] border-[#00B087] text-[#00B087] rounded-lg"
             onClick={() => handlesave(invoiceDetails.type)}
           >
-            Downlaod Invoice
+            Download Invoice
           </button>
         </div>
       </div>

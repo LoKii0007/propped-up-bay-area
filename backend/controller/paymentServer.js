@@ -1,6 +1,7 @@
 const { postOrderSchema } = require("../models/postOrderSchema");
 const User = require("../models/user");
 require("dotenv").config();
+const {nodemailerTransport, gmailTemplate} = require('../utilities/gmail')
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const frontendUrl = process.env.FRONTEND_URL;
@@ -225,14 +226,6 @@ const stipeSubscriptionWebhook = async (req, res) => {
           });
   
           // Send the email
-          const nodemailerTransport = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user: process.env.SENDER_EMAIL,
-              pass: process.env.SENDER_PASSWORD,
-            },
-          });
-  
           try {
             await nodemailerTransport.sendMail(mailOptions);
             console.log('Invoice email sent successfully.');

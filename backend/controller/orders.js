@@ -2,11 +2,9 @@ const { openHouseSchema } = require("../models/openHouseSchema");
 const { postRemovalSchema } = require("../models/postRemovalSchema");
 const { postOrderSchema } = require("../models/postOrderSchema");
 const User = require("../models/user");
-const verifyOpenHouseTotal = require("../utilities/verifyTotal");
 const SuperUser = require("../models/superUser");
 const { gmailTemplate, nodemailerTransport } = require("../utilities/gmail");
-const { addToSheet } = require("../utilities/googleSheet");
-const { addDataToMultipleSheet } = require("../utilities/sheetautomation");
+const { addToGoogleSheet } = require("../utilities/sheetautomation");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -124,7 +122,7 @@ const createOpenHouseOrderApi = async (req, res) => {
 
     try {
       // addToSheet(googleSheetdata);
-      addDataToMultipleSheet(googleSheetdata)
+      addToGoogleSheet({data : googleSheetdata, targetSheet: 'openHouseOrders'})
     } catch (error) {
       console.log("Open house order google sheet api error : ", error.message);
     }
@@ -286,7 +284,7 @@ const createPostOrderApi = async (req, res) => {
 
     try {
       // addToSheet(googleSheetdata);
-      addDataToMultipleSheet(googleSheetdata)
+      addToGoogleSheet({data : googleSheetdata, targetSheet: 'postHouseOrders'})
     } catch (error) {
       console.log("Post order google sheet api error : ", error.message);
     }

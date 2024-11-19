@@ -38,7 +38,7 @@ function PostOrder() {
     postColor: "",
     flyerBox: false,
     lighting: false,
-    numberOfPosts: 0,
+    numberOfPosts: 1,
     riders: {
       comingSoon: 0,
       pending: 0,
@@ -468,7 +468,7 @@ function PostOrder() {
         {/* Number of Posts Section */}
         <div className="flex flex-col">
           <label className="font-medium text-sm">
-            Number of post(s) required
+            Number of post's required <span className="text-red-500">*</span>
           </label>
           <div className="flex items-center gap-2">
             <button
@@ -489,6 +489,7 @@ function PostOrder() {
               onChange={handleInputChange}
               min="0"
               className="border border-gray-300 p-2 rounded"
+              required
             />
             <button
               type="button"
