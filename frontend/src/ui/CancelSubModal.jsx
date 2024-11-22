@@ -2,11 +2,11 @@ import { useState } from 'react';
 import axios from 'axios';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import toast from 'react-hot-toast';
-import { UseGlobal } from '../context/GlobalContext';
+import { useGlobal } from '../context/GlobalContext';
 
 export default function CancelSubModal({ open, sessionId,setOrders , setPostOrders, setOpen, orderId, }) {
   const [loading, setLoading] = useState(false);
-  const {baseUrl, setIsInfo, setBreadCrumb} = UseGlobal()
+  const {baseUrl, setIsInfo, setBreadCrumb} = useGlobal()
 
   async function handleCancelOrder() {
     setLoading(true);

@@ -16,16 +16,13 @@ export default function DatePickerWithRange({ setStartDate, setEndDate }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSelect = (selectedRange) => {
-    // Ensure selectedRange exists and has valid properties
-    const { from = null, to = null } = selectedRange || {};
+    setInternalDate(selectedRange); // Update internal state
 
-    setInternalDate({ from, to }); // Update internal state safely
-
-    if (from) {
-      setStartDate(format(from, "dd-MM-yy")); // Update start date in parent
+    if (selectedRange?.from) {
+      setStartDate(format(selectedRange.from, "dd-MM-yy")); // Update start date in parent
     }
-    if (to) {
-      setEndDate(format(to, "dd-MM-yy")); // Update end date in parent
+    if (selectedRange?.to) {
+      setEndDate(format(selectedRange.to, "dd-MM-yy")); // Update end date in parent
       setIsOpen(false); // Close popover when range is complete
     }
   };

@@ -7,5 +7,5 @@ export function parseDate(dateStr) {
   const day = String(date.getDate()).padStart(2, "0");
 
   // Return the formatted date
-  return `${year}-${month}-${day}`;
+  return `${day}-${month}-${year}`;
 }

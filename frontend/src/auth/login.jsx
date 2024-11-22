@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProppedUpLogo from "../ui/proppedUpLogo";
 import LoginWithGoogle from "./LoginWithGoogle";
 import axios from "axios";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ function Login() {
   const navigate = useNavigate();
   const { setCurrentUser, setUserLoggedIn, currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
 
   useEffect(() => {
     if(currentUser && currentUser.profileCompleted ){
@@ -128,6 +128,7 @@ function Login() {
                     Sign up
                   </a>
                 </p>
+                <Link to={'/user/reset-pass'} className="text-xs text-gray-500 underline" >Forgot password</Link>
               </div>
             </div>
           </div>

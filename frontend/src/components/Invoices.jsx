@@ -8,9 +8,10 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import RowHeading from "../ui/rowHeading";
 import Pagination from "./pagination";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import InvoiceDownload from "./invoiceDownload";
 import axios from "axios";
+import DatePickerWithRange from "./ui/DatePickerWithRange";
 
 function Invoices() {
   const [orders, setOrders] = useState([]);
@@ -20,7 +21,7 @@ function Invoices() {
   const [orderType, setOrderType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [invoiceData, setInvoiceData] = useState();
-  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = useGlobal();
   const [nextLoading, setnextLoading] = useState(false);
   const [orderPage, setOrderPage] = useState(1);
   const [totalOrderCount, setTotalOrderCount] = useState(0)
@@ -54,7 +55,8 @@ function Invoices() {
         setOrders(allOrders);
         setTotalOrderCount(res.data.couunt)
         setFilteredInvoices(allOrders);
-        setTotalPages(Math.ceil(allOrders.length / displayCount));
+        // setTotalPages(Math.ceil(allOrders.length / displayCount));
+        resetPagination(allOrders)
       }else{
         toast.error(res.data.message || 'Error fetching invoices. Please try again')
       } 
@@ -82,7 +84,7 @@ function Invoices() {
         const allOrders = [...orders, ...res.data.orders];
         setFilteredInvoices(allOrders);
         setOrders(allOrders);
-        setTotalPages(Math.ceil(allOrders.length / displayCount));
+        // setTotalPages(Math.ceil(allOrders.length / displayCount));
         resetPagination(allOrders);
         console.log("res : ", allOrders);
       } else {
@@ -112,10 +114,22 @@ function Invoices() {
   //? filter date - bulk downloads
   //? ---------------------------
   function handleDateFilter() {
+    // Ensure startDate and endDate are valid
+    if (!startDate || !endDate) {
+      toast.error("Both start date and end date are required");
+      return [];
+    }
+  
     const start = new Date(startDate);
     const end = new Date(endDate);
   
-    // Ensure that startDate is before endDate
+    // Check if dates are valid
+    if (isNaN(start) || isNaN(end)) {
+      toast.error("Invalid date format. Please provide valid dates.");
+      return [];
+    }
+  
+    // Ensure that startDate is before or equal to endDate
     if (start > end) {
       toast.error("Start date cannot be after end date");
       return [];
@@ -123,11 +137,17 @@ function Invoices() {
   
     return orders.filter((data) => {
       const invoiceDate = new Date(data.createdAt);
-      return (
-        invoiceDate >= start && invoiceDate <= end
-      );
+  
+      // Ensure invoiceDate is a valid date
+      if (isNaN(invoiceDate)) {
+        console.warn(`Invalid date in orders: ${data.createdAt}`);
+        return false;
+      }
+  
+      return invoiceDate >= start && invoiceDate <= end;
     });
   }
+  
 
   //? ---------------------------
   //? invoice info
@@ -195,6 +215,26 @@ function Invoices() {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
+
+  useEffect(() => {
+    if (orders.length === 0) {
+      return;
+    }
+    const filtered = orders.filter((order) =>
+      Object.entries(order).some(([key, value]) => {
+        if (typeof value === "string") {
+          return value.toLowerCase().includes(searchTerm.toLowerCase());
+        } else if (typeof value === "number") {
+          return value.toString().includes(searchTerm);
+        }
+        return false;
+      })
+    );
+
+    setFilteredInvoices(filtered); // updating parent
+    resetPagination(filtered); // reset pagination
+  }, [searchTerm]);
+
 
   //? ---------------------------
   //? filter - ordertype
@@ -300,12 +340,12 @@ function Invoices() {
                   className="w-full py-2 px-3 focus-visible:outline-none bg-[#f5f5f5]"
                   type="text"
                   value={searchTerm}
-                  onChange={handleSearch}
+                  onChange={(e)=>handleSearch(e)}
                   placeholder="Search by name or invoice no"
                 />
               </div>
             </div>
-            <div className="filter-right mx-auto grid grid-cols-4 gap-5 w-2/3">
+            <div className="filter-right mx-auto grid grid-cols-3 gap-5 w-2/3 items-center ">
               <Menu as="div" className="relative inline-block py-1">
                 <div>
                   <MenuButton className="inline-flex capitalize w-full justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
@@ -363,19 +403,9 @@ function Invoices() {
                 </MenuItems>
               </Menu>
 
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="p-2 border rounded"
-              />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="p-2 border rounded"
-              />
-              <button onClick={handleAllinvoice}>Download All</button>
+              <DatePickerWithRange setStartDate={setStartDate} setEndDate={setEndDate} />
+
+              <button className="border border-gray-300 rounded-md bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100" onClick={handleAllinvoice}>Download All</button>
             </div>
           </div>
 
@@ -407,7 +437,7 @@ function Invoices() {
                       <div className="text-left py-3">
                         {data.firstName} {data.lastName}
                       </div>
-                      <div className="text-left py-3">{data.invoiceNo}</div>
+                      <div className="text-left py-3">{`PRB${String(data?.orderNo).padStart(5, '0')}`}</div>
                     </button>
 
                     <button

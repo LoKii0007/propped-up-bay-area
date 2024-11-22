@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { useAuth } from "../context/AuthContext";
+import { SearchableSelect } from "@/ui/SearchableSelect";
 
 const SignUpDetails = () => {
   const initialState = {
@@ -20,10 +21,10 @@ const SignUpDetails = () => {
   };
 
   const navigate = useNavigate();
-  const { baseUrl } = UseGlobal();
-  const {currentUser, setCurrentUser} = useAuth()
+  const { baseUrl } = useGlobal();
+  const {setCurrentUser } = useAuth();
   const [formData, setFormData] = useState(initialState);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,33 +34,39 @@ const SignUpDetails = () => {
     }));
   };
 
+  const editing = true
+
   //?---------------------------------
   //? form submission
   //?---------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     // console.log(formData);
     try {
-      const res = await axios.post(`${baseUrl}/auth/sign-up/details`, formData, {
-        withCredentials: true, validateStatus : (status) => status < 500
-      });
+      const res = await axios.post(
+        `${baseUrl}/auth/sign-up/details`,
+        formData,
+        {
+          withCredentials: true,
+          validateStatus: (status) => status < 500,
+        }
+      );
       if (res.status !== 201) {
-        toast.error(res.data.msg ||"Error adding details. Please try again");
+        toast.error(res.data.msg || "Error adding details. Please try again");
         return;
       }
       toast.success("submitted succesfully");
       setFormData(initialState); // cleanup of form
-      sessionStorage.setItem('proppedUpUser',JSON.stringify(res.data.user))
-      setCurrentUser(res.data.user)
+      sessionStorage.setItem("proppedUpUser", JSON.stringify(res.data.user));
+      setCurrentUser(res.data.user);
       navigate("/"); // navigating to homepage
     } catch (error) {
       toast.error("Server error. Please try again");
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
-
 
   return (
     <div className="max-w-3xl mx-auto p-8 overflow-y-auto ">
@@ -128,24 +135,19 @@ const SignUpDetails = () => {
 
             <div className="flex w-full items-center gap-4 ">
               <label className="block text-[16px] w-1/3">State</label>
-              <select
+              <SearchableSelect
                 name="state"
                 value={formData.state}
-                required
                 onChange={handleChange}
-                className="border border-[#646464] rounded px-3 py-2 w-2/3 "
-              >
-                <option value="">Select a state</option>
-                <option value="CA">California</option>
-                <option value="NY">New York</option>
-                {/* Add more states as needed */}
-              </select>
+                required
+                editing={editing}
+              />
             </div>
 
             <div className="flex w-full items-center gap-4 ">
               <label className="block text-[16px] w-1/3">Zip Code</label>
               <input
-                type="text"
+                type="number"
                 name="zipCode"
                 value={formData.zipCode}
                 required
@@ -157,7 +159,7 @@ const SignUpDetails = () => {
             <div className="flex w-full items-center gap-4 ">
               <label className="block text-[16px] w-1/3">Work Phone</label>
               <input
-                type="text"
+                type="number"
                 name="workPhone"
                 value={formData.workPhone}
                 required
@@ -169,7 +171,7 @@ const SignUpDetails = () => {
             <div className="flex w-full items-center gap-4 ">
               <label className="block text-[16px] w-1/3">Mobile Phone</label>
               <input
-                type="text"
+                type="number"
                 name="mobilePhone"
                 value={formData.mobilePhone}
                 required
@@ -213,7 +215,7 @@ const SignUpDetails = () => {
             disabled={loading}
             className="bg-[#4C9A2A] hover:bg-green-700 text-white font-bold py-2 px-10 rounded-md"
           >
-            {loading ? 'Submitting...' : 'Sign up'}
+            {loading ? "Submitting..." : "Sign up"}
           </button>
         </div>
 

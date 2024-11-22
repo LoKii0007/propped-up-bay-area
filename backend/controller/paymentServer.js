@@ -1,7 +1,8 @@
 const { postOrderSchema } = require("../models/postOrderSchema");
 const User = require("../models/user");
+const { nodemailerTransport, gmailTemplate } = require("../utilities/gmail");
+const {verifyOpenHouseTotal, verifyPostOrderTotal} = require("../utilities/verifyTotal");
 require("dotenv").config();
-const {nodemailerTransport, gmailTemplate} = require('../utilities/gmail')
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const frontendUrl = process.env.FRONTEND_URL;
@@ -11,17 +12,20 @@ const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 //? stripe one time payment for openHouse
 //? ----------------------------------------
 const stripeCustomPayment = async (req, res) => {
-  const { total } = req.body;
-
-  // Validate the total to ensure it is a number and greater than zero
-  if (typeof total !== "number" || total <= 0) {
-    return res.status(400).json({ message: "Invalid custom amount" });
-  }
-
-  // Convert to cents
-  const amountInCents = Math.round(total * 100);
-
   try {
+    const { data } = req.body;
+
+    // Validate the total to ensure it is a number and greater than zero
+    if (typeof data.total !== "number" || data.total <= 0) {
+      return res.status(400).json({ message: "Invalid custom amount" });
+    }
+
+    // if (!verifyOpenHouseTotal(data)) {
+    //   return res.status(400).json({ msg: "Price mismatch. Please try again" });
+    // }
+
+    // Convert to cents
+    const amountInCents = Math.round(data.total * 100);
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -35,8 +39,8 @@ const stripeCustomPayment = async (req, res) => {
           quantity: 1,
         },
       ],
-      invoice_creation : {
-        enabled : true
+      invoice_creation: {
+        enabled: true,
       },
       mode: "payment",
       success_url: `${frontendUrl}/order/openHouse/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
@@ -60,15 +64,23 @@ const stripeCustomPayment = async (req, res) => {
   }
 };
 
-
 //? ----------------------------------------
 //? stripe subscription
 //? ----------------------------------------
 const stripeSubscription = async (req, res) => {
-  const { total } = req.body;
-  const amountInCents = total * 100;
-
   try {
+    const { data } = req.body;
+
+    if (typeof data.total !== "number" || data.total <= 0) {
+      return res.status(400).json({ message: "Invalid custom amount" });
+    }
+
+    // if (!verifyPostOrderTotal(data)) {
+    //   return res.status(400).json({ msg: "Price mismatch. Please try again" });
+    // }
+
+    const amountInCents = data.total * 100;
+
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -82,7 +94,8 @@ const stripeSubscription = async (req, res) => {
           quantity: 1,
         },
         {
-          price: "price_1QH5BiSBgjrcPEt3WZQKnEZH",
+          // price: "price_1QH5BiSBgjrcPEt3WZQKnEZH",
+          price: "price_1QMSxESBgjrcPEt399r9hu9F",
           quantity: 1,
         },
       ],
@@ -106,7 +119,6 @@ const stripeSubscription = async (req, res) => {
     res.status(500).json({ msg: "error in subscription API", err: error });
   }
 };
-
 
 //? ----------------------------------------
 //? cancel stripe subscription
@@ -168,85 +180,91 @@ const cancelSubscription = async (req, res) => {
   }
 };
 
-
 //? ----------------------------------------
 //? stripe subscription webhook
 //? ----------------------------------------
 const stipeSubscriptionWebhook = async (req, res) => {
-  const sig = req.headers['stripe-signature'];
+  const sig = req.headers["stripe-signature"];
 
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    console.log('Webhook Error: ', err.message);
+    console.log("Webhook Error: ", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Handle the event
   switch (event.type) {
-    case 'checkout.session.completed':
-      const checkoutSessionCompleted = event.data.object;
-      const sessionId = checkoutSessionCompleted.id;
+    case "checkout.session.completed":
+      const session = event.data.object;
+      const sessionId = session.id;
 
-      if(checkoutSessionCompleted.subscription){
+      console.log(JSON.parse(session.metadata.customData))
+
+      if (session.subscription) {
         try {
           // Find the post-order form associated with the sessionId
           const order = await postOrderSchema.findOne({ sessionId });
-  
+
           if (!order) {
-            console.log('No order found for session ID:', sessionId);
-            return res.status(404).send('Order not found.');
+            console.log("No order found for session ID:", sessionId);
+            return res.status(404).send("Order not found.");
           }
-  
+
           // Retrieve the user's email (from Stripe)
           const customerDetails = checkoutSessionCompleted.customer_details;
           const stripeEmail = customerDetails.email;
-  
+
           // Find the user in the database by userId from the order
           const user = await User.findById(order.userId);
           if (!user) {
-            console.log('User not found for userId:', order.userId);
-            return res.status(404).send('User not found.');
+            console.log("User not found for userId:", order.userId);
+            return res.status(404).send("User not found.");
           }
-  
+
           // Send the invoice email to both the user email and Stripe email
-          const invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+          const invoiceUrl = req.stripe?.invoiceUrl || false;
           const mailOptions = {
             from: process.env.SENDER_EMAIL,
             to: [stripeEmail, user.email, order.email], // Send to all emails
-            subject: 'Propped Up Order Confirmed',
-            html: gmailTemplate('Your order is placed successfully', invoiceUrl),
+            subject: "Propped Up Order Confirmed",
+            html: gmailTemplate(
+              "Your order is placed successfully",
+              invoiceUrl
+            ),
           };
-  
+
           // Increment the user's total orders and spent amount
           await User.findByIdAndUpdate(order.userId, {
             $inc: { totalOrders: 1, totalSpent: order.total },
           });
-  
+
           // Send the email
           try {
             await nodemailerTransport.sendMail(mailOptions);
-            console.log('Invoice email sent successfully.');
+            console.log("Invoice email sent successfully.");
           } catch (error) {
-            console.error('Error sending email:', error.message);
+            console.error("Error sending email:", error.message);
           }
-  
-          res.status(200).json({ msg: 'Order processed successfully.' });
+
+          res.status(200).json({ msg: "Order processed successfully." });
         } catch (error) {
-          console.error('Error handling checkout session completed:', error.message);
-          res.status(500).send('Internal Server Error');
+          console.error(
+            "Error handling checkout session completed:",
+            error.message
+          );
+          res.status(500).send("Internal Server Error");
         }
       }
       break;
 
     default:
       console.log(`Unhandled event type ${event.type}`);
-      res.status(200).json({ msg: 'Event received' });
+      res.status(200).json({ msg: "Event received" });
   }
 };
-
 
 module.exports = {
   stripeSubscription,

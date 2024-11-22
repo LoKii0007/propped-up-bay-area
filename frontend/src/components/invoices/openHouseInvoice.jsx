@@ -10,7 +10,7 @@ const OpenHouseInvoice = ({ data }) => {
       >
         <div className="bg-[#166534] text-[#fff] flex py-4 px-10 justify-between">
           <h1 className="text-2xl font-bold">INVOICE</h1>
-          <h2 className="text-lg">{data?._id}</h2>{" "}
+          <h2 className="text-lg">{`PRB${String(data?.orderNo).padStart(5, '0')}`} </h2>{" "}
           {/* Updated to use _id for MongoDB document ID */}
         </div>
 

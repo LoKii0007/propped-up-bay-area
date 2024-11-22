@@ -5,13 +5,13 @@ import html2pdf from "html2pdf.js";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { UseGlobal } from "@/context/GlobalContext";
+import { useGlobal } from "@/context/GlobalContext";
 
 function UserInvoice() {
   const [loading, setLoading] = useState(false);
   const { orderId } = useParams();
   const [invoiceDetails, setInvoiceDetails] = useState(null);
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
 
   async function getInvoice() {
     setLoading(true);

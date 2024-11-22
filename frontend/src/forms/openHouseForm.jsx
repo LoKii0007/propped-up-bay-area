@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { zones } from "../data/staticData";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import DatePickerDemo from "@/components/ui/DatePicker";
+import TimePicker from "@/ui/TimePicker";
 
 const OpenHouseForm = () => {
   const initialState = {
@@ -53,14 +54,13 @@ const OpenHouseForm = () => {
   const [rushFee, setRushFee] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().getHours());
   const [loading, setLoading] = useState(false);
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
 
   // ----------------------------------
   // handling inputs
   //  ---------------------------------
   const handleInputChange = (input) => {
     if (input instanceof Date) {
-      // For the Calendar component
       const value = input.toISOString().split("T")[0]; // Format as yyyy-MM-dd
       setFormData({
         ...formData,
@@ -68,11 +68,10 @@ const OpenHouseForm = () => {
       });
       checkRushFee(value);
     } else if (input.target) {
-      // For standard input elements
-      const { name, value } = input.target;
+      const { name, value, type } = input.target;
       setFormData({
         ...formData,
-        [name]: value,
+        [name]: type === "number" ? Number(value) : value, // Parse value to a number for type="number"
       });
     }
   };
@@ -121,49 +120,55 @@ const OpenHouseForm = () => {
     const eventDate = new Date(selectedDate);
     console.log("eventDate : ", eventDate);
     const isToday = currentDate.toDateString() === eventDate.toDateString();
-
+  
     let applyRushFee = false;
-
+  
     // Helper function to check if the event is within the same week as today
     const isSameWeek = (date) => {
       const startOfWeek = new Date(currentDate);
-      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+      // Adjust to Monday (1) instead of Sunday (0)
+      const day = currentDate.getDay();
+      const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1);
+      startOfWeek.setDate(diff);
       startOfWeek.setHours(0, 0, 0, 0);
-
+  
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
       endOfWeek.setHours(23, 59, 59, 999);
-
+  
       return date >= startOfWeek && date <= endOfWeek;
     };
-
+  
+    // Helper function to convert Sunday (0) to 7 for easier comparison
+    const adjustedDay = (day) => day === 0 ? 7 : day;
+  
     if (isSameWeek(eventDate)) {
+      // Convert days for comparison (Sunday becomes 7)
+      const currentAdjustedDay = adjustedDay(currentDate.getDay());
+      const eventAdjustedDay = adjustedDay(eventDate.getDay());
+  
       // ordering on friday after 4pm for friday, saturday, sunday
-      if (currentDate.getDay() == 5 && currentTime >= 16) {
-        if (
-          eventDate.getDay() === 5 ||
-          eventDate.getDay() === 6 ||
-          eventDate.getDay() === 0
-        ) {
+      if (currentAdjustedDay === 5 && currentTime >= 16) {
+        if (eventAdjustedDay >= 5) { // Friday (5), Saturday (6), or Sunday (7)
           applyRushFee = true;
         }
       }
-
-      // ordering on saturday at anty time for saturday, sunday
-      if (currentDate.getDay() == 6 ) {
-        if (eventDate.getDay() === 6 || eventDate.getDay() === 0) {
+  
+      // ordering on saturday at any time for saturday, sunday
+      if (currentAdjustedDay === 6) {
+        if (eventAdjustedDay >= 6) { // Saturday (6) or Sunday (7)
           applyRushFee = true;
         }
       }
-
+  
       // ordering on sunday at any time for sunday
-      if (currentDate.getDay() == 0  && isToday) {
+      if (currentAdjustedDay === 7 && isToday) {
         applyRushFee = true;
       }
     }
-
+  
     console.log("week : ", isSameWeek(eventDate));
-
+  
     setRushFee(applyRushFee ? additionalPrices.RushFee : 0);
   };
 
@@ -230,13 +235,14 @@ const OpenHouseForm = () => {
       // Step 1: Verifying payment by creating a checkout session
       const payment = await axios.post(
         `${baseUrl}/api/orders/open-house/create-checkout-session`,
-        { total: formData.total },
-        {withCredentials : true, validateStatus : (status) => status < 500 }
+        { data: formData },
+        { withCredentials: true, validateStatus: (status) => status < 500 }
       );
 
-      if(payment.status !== 200 ){
-        toast.error(payment.data.msg || 'Error creating checkout session')
-        return
+      if (payment.status !== 200) {
+        setLoading(false);
+        toast.error(payment.data.msg || "Error creating checkout session");
+        return;
       }
 
       // Store order data in sessionStorage
@@ -244,17 +250,18 @@ const OpenHouseForm = () => {
 
       // Step 2: Redirect to the Stripe checkout session
       window.location.href = payment.data.url;
-
     } catch (error) {
       toast.error("Server Error");
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   //? ----------------------------------
   //? updating render
   //?  ---------------------------------
-  useEffect(() => {console.log(formData)}, [formData]);
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
 
   return (
     <>
@@ -332,16 +339,11 @@ const OpenHouseForm = () => {
           <label className="font-medium text-sm">
             Date of First Event <span className="text-red-500">*</span>
           </label>
-          {/* <input
-            type="date"
-            name="requestedDate"
-            value={formData.requestedDate}
-            onChange={handleInputChange}
-            required
-            className="border border-gray-300 p-2 rounded-sm"
-          /> */}
-          <div className="pb-1" >
-          <DatePickerDemo date={formData.requestedDate} selectedDate={handleInputChange} />
+          <div className="pb-1">
+            <DatePickerDemo
+              date={formData.requestedDate}
+              selectedDate={handleInputChange}
+            />
           </div>
           <span className="text-xs text-gray-500">
             $25 Rush fee gets applied for same day orders and orders on Friday
@@ -355,7 +357,7 @@ const OpenHouseForm = () => {
         </div>
 
         {/* Time of First Event and End Time Section */}
-        <div className="flex flex-col md:flex-row gap-4">
+        {/* <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col">
             <label className="font-medium text-sm">
               Time of First Event <span className="text-red-500">*</span>
@@ -382,7 +384,9 @@ const OpenHouseForm = () => {
               className="border border-gray-300 p-2 rounded-sm"
             />
           </div>
-        </div>
+        </div> */}
+        <TimePicker formData={formData} setFormData={setFormData} />
+        
 
         {/* Event Address Section */}
         <div className="flex flex-col">
@@ -506,7 +510,7 @@ const OpenHouseForm = () => {
             name="additionalSignQuantity"
             value={formData.additionalSignQuantity}
             onChange={handleInputChange}
-            min="0"
+            min={0}
             className="border border-gray-300 p-2 rounded-sm"
           />
         </div>
@@ -645,20 +649,22 @@ const OpenHouseForm = () => {
         </div>
 
         {/* Total Section */}
-        <div className="flex flex-col text-center">
-          <label className="font-medium text-xl">
-            Total: ${formData.total}
-          </label>
-        </div>
+        <div className="w-full items-center flex flex-col gap-4 sticky bg-white custom-shadow pt-2 bottom-[-20px]">
+          <div className="flex flex-col text-center">
+            <label className="font-medium text-xl">
+              Total: ${formData.total}
+            </label>
+          </div>
 
-        {/* Submit Button */}
-        <button
-          disabled={loading}
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-sm"
-        >
-          {loading ? "placing order..." : "Submit"}
-        </button>
+          {/* Submit Button */}
+          <button
+            disabled={loading}
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-full rounded-sm"
+          >
+            {loading ? "placing order..." : "Submit"}
+          </button>
+        </div>
       </form>
     </>
   );

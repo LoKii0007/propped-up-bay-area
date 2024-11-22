@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
@@ -12,7 +12,7 @@ export default function ChangeStatusDropdown({
   setCompleteOrder,
   status,
 }) {
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
   const [loading, setLoading] = useState(false);
 
   //? -------------------------------
@@ -33,10 +33,10 @@ export default function ChangeStatusDropdown({
         setOrders((prev) =>
           prev.map((o) => (o._id === order._id ? { ...o, status } : o))
         );
-        setFilteredOrders((prev) =>
+        setFilteredOrders?.((prev) =>
           prev.map((o) => (o._id === order._id ? { ...o, status } : o))
         );
-        setCompleteOrder((prev) => ({ ...prev, status }));
+        setCompleteOrder?.((prev) => ({ ...prev, status }));
       }
     } catch (error) {
       toast.error("Server Error. Please try again");

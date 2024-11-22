@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { UseGlobal } from '../context/GlobalContext';
+import { useGlobal } from '../context/GlobalContext';
 
 const ProfileSettings = () => {
   const { admin, setAdmin } = useAuth();
@@ -13,7 +13,7 @@ const ProfileSettings = () => {
   const [phone, setPhone] = useState(admin?.phone || '');
   const [loading, setLoading] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const {baseUrl} = UseGlobal()
+  const {baseUrl} = useGlobal()
 
   // Reset function
   const handleReset = () => {

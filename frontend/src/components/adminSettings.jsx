@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ChangePassword from "./changePassword";
 import ProfileSettings from "./ProfileSettings";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import ConnectSheets from "./ConnectSheets";
 
 function AdminSettings() {
   const [activeView, setActiveView] = useState("profileSettings");
-  const { settingsActiveView } = UseGlobal();
+  const { settingsActiveView } = useGlobal();
 
   useEffect(() => {
     setActiveView(settingsActiveView); //uodating from global state

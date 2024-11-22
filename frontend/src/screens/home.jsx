@@ -4,7 +4,7 @@ import Order from "../components/order";
 import CardDetails from "../components/cardDetails";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import ClientOrders from "../components/ClientOrders";
 import { useNavigate } from "react-router-dom";
 import EditProfileForm from "../components/profile";
@@ -21,7 +21,7 @@ const Home = () => {
     baseUrl,
     activeView,
     setActiveView,
-  } = UseGlobal();
+  } = useGlobal();
   const [orders, setOrders] = useState([]);
   const [userDetails, setUserDetails] = useState({});
   const [postOrders, setPostOrders] = useState([]);
@@ -151,7 +151,7 @@ const Home = () => {
           <Sidebar activeView={activeView} setActiveView={setActiveView} />
         </div>
 
-        <div className="active-content w-full overflow-y-auto h-full ">
+        <div className="active-content overflow-x-auto w-full h-full ">
           <div className="active-top bg-[#638856] w-full flex max-h-[13vh] px-12 py-10 justify-between text-white items-center sticky top-0 shadow-sm ">
             <div className={`text-2xl font-bold flex ${isInfo ?'' : 'translate-x-[-48px]'} custom-transition gap-3 items-center capitalize justify-center`}>
               { (

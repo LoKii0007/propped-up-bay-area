@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
 
-
 export const GlobalContext = React.createContext()
 
 export function GlobalContextProvider({children}){
@@ -17,12 +16,10 @@ export function GlobalContextProvider({children}){
     )
 }
 
-export const UseGlobal=()=>{
+export const useGlobal = () => {
     const context = useContext(GlobalContext)
     if(!context) {
-        return(
-            <>something went wrong!</>
-        )
+        throw new Error('UseGlobal must be used within a GlobalContextProvider')
     }
     return context
 }

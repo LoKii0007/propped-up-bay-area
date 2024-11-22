@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import Pagination from "./pagination";
 import RowHeading from "../ui/rowHeading";
 import DetailedInfo from "./DetailedInfo";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-function ClientDetails({ users, setUsers, sub, totalCount }) {
+function ClientDetails({ users, setUsers, totalCount, orders, setOrders }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [searchTerm, setSearchTerm] = useState("");
-  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = useGlobal();
   const [userInfo, setUserInfo] = useState(null);
   const [nextLoading, setNextLoading] = useState(false);
-  const [orderPage, setOrderPage] = useState(1);
+  const [orderPage, setOrderPage] = useState(2);
   const limit = 10;
 
   //? ------------------------
@@ -27,6 +27,10 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
   const startIndex = (currentPage - 1) * displayCount;
   const endIndex = startIndex + displayCount;
 
+
+  //? -------------------------
+  //? search filter
+  //?--------------------------
   useEffect(() => {
     const filtered = users.filter((user) =>
       Object.entries(user).some(([key, value]) => {
@@ -38,19 +42,12 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
         return false;
       })
     );
+
     setFilteredUsers(filtered);
+    resetPagination(filtered)
+  }, [searchTerm]);
 
-    //? --------------------
-    //? pagination resets
-    //?---------------------
-    setTotalPages(Math.ceil(filtered.length / displayCount));
-    setCurrentPage(1); // Reset to first page when filtering
-    setStartPage(1); // Reset page range to the beginning when filtering
-  }, [searchTerm, users, displayCount]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
   //? -------------------------
   //? pagination resets
   //?--------------------------
@@ -91,10 +88,8 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
     }
   }
 
-  useEffect(() => {}, [filteredUsers]);
-
   //? --------------------
-  //? user click
+  //? bread crumbs
   //?---------------------
   function handleUserClick(index) {
     const selectedUser = filteredUsers[index];
@@ -104,6 +99,8 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
       setIsInfo(true); // changing view
     }
   }
+
+  useEffect(()=>{}, [users, filteredUsers])
 
   return (
     <>
@@ -128,7 +125,7 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
                 className="w-full py-2 px-3 focus-visible:outline-none bg-[#f5f5f5]"
                 type="text"
                 value={searchTerm}
-                onChange={handleSearch}
+                onChange={(e)=>setSearchTerm(e.target.value)}
                 placeholder="Search by name or email"
               />
             </div>
@@ -161,14 +158,14 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
                   data={filteredUsers}
                   text="Spent"
                 />
-                {/* {sub && (
+                {/* 
                   <RowHeading
                     setFilteredData={setFilteredUsers}
                     filterValue={"isSubscribed"}
                     data={filteredUsers}
                     text="Subscription"
                   />
-                )} */}
+                 */}
               </div>
               <div className="order-bottom flex flex-col">
                 {filteredUsers
@@ -189,8 +186,8 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
                       </div>
                       <div className="overflow-hidden">{user.email}</div>
                       <div className="overflow-hidden">{user.totalOrders}</div>
-                      <div className="overflow-hidden">{user.totalSpent}</div>
-                      {/* {sub && <div className="overflow-hidden">{user.isSubscribed}</div>} */}
+                      <div className="overflow-hidden">$ {user.totalSpent}</div>
+                      {/*  <div className="overflow-hidden">{user.isSubscribed}</div> */}
                     </div>
                   ))}
                 {users.length < totalCount &&
@@ -222,7 +219,7 @@ function ClientDetails({ users, setUsers, sub, totalCount }) {
           </div>
         </div>
       ) : (
-        <DetailedInfo user={userInfo} /> // Pass selected user ID
+        <DetailedInfo user={userInfo} orders={orders} setOrders={setOrders} /> // Pass selected user ID
       )}
     </>
   );

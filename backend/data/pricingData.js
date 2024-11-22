@@ -70,4 +70,36 @@ const openHouseAdditionalPrices = {
   RushFee: 25,
 }
 
-module.exports = {zones, openHouseAdditionalPrices}
+const postOrderAdditionalPrices = {
+  flyerBox: 10,
+  lighting: 35,
+  rider: 10,
+  post: 15,
+}
+
+const CALIFORNIA_CITIES = [
+  "Los Angeles",
+  "San Diego",
+  "San Jose",
+  "San Francisco",
+  "Fresno",
+  "Sacramento",
+  "Long Beach",
+  "Oakland",
+  "Bakersfield",
+  "Anaheim",
+  "Santa Ana",
+  "Riverside",
+  "Stockton",
+  "Chula Vista",
+  "Irvine",
+  "Fremont",
+  "San Bernardino",
+  "Modesto",
+  "Oxnard",
+  "Fontana",
+  "Moreno Valley",
+  "Glendale",
+]
+
+module.exports = {zones, openHouseAdditionalPrices, postOrderAdditionalPrices, CALIFORNIA_CITIES}

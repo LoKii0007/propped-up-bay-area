@@ -12,6 +12,7 @@ import SignUpDetails from "./auth/signupDetails";
 import ConfirmationPage from "./screens/ConfirmationPage";
 import UserInvoice from "./components/UserInvoice";
 import SheetsCallback from "./components/SheetsCallback";
+import ResetScreen from "./screens/ResetScreen";
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
               <Route exact path="/admin" element={<Admin />} />
               <Route exact path="/admin/sheets/auth-callback" element={<SheetsCallback />} />
               <Route exact path="/signup" element={<Register />} />
+              <Route exact path="/user/reset-pass" element={<ResetScreen />} />
               <Route exact path="/signup/details" element={<SignUpDetails />} />
               <Route exact path="/order/openHouse/payment" element={<ConfirmationPage />} />
               <Route exact path="/order/postOrder/payment" element={<ConfirmationPage />} />

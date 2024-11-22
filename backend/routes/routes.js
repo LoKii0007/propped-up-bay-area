@@ -1,7 +1,7 @@
 const express = require('express')
 const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
-const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails} = require('../controller/users')
-const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword } = require('../controller/auth')
+const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails, uploadUserImage, sendReminderEmail} = require('../controller/users')
+const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword, sendOtp, resetPassword } = require('../controller/auth')
 const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
@@ -20,6 +20,8 @@ Routes.get('/auth/login', verifyUser, getUserByToken ) // getting user by token
 Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating pass
 Routes.post('/auth/update/connected-accounts', verifyUser, authUpdate ) // updating pass
 Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
+Routes.post('/auth/send-otp', sendOtp)  //signout
+Routes.post('/auth/reset-pass',verifyUser, resetPassword)  //signout
 
 
 //? -----------------------------
@@ -28,6 +30,8 @@ Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 Routes.post('/auth/sign-up/details',verifyUser, userDetails) //user details for complete signup
 Routes.patch('/api/update/user-details',verifyUser, updateUserDetails) // updation of user details
 Routes.get('/api/get/user-details',verifyUser, getUserDetailsApi) //get user details
+Routes.post('/api/update/user-image',verifyUser, upload.single('file'), uploadUserImage) //update user image
+Routes.post('/api/user/send-reminder',verifyUser, sendReminderEmail) // send notification for profile update
 
 
 //? -----------------------------

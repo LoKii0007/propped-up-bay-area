@@ -1,10 +1,10 @@
 const { openHouseSchema } = require("../models/openHouseSchema");
-const { postRemovalSchema } = require("../models/postRemovalSchema");
 const { postOrderSchema } = require("../models/postOrderSchema");
 const User = require("../models/user");
 const SuperUser = require("../models/superUser");
 const { gmailTemplate, nodemailerTransport } = require("../utilities/gmail");
 const { addToGoogleSheet } = require("../utilities/sheetautomation");
+const orderCounterSchema = require("../models/orderCounterSchema");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -46,6 +46,14 @@ const createOpenHouseOrderApi = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    const counter = await orderCounterSchema.findOne();
+
+    // Format the order number (e.g., OH0001, OH0002, ...)
+    const orderNo = `OH${String(counter.count).padStart(5, '0')}`;
+  
+    // Increment the count for the next order
+    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } })
+
     const order = await openHouseSchema.create({
       userId,
       type,
@@ -53,6 +61,7 @@ const createOpenHouseOrderApi = async (req, res) => {
       lastName,
       email,
       phone,
+      orderNo,
       requestedDate,
       firstEventStartTime,
       firstEventEndTime,
@@ -195,8 +204,17 @@ const createPostOrderApi = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    const counter = await orderCounterSchema.findOne();
+
+    // Format the order number 
+    const orderNo = `PO${String(counter.count).padStart(5, '0')}`;
+  
+    // Increment the count for the next order
+    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } })
+
     const newForm = new postOrderSchema({
       userId,
+      orderNo,
       type,
       firstName,
       lastName,
@@ -389,19 +407,6 @@ const getPostOrderApi = async (req, res) => {
   }
 };
 
-//? ---------------------------
-//? -------create postRemovalApi
-//? ---------------------------
-const postRemovalApi = async (req, res) => {
-  try {
-    console.log("removal : ", req.body);
-    const order = await postRemovalSchema.create(req.body);
-    res.status(200).json({ order: order, message: "order created" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
 
 //? ---------------------------
 //? -------get openhouse invoice
@@ -526,7 +531,6 @@ module.exports = {
   createOpenHouseOrderApi,
   getOpenHouseOrderApi,
   getPostOrderApi,
-  postRemovalApi,
   createPostOrderApi,
   updateOrderApi,
   getAllOrdersApi,

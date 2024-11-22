@@ -3,13 +3,13 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import SignOutModal from "./signOutModal";
 
 export default function Dropdown({ setActiveView }) {
   const { admin } = useAuth();
   const navigate = useNavigate();
-  const { setBreadCrumb, setSettingsActiveView } = UseGlobal();
+  const { setBreadCrumb, setSettingsActiveView } = useGlobal();
   const [modalOpen, setModalOpen] = useState(false);
 
   function handleSignIn(e) {

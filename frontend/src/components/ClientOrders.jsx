@@ -3,19 +3,23 @@ import DashboardBtn from "../ui/dashboardBtn";
 import Pagination from "./pagination";
 import RowHeading from "../ui/rowHeading";
 import OrderTypeDropdown from "../ui/orderTypeDropdown";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 import StartDatePicker from "./ui/StartDatePicker";
 import EndDatePicker from "./ui/EndDatePicker";
+import html2pdf from "html2pdf.js";
+import OpenHouseInvoice from "./invoices/openHouseInvoice";
+import PostOrderInvoice from "./invoices/postOrderInvoice";
+import ReactDOM from "react-dom";
 
 function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo } = useGlobal();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [completeOrder, setCompleteOrder] = useState("");
@@ -129,7 +133,9 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
     console.log("date : ", parseDate(startDate));
     const filtered = orders.filter((order) => {
       const orderDate = parseDate(order.requestedDate);
-      return orderDate >= parseDate(startDate) && orderDate <= parseDate(endDate);
+      return (
+        orderDate >= parseDate(startDate) && orderDate <= parseDate(endDate)
+      );
     });
 
     setFilteredOrders(filtered);
@@ -175,6 +181,58 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
     setFilteredOrders(orders);
   }, [orders]);
 
+  //?-------------------------
+  //? single invoice download
+  function handleInvoiceDownload(data) {
+    try {
+      const container = document.createElement("div");
+      container.style.display = "none";
+      document.body.appendChild(container);
+
+      // Render the appropriate component based on the invoice type
+      let element;
+      if (data.type === "openHouse") {
+        element = <OpenHouseInvoice data={data} />;
+      } else if (data.type === "postOrder") {
+        element = <PostOrderInvoice data={data} />;
+      } else {
+        toast.error("Download failed. Please try again");
+        return;
+      }
+
+      // Render the invoice component
+      ReactDOM.render(element, container);
+
+      const invoiceElement = container.firstChild;
+      const filename = `${data.type}_invoice.pdf`;
+
+      const options = {
+        margin: 1,
+        filename,
+        html2canvas: { scale: 2 },
+        jsPDF: { format: "a4" },
+      };
+
+      // Generate and download PDF
+      html2pdf()
+        .from(invoiceElement)
+        .set(options)
+        .save()
+        .then(() => {
+          toast.success(`Downloaded ${filename}`);
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container); // Clean up
+        })
+        .catch((error) => {
+          console.error("PDF Generation Error:", error);
+          toast.error("Error generating PDF. Please try again.");
+        });
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.error("PDF Generation Error:", error);
+    }
+  }
+
   return (
     <>
       {!isInfo ? (
@@ -206,26 +264,36 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                 </div>
               </div>
               <div className="filter-right items-center justify-end px-6 flex gap-3 w-2/3">
-
-                <div className="" >
-                 <OrderTypeDropdown
-                  filterType={orderType}
-                  handleOrderType={handleOrderType}
+                <div className="">
+                  <OrderTypeDropdown
+                    filterType={orderType}
+                    handleOrderType={handleOrderType}
                   />
                 </div>
 
-                <div className=" grid grid-cols-3 gap-3 items-center border rounded-md px-1 " >
+                <div className=" grid grid-cols-3 gap-3 items-center border rounded-md px-1 ">
+                  <StartDatePicker
+                    date={startDate}
+                    selectedDate={(newDate) => setStartDate(newDate)}
+                  />
 
-                  <StartDatePicker date={startDate} selectedDate={(newDate) => setStartDate(newDate)} />
+                  <EndDatePicker
+                    date={endDate}
+                    selectedDate={(newDate) => setEndDate(newDate)}
+                  />
 
-                  <EndDatePicker date={endDate} selectedDate={(newDate) => setEndDate(newDate)} />
-
-                  <button onClick={handleDateFilter} className="font-semibold rounded-md py-2 hover:bg-gray-50">
+                  <button
+                    onClick={handleDateFilter}
+                    className="font-semibold rounded-md py-2 hover:bg-gray-50"
+                  >
                     Filter
                   </button>
                 </div>
 
-                <button onClick={handleClearFilter} className=" font-semibold rounded-md py-2 hover:bg-gray-50">
+                <button
+                  onClick={handleClearFilter}
+                  className=" font-semibold rounded-md py-2 px-6 hover:bg-gray-50"
+                >
                   Clear
                 </button>
               </div>
@@ -261,68 +329,83 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
 
           <div className="req-bottom w-full h-full flex flex-col gap-6 justify-between">
             <div className=" flex flex-col">
-              <div className="order-top text-[#718096] grid grid-cols-6 px-5 gap-2">
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"id"}
-                  text="OrderId"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"name"}
-                  text="Name"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"orderdate"}
-                  text="Order Date"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"requestedDate"}
-                  text="Req. Date"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"amount"}
-                  text="Amount"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"status"}
-                  text="Status"
-                />
+              <div className="flex ">
+                <div className="order-top text-[#718096] grid grid-cols-6 gap-2 px-5 w-[95%] ">
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"id"}
+                    text="OrderId"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"name"}
+                    text="Name"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"orderdate"}
+                    text="Order Date"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"requestedDate"}
+                    text="Req. Date"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"amount"}
+                    text="Amount"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"status"}
+                    text="Status"
+                  />
+                </div>
+                <div className="px-4 flex items-center justify-center ">
+                  <img src="/svg/download2.svg" alt="" />
+                </div>
               </div>
+
               {filteredOrders.length > 0 ? (
                 filteredOrders
                   ?.slice(startIndex, endIndex)
                   .map((order, index) => (
-                    <div
-                      onClick={() => handleUserClick(index)}
-                      key={index}
-                      className="cursor-pointer grid grid-cols-6 w-full p-5 gap-2 "
-                    >
-                      <div className="overflow-hidden">{order._id}</div>
-                      <div className="">
-                        {order.firstName} {order.lastName}{" "}
-                      </div>
-                      <div className="">{parseDate(order.createdAt)}</div>
-                      <div className="">{parseDate(order.requestedDate)}</div>
-                      <div className="">{order.total}</div>
-                      <button
-                        className={`text-left font-semibold capitalize
+                    <div className="flex">
+                      <div
+                        onClick={() => handleUserClick(index)}
+                        key={index}
+                        className="cursor-pointer grid grid-cols-6 w-[95%] custom-transition rounded-md p-5 gap-2 hover:bg-green-200 "
+                      >
+                        <div className="overflow-hidden">{order.orderNo}</div>
+                        <div className="">
+                          {order.firstName} {order.lastName}{" "}
+                        </div>
+                        <div className="">{parseDate(order.createdAt)}</div>
+                        <div className="">{parseDate(order.requestedDate)}</div>
+                        <div className="">$ {order.total}</div>
+
+                        <button
+                          className={`text-left font-semibold capitalize
                           ${order.status === "pending" && "text-[#F6B73C]"}
                           ${order.status === "installed" && "text-[#4C9A2A]"}
                           ${order.status === "completed" && "text-[#4C9A2A]"}
                         }`}
+                        >
+                          {order.status}
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => handleInvoiceDownload(order)}
+                        className="px-4"
                       >
-                        {order.status}
+                        <img src="/svg/download.svg" alt="" />{" "}
                       </button>
                     </div>
                   ))

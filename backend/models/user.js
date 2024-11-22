@@ -46,7 +46,16 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    connectedAccounts: [String]
+    connectedAccounts: [String],
+    otp : {
+      type : String
+    },
+    Expiry : {
+      type : Date
+    },
+    img : {
+      type : String
+    }
   },
   { timestamps: true }
 );

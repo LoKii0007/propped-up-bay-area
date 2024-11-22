@@ -3,26 +3,27 @@ import Pagination from "./pagination";
 import RowHeading from "../ui/rowHeading";
 import OrderTypeDropdown from "../ui/orderTypeDropdown";
 import OrderStatusdropdown from "../ui/orderStatusdropdown";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
 import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 import axios from "axios";
 import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
 
-function OrderRequests() {
-  const [orders, setOrders] = useState([]);
+function OrderRequests({orders, setOrders, totalOrderCount}) {
+  // const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const {setBreadCrumb, isInfo, setIsInfo, baseUrl } = UseGlobal();
+  const {setBreadCrumb, isInfo, setIsInfo, baseUrl } = useGlobal();
   const [completeOrder, setCompleteOrder] = useState({});
   const [loading, setLoading] = useState(false);
   const [nextLoading, setnextLoading] = useState(false);
-  const [orderPage, setOrderPage] = useState(1);
+  const [orderPage, setOrderPage] = useState(2);
   const limit = 10;
-  const [totalOrderCount, setTotalOrderCount] = useState(0)
+  // const [totalOrderCount, setTotalOrderCount] = useState(0)
+  // orders, setOrders, totalOrderCount
 
   //? ------------------------
   //? pagination
@@ -96,8 +97,10 @@ function OrderRequests() {
   }
 
   useEffect(() => {
-    handleOrders();
-  }, []);
+    // handleOrders();
+    console.log('orders1',orders)
+    setFilteredOrders(orders)
+  }, [orders]);
 
   //? -------------------------
   //? pagination resets
@@ -110,11 +113,6 @@ function OrderRequests() {
 
   //? -------------------------
   //? filter - search
-  //?--------------------------
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
   useEffect(() => {
     if (orders.length === 0) {
       return;
@@ -132,6 +130,7 @@ function OrderRequests() {
     setFilteredOrders(filtered); // updating parent
     resetPagination(filtered); // reset pagination
   }, [searchTerm, displayCount]);
+
 
   //? -------------------------
   //? filter - order status
@@ -201,16 +200,13 @@ function OrderRequests() {
   //?---------------------
   useEffect(() => {}, [
     filteredOrders,
-    orders,
     orderType,
     orderStatus,
     completeOrder,
-    setOrders,
   ]);
 
   //? --------------------
   //? updating order status
-  //?---------------------
   function handleUpdateOrderStatus(index) {
     const slectedOrder = filteredOrders[index];
     if (slectedOrder) {
@@ -242,7 +238,7 @@ function OrderRequests() {
                   className="w-full py-2 px-3 focus-visible:outline-none bg-[#f5f5f5]"
                   type="text"
                   value={searchTerm}
-                  onChange={handleSearch}
+                  onChange={(e)=>setSearchTerm(e.target.value)}
                   placeholder="Search by anyhthing..."
                 />
               </div>
@@ -307,12 +303,11 @@ function OrderRequests() {
                 filteredOrders
                   ?.slice(startIndex, endIndex)
                   .map((order, index) => (
-                    <div key={index} className="flex w-full p-5 gap-2 ">
+                    <div key={index} onClick={() => handleUserClick(index)} className="flex w-full cursor-pointer p-5 gap-2 hover:bg-green-200 custom-transition hover:shadow-md rounded-md ">
                       <div
-                        onClick={() => handleUserClick(index)}
                         className="cursor-pointer grid grid-cols-5 w-5/6 gap-2"
                       >
-                        <div className="overflow-hidden">{order._id}</div>
+                        <div className="overflow-hidden">{order.orderNo}</div>
                         <div className="overflow-hidden">
                           {order.firstName} {order.lastName}
                         </div>
@@ -322,7 +317,7 @@ function OrderRequests() {
                         <div className="overflow-hidden">
                           {parseDate(order.requestedDate)}
                         </div>
-                        <div className="overflow-hidden">{order.total}</div>
+                        <div className="overflow-hidden">$ {order.total}</div>
                       </div>
                       <div>
                         <button
@@ -330,9 +325,9 @@ function OrderRequests() {
                             handleUpdateOrderStatus(index);
                           }}
                           className={`text-left font-semibold capitalize
-                            ${order.status === "pending" && "text-[#F6B73C]"}
-                            ${order.status === "installed" && "text-[#4C9A2A]"}
-                            ${order.status === "completed" && "text-[#4C9A2A]"}
+                            ${order.status === "pending" && "text-yellow-500"}
+                            ${order.status === "installed" && "text-blue-500"}
+                            ${order.status === "completed" && "text-green-500"}
                           }`}
                         >
                           {/* {order.status} */}

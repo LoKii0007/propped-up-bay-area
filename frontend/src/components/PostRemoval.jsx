@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { parseDate } from "../helpers/utilities";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import OrderInfo from "./OrderInfo";
 
 function PostRemoval({ postOrders, setPostOrders, setOrders }) {
-  const { setBreadCrumb, isInfo, setIsInfo } = UseGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo } = useGlobal();
   const [completeOrder, setCompleteOrder] = useState("");
   const [loading, setLoading] = useState(true);
 

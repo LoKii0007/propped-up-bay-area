@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import ActionsDropdown from "../ui/ActionsDropdown";
 import axios from "axios";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import toast from "react-hot-toast";
+import ProfileCompleteRemind from "@/ui/ProfileCompleteRemind";
+import DeleteUserModal from "@/ui/DeleteUserModal";
+import Accordian from "@/ui/Accordian";
 
-function DetailedInfo({ user }) {
-  const { baseUrl } = UseGlobal();
+function DetailedInfo({ user, orders, setOrders }) {
+  const { baseUrl } = useGlobal();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(false);
+  const [userOrders, setUserorders] = useState([]);
 
   // Fetch user details from backend
   async function getUserDetails() {
@@ -15,6 +20,7 @@ function DetailedInfo({ user }) {
       const res = await axios.get(`${baseUrl}/api/user-details/get`, {
         params: { userId: user._id },
         withCredentials: true,
+        validateStatus: (status) => status < 500,
       });
       if (res.status !== 200) {
         toast.error(res.data.message || "Error fetching details.");
@@ -38,35 +44,45 @@ function DetailedInfo({ user }) {
 
   useEffect(() => {
     // console.log(userDetails);
-  }, [userDetails, loading]);
+  }, [userDetails, loading, userOrders]);
+
+
+  //?-----------------------
+  //? user specific orders
+  useEffect(() => {
+    console.log('orderrrs :', orders)
+    console.log(user)
+    const filtered = orders?.filter((order) => order.userId == user._id);
+    console.log('filtered',filtered)
+    setUserorders(filtered);
+  }, [orders]);
+
 
   if (loading) {
     return <div className="text-center py-10">Loading...</div>;
   }
 
+  //?---------------------------
+  //? if profile isnt complete
   if (!user?.profileCompleted) {
-    return (
-      <div className="w-full p-8 ">
-        The user’s profile is not fully completed yet.
-      </div>
-    );
+    return <ProfileCompleteRemind email={user?.email} />;
   }
 
   return (
     <>
       <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto ">
-        <div className="flex justify-between mb-8 w-full ">
-          <div className="text-[#718096] border px-4 py-2 rounded-lg hover:bg-gray-100">
-            User Details
-          </div>
-          <div className="flex space-x-4">
-            <ActionsDropdown />
-          </div>
-        </div>
-
         <div className="px-12 mx-auto w-8/12 ">
-          <div className="mb-8">
-            <h2 className="text-xl font-bold">Customer</h2>
+          <div className=" relative flex items-center justify-between pb-8">
+            <h2 className="text-xl font-bold">
+              {user?.firstName} {user?.lastName}
+            </h2>
+
+            <button
+              onClick={() => setModal(true)}
+              className=" py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-md shadow-md "
+            >
+              Delete user
+            </button>
           </div>
 
           <div className="flex flex-col gap-6 mb-8">
@@ -172,7 +188,20 @@ function DetailedInfo({ user }) {
             </div>
           </div>
         </div>
+
+        <div className="px-12 flex flex-col ">
+          <h2 className="text-2xl font-medium">All orders</h2>
+          {userOrders.length > 0 &&
+            userOrders.map((order) => (
+              <div>
+                <Accordian order={order} setOrders={setOrders} />
+              </div>
+            ))}
+        </div>
       </div>
+
+      {/* modal  */}
+      <DeleteUserModal open={modal} setOpen={setModal} />
     </>
   );
 }

@@ -1,13 +1,36 @@
 import { useEffect, useState } from "react";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import ConnectedAccounts from "./ConnectedAccounts";
 import { useAuth } from "../context/AuthContext";
 import { Switch } from "@/components/ui/switch";
+import ResetPassword from "./ResetPass";
+import { SearchableSelect } from "@/ui/SearchableSelect";
+
+const getRandomColor = (letter) => {
+  const colors = [
+    { range: "A-E", color: "bg-red-500" },
+    { range: "F-J", color: "bg-blue-500" },
+    { range: "K-O", color: "bg-green-500" },
+    { range: "P-T", color: "bg-yellow-500" },
+    { range: "U-Z", color: "bg-purple-500" },
+  ];
+
+  // Convert letter to uppercase to handle case-insensitivity
+  const uppercaseLetter = letter.toUpperCase();
+
+  // Find the matching range
+  const color = colors.find(({ range }) => {
+    const [start, end] = range.split("-");
+    return uppercaseLetter >= start && uppercaseLetter <= end;
+  });
+
+  return color?.color || "bg-gray-500"; // Default color if no match
+};
 
 const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
-  const [initialState, setInitialState] = useState({
+  const initialState = {
     firstName: user?.firstName,
     lastName: user?.lastName,
     company: userDetails?.company,
@@ -18,7 +41,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     zipCode: userDetails?.zipCode,
     caDreLicense: userDetails?.caDreLicense,
     address: userDetails?.address,
-  });
+  };
 
   const [formData, setFormData] = useState({});
   const [emailNotifications, setEmailNotifications] = useState(
@@ -28,7 +51,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     userDetails?.receiveTextNotifications || false
   );
   const [isEditing, setIsEditing] = useState(false);
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
   const [loading, setLoading] = useState(false);
   const [currentPass, setCurrentPass] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -36,6 +59,10 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   const [showNewPass, setShowNewPass] = useState(false);
   const [passLoading, setPassLoading] = useState(false);
   const { currentUser, setCurrentUser } = useAuth();
+  const [forget, setForget] = useState(false);
+  const [img, setImg] = useState(null);
+  const [imgUrl, setImgUrl] = useState(user?.img || null);
+  const [selectedFileName, setSelectedFileName] = useState("");
 
   //?--------------------------
   //? Handle form input change
@@ -51,14 +78,44 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   //? Handle update profile (save and disable form)
   //?--------------------------
   const handleUpdateProfile = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     setLoading(true);
+
     try {
+      // Step 1: Upload the image if it exists
+      let uploadedImgUrl = img; // Retain existing image URL
+      if (img && typeof img !== "string") {
+        const formData = new FormData();
+        formData.append("file", img); // Append the image file
+
+        const uploadRes = await axios.post(
+          `${baseUrl}/api/update/user-image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
+          }
+        );
+
+        if (uploadRes.status === 200) {
+          uploadedImgUrl = uploadRes.data.url;
+          setImgUrl(uploadRes.data.url);
+        } else {
+          toast.error("Image upload failed. Please try again.");
+          return;
+        }
+      }
+
+      // Step 2: Update user profile with form data and uploaded image URL
       const data = {
         ...formData,
+        img: uploadedImgUrl, // Include the image URL
         receiveEmailNotifications: emailNotifications,
         receiveTextNotifications: textNotifications,
       };
+
       const res = await axios.patch(
         `${baseUrl}/api/update/user-details`,
         data,
@@ -67,19 +124,28 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
           validateStatus: (status) => status < 500,
         }
       );
+
       if (res.status === 200) {
         setCurrentUser(res.data.user);
-        setInitialState(formData);
         toast.success("Profile updated successfully.");
       } else {
-        toast.error(res.data.msg || "Profile update failed. Please try again");
+        toast.error(res.data.msg || "Profile update failed. Please try again.");
       }
     } catch (error) {
-      console.log("Profile update failed", error.message);
-      toast.error("Server error. Please try again");
+      console.error("Profile update failed", error.message);
+      toast.error("Server error. Please try again.");
     } finally {
       setIsEditing(false);
       setLoading(false);
+    }
+  };
+
+  // Handling file input change
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImg(file); // Store the file for upload during the profile update
+      setSelectedFileName(file.name);
     }
   };
 
@@ -124,7 +190,17 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     }
   }
 
-  useEffect(() => {}, [loadingDetails, formData, currentUser, initialState]);
+  useEffect(() => {}, [
+    loadingDetails,
+    formData,
+    currentUser,
+    initialState,
+    userDetails,
+    user,
+    forget,
+    img,
+    imgUrl
+  ]);
 
   useEffect(() => {
     setFormData(initialState);
@@ -133,18 +209,69 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   return (
     <div className="bg-white rounded-lg p-12 flex flex-col gap-12 mx-auto">
       <div className="flex items-center space-x-4 ">
-        <img
-          className="w-16 h-16 rounded-full"
-          src="https://via.placeholder.com/150"
-          alt="User Avatar"
-        />
+        {imgUrl ? (
+          <img
+            className="w-16 h-16 rounded-full bg-green-700 object-cover"
+            src={imgUrl}
+            alt="User Avatar"
+          />
+        ) : (
+          <div
+            className={`w-16 h-16 rounded-full text-2xl flex items-center justify-center text-white font-bold ${getRandomColor(
+              user?.firstName
+            )}`}
+          >
+            {user?.firstName?.charAt(0).toUpperCase() || "U"}
+          </div>
+        )}
+
+        {isEditing && (
+          <label
+            htmlFor="fileInput"
+            className="cursor-pointer flex flex-col items-center justify-center "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-paperclip"
+            >
+              <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+            </svg>
+            {/* {imgUrl ? "Update Image" : "Upload Image"} */}
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {selectedFileName && (
+              <p className="mt-2 text-sm text-gray-500">
+                <span className="font-semibold">
+                  {selectedFileName.length > 10
+                    ? `${selectedFileName.slice(
+                        0,
+                        5
+                      )}...${selectedFileName.slice(
+                        selectedFileName.lastIndexOf(".")
+                      )}`
+                    : selectedFileName}
+                </span>
+              </p>
+            )}
+          </label>
+        )}
         <div>
           <h2 className="text-lg font-semibold text-gray-800">
             {formData.email}
           </h2>
-          <p className="text-sm text-gray-500">
-            user_id: 5e86805e2bafd54f66cc95c3
-          </p>
         </div>
       </div>
 
@@ -194,13 +321,12 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
               <label className="text-[#6C737F] block text-xs ">
                 State/Region
               </label>
-              <input
-                type="text"
+              <SearchableSelect
                 name="state"
-                className="w-full focus:outline-none border-b border-white focus:border-b focus:border-green-700 "
                 value={formData.state}
                 onChange={handleInputChange}
-                disabled={!isEditing}
+                required
+                editing={isEditing}
               />
             </div>
 
@@ -244,7 +370,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
               />
             </div>
 
-            <div className="mt-1 p-2  block w-full border rounded-md border-[#E5E7EB ] ">
+            <div className="mt-1 p-2 block w-full border rounded-md border-[#E5E7EB ] ">
               <label className="text-[#6C737F] block text-xs ">
                 MobilePhone
               </label>
@@ -321,63 +447,79 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         <div className="text-center">Loading...</div>
       )}
 
-      {user?.connectedAccounts?.includes("Email") && (
-        <form
-          onSubmit={handleChangePassword}
-          className="space-y-6 p-6 rounded-2xl client-form "
-        >
-          <div className="font-semibold grid text-lg">Change password</div>
-          <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
-            <label className="block text-xs text-gray-700">Old password</label>
-            <div className="relative mt-1">
-              <input
-                type={showOldPass ? "text" : "password"}
-                value={currentPass}
-                onChange={(e) => setCurrentPass(e.target.value)}
-                className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowOldPass(!showOldPass)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-              >
-                {showOldPass ? "Hide" : "Show"}
-              </button>
-            </div>
-          </div>
-
-          <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
-            <label className="block text-xs text-gray-700">New password</label>
-            <div className="relative mt-1">
-              <input
-                type={showNewPass ? "text" : "password"}
-                value={newPass}
-                onChange={(e) => setNewPass(e.target.value)}
-                className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
-                required
-                minLength={6}
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPass(!showNewPass)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-              >
-                {showNewPass ? "Hide" : "Show"}
-              </button>
-            </div>
-            <p className="text-xs text-gray-500">Minimum 6 characters</p>
-          </div>
-
-          <button
-            disabled={passLoading}
-            type="submit"
-            className="m-3 w-[180px] border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+      {user?.connectedAccounts?.includes("Email") &&
+        (!forget ? (
+          <form
+            onSubmit={handleChangePassword}
+            className="space-y-6 p-6 rounded-2xl client-form "
           >
-            {passLoading ? "changing..." : "Change Password"}
-          </button>
-        </form>
-      )}
+            <div className="font-semibold grid text-lg">Change password</div>
+            <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
+              <label className="block text-xs text-gray-700">
+                Old password
+              </label>
+              <div className="relative mt-1">
+                <input
+                  type={showOldPass ? "text" : "password"}
+                  value={currentPass}
+                  onChange={(e) => setCurrentPass(e.target.value)}
+                  className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOldPass(!showOldPass)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                >
+                  {showOldPass ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+            <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
+              <label className="block text-xs text-gray-700">
+                New password
+              </label>
+              <div className="relative mt-1">
+                <input
+                  type={showNewPass ? "text" : "password"}
+                  value={newPass}
+                  onChange={(e) => setNewPass(e.target.value)}
+                  className="block w-full border-white focus:outline-none border-b focus:border-green-800 "
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPass(!showNewPass)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                >
+                  {showNewPass ? "Hide" : "Show"}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500">Minimum 6 characters</p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button
+                disabled={passLoading}
+                type="submit"
+                className="m-3 w-[180px] border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+              >
+                {passLoading ? "changing..." : "Change Password"}
+              </button>
+
+              <div
+                onClick={() => setForget(true)}
+                className="cursor-pointer underline"
+              >
+                Forgot password
+              </div>
+            </div>
+          </form>
+        ) : (
+          <ResetPassword setForget={setForget} />
+        ))}
 
       <ConnectedAccounts />
     </div>

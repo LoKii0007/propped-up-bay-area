@@ -2,13 +2,13 @@ import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/AuthContext";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import { useState } from "react";
 
 function LinkGoogleAccount() {
   const { setCurrentUser, currentUser } = useAuth();
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
 
   const [password, setPassword] = useState(""); // State to store password input
   const [connect, setConnect] = useState(false); // State to toggle connect form

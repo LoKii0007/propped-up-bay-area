@@ -1,4 +1,4 @@
-import { UseGlobal } from "@/context/GlobalContext";
+import { useGlobal } from "@/context/GlobalContext";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 const SheetsCallback = () => {
   const [searchParams] = useSearchParams();
-  // const { baseUrl } = UseGlobal;
+  // const { baseUrl } = useGlobal;
   const [created, setCreated] = useState(false);
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BACKEND_URL

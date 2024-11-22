@@ -2,6 +2,9 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SuperUser = require("../models/superUser");
+const UserDetails = require("../models/userDetails");
+const { nodemailerTransport } = require("../utilities/gmail");
+const crypto = require("crypto")
 
 //?------------------------------
 //? signup
@@ -131,7 +134,7 @@ const getUserByToken = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
-    return res.status(200).json({ user});
+    return res.status(200).json({ user });
   } catch (err) {
     console.log("error in getUser api", err.message);
     return res
@@ -272,13 +275,74 @@ const signOutApi = async (req, res) => {
       expires: new Date(0), // Setting expiry to a past date
       secure: true,
       sameSite: "None",
-    })
+    });
 
     // Send response indicating sign-out success
     return res.status(200).json({ message: "Successfully signed out" });
   } catch (error) {
     console.error("Error in signOutApi:", error);
     return res.status(500).json({ message: "Server error during sign-out" });
+  }
+};
+
+//?---------------------------------
+//? --------------- send otp
+const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    const otp = crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
+    const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
+
+    user.otp = otp;
+    user.Expiry = expiry;
+    await user.save();
+
+    // Send email
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Reset Password OTP",
+      text: `Your OTP for password reset is ${otp}. It is valid for 5 minutes.`,
+    };
+
+    await nodemailerTransport.sendMail(mailOptions);
+    res.status(200).json({ msg: "OTP sent to email." });
+  } catch (error) {
+    console.error("Server error sending otp", error.message);
+    res.status(500).json({ msg: "Server error", error });
+  }
+};
+
+//? ---------reset pass-------------
+const resetPassword = async (req, res) => {
+  try {
+    const { otp, newPassword } = req.body;
+    const userId = req.user.userId; // Extracted from req.user as requested
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    if(!user.connectedAccounts.includes('Email')){
+      return res.status(404).json({ msg: "Not connected by email" })
+    }
+
+    if (user.otp !== otp || user.Expiry < Date.now()) {
+      return res.status(400).json({ msg: "Invalid or expired OTP" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.otp = undefined;
+    user.Expiry = undefined;
+
+    await user.save();
+    res.status(200).json({ msg: "Password reset successfully" });
+  } catch (error) {
+    console.error("Server error reseting pass", error.message);
+    res.status(500).json({ msg: "Server error", error });
   }
 };
 
@@ -291,7 +355,9 @@ const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await SuperUser.findOne({ email }).select("-__v -createdAt -updatedAt"); // Check if user exists
+    const user = await SuperUser.findOne({ email }).select(
+      "-__v -createdAt -updatedAt"
+    ); // Check if user exists
     if (!user) {
       return res.status(400).json({ msg: "user not found" });
     }
@@ -314,8 +380,8 @@ const adminLogin = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
-    const user2 = user.toObject()
-    delete user2.password
+    const user2 = user.toObject();
+    delete user2.password;
 
     res.status(200).json({ user, msg: "logged in" });
   } catch (error) {
@@ -388,8 +454,36 @@ const updateAdminDetails = async (req, res) => {
 
     res.status(200).json({ user, msg: "Profile updated successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Server error while updating profile", error.message);
     res.status(500).json({ msg: "Server error while updating profile" });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Find the admin user by ID
+    const user = await SuperUser.findById(req.user.userId);
+
+    if (!user || (user.role !== "admin" && user.role !== "superuser")) {
+      return res.status(403).json({ msg: "Unauthorized or user not found" });
+    }
+
+    const deleted = await User.findByIdAndDelete(userId);
+
+    if (!deleted) {
+      return res.status(403).json({ msg: "user not found" });
+    }
+
+    if (deleted && deleted.profileCompleted) {
+      await UserDetails.findOneAndDelete({ userId });
+    }
+
+    return res.status(200).json({ msg: "user deleted", user: deleted });
+  } catch (error) {
+    console.error("Server error while deleting profile", error.message);
+    res.status(500).json({ msg: "Server error while deleting profile" });
   }
 };
 
@@ -403,4 +497,7 @@ module.exports = {
   updateAdminDetails,
   authUpdate,
   updateAdminPassword,
+  deleteUser,
+  sendOtp,
+  resetPassword
 };

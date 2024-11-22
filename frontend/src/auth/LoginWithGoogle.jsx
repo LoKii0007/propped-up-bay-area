@@ -4,12 +4,12 @@ import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 
 function LoginWithGoogle() {
   const navigate = useNavigate();
   const { setCurrentUser } = useAuth();
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
 
   const loginCredentials = async (res) => {
 

@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import CancelSubModal from "../ui/CancelSubModal";
 import { parseDate } from "../helpers/utilities";
 import axios from "axios";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import toast from "react-hot-toast";
 import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
 
@@ -18,11 +18,11 @@ function OrderInfo({
   const { admin } = useAuth();
   const [selectedImage, setSelectedImage] = useState(null); // State for selected image
   const [uploading, setUploading] = useState(false); // State for upload status
-  const { baseUrl, currentUser } = UseGlobal();
+  const { baseUrl, currentUser } = useGlobal();
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setisLoading] = useState(true);
 
-  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl]);
+  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl, currentUser]);
 
   // Function to handle file selection
   const handleFileChange = (e) => {
@@ -151,7 +151,8 @@ function OrderInfo({
               />
             )}
 
-            {!admin &&
+            {
+              !admin &&
               order?.type === "postOrder" &&
               order?.subActive === true && (
                 <>
@@ -392,7 +393,6 @@ function OrderInfo({
       </div>
 
       {/* -------------------------modals ---------------- */}
-      {!admin?.role === "admin" && (
         <CancelSubModal
           setPostOrders={setPostOrders}
           setOrders={setOrders}
@@ -401,7 +401,7 @@ function OrderInfo({
           open={modalOpen}
           setOpen={setModalOpen}
         />
-      )}
+      
     </>
   );
 }

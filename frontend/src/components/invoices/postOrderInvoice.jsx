@@ -9,7 +9,7 @@ function PostOrderInvoice({ data }) {
             <div id='postOrder' className="max-w-[790px] mx-auto bg-[fff] border border-[#d1d5db]">
                 <div className="bg-[#166534] text-white flex py-4 px-10 justify-between">
                     <h1 className="text-2xl font-bold">INVOICE</h1>
-                    <h2 className="text-lg">PSS001028</h2>
+                    <h2 className="text-lg">{`PRB${String(data?.orderNo).padStart(5, '0')}`}</h2>
                 </div>
                 <div className='p-8 pt-0'>
                     <div className="flex justify-between mt-4">

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ProppedUpLogo from "../ui/proppedUpLogo";
 import axios from "axios";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const { setCurrentUser } = useAuth();
   const navigate = useNavigate();
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
 
   async function handleRegister(e) {
     e.preventDefault();

@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 
 const LinkEmail = () => {
   const [password, setPassword] = useState("");
   const { currentUser, setCurrentUser } = useAuth();
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
   const [loading, setLoading] = useState(false);
   const [connect, setConnect] = useState(false);
 

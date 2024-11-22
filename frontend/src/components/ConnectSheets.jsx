@@ -1,10 +1,10 @@
-import { UseGlobal } from "@/context/GlobalContext";
+import { useGlobal } from "@/context/GlobalContext";
 import axios from "axios";
 import React, { useState } from "react";
 
 const ConnectSheets = () => {
 
-    const {baseUrl} = UseGlobal()
+    const {baseUrl} = useGlobal()
 
   async function handleSheet() {
     try {

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { CALIFORNIA_CITIES } = require("../data/pricingData");
 
 const signUpDetailsSchema = new mongoose.Schema({
   userId: {
@@ -21,6 +22,7 @@ const signUpDetailsSchema = new mongoose.Schema({
   city: {
     type: String,
     required: true,
+    enum: CALIFORNIA_CITIES,
   },
   state: {
     type: String,

@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios"; 
 import toast from "react-hot-toast";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { useAuth } from "../context/AuthContext";
 
 const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("")
-  const {baseUrl} = UseGlobal()
+  const {baseUrl} = useGlobal()
   const {setAdmin} = useAuth()
 
   const handleSubmit = async (e) => {
@@ -29,6 +29,7 @@ const AdminLogin = () => {
       );
       if (response.status === 200) {
         toast.success("Login successful");
+        sessionStorage.setItem('proppedUpAdmin',JSON.stringify(response.data.user))
         setAdmin(response.data.user);
       } else {
         toast.error(response.data.msg || 'Login failed. Please try again');

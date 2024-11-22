@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { UseGlobal } from "../context/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 
 const ConfirmationPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { baseUrl } = UseGlobal();
+  const { baseUrl } = useGlobal();
   const [orderPlaced, setOrderPlaced] = useState(false);
 
   const checkPaymentStatus = async () => {

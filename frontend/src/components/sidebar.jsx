@@ -1,6 +1,6 @@
 import React, {useState} from "react"
 import SignOutModal from "../ui/signOutModal"
-import { UseGlobal } from "../context/GlobalContext"
+import { useGlobal } from "../context/GlobalContext"
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ setActiveView, activeView }) => {
@@ -28,7 +28,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
   ]
 
   const [modalOpen, setModalOpen] = useState(false)
-  const {setBreadCrumb, isInfo, setIsInfo, breadCrumb} = UseGlobal()
+  const {setBreadCrumb, isInfo, setIsInfo, breadCrumb} = useGlobal()
   const navigate = useNavigate()
 
   function handleView(data){
