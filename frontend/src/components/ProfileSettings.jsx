@@ -15,7 +15,7 @@ const ProfileSettings = () => {
   const [isEditable, setIsEditable] = useState(false);
   const { baseUrl } = useGlobal();
   const [imgUrl, setImgUrl] = useState(admin?.img);
-  const [imgLoading, setImgLoading] = useState(false)
+  const [imgLoading, setImgLoading] = useState(false);
 
   // Reset function
   const handleReset = () => {
@@ -63,11 +63,10 @@ const ProfileSettings = () => {
       setImgUrl(URL.createObjectURL(file)); // Generate preview URL
     }
   };
-  
 
   const handleImageUpdate = async (img) => {
     if (!img || typeof img === "string") return img; // Skip if no file or already a URL
-    setImgLoading(true)
+    setImgLoading(true);
     try {
       const formData = new FormData();
       formData.append("file", img);
@@ -82,19 +81,22 @@ const ProfileSettings = () => {
       );
 
       if (uploadRes.status === 200) {
-        toast.success('Image updated.')
+        toast.success("Image updated.");
         const uploadedUrl = uploadRes.data.url;
-        setImgUrl(uploadedUrl)
-        setAdmin(uploadRes.data?.user)
-        sessionStorage.setItem('proppedUpAdmin',JSON.stringify(uploadRes.data?.user))
+        setImgUrl(uploadedUrl);
+        setAdmin(uploadRes.data?.user);
+        sessionStorage.setItem(
+          "proppedUpAdmin",
+          JSON.stringify(uploadRes.data?.user)
+        );
       } else {
-        toast.error('Upload failed')
+        toast.error("Upload failed");
       }
     } catch (error) {
       toast.error("Image upload failed. Please try again.");
-    }finally{
-      setProfilePic(null)
-      setImgLoading(false)
+    } finally {
+      setProfilePic(null);
+      setImgLoading(false);
     }
   };
 
@@ -111,18 +113,20 @@ const ProfileSettings = () => {
             Your Profile Picture
           </label>
           <div className="flex gap-5">
-            {/* Existing or placeholder image */}
+
             <div className="flex items-center justify-center w-32 h-32 bg-[#EDF2F6] border border-dashed border-[#4C535F] rounded-md overflow-hidden">
               {imgUrl ? (
-                <img
-                  src={imgUrl}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+                <label htmlFor="profilePic" className="cursor-pointer">
+                  <img
+                    src={imgUrl}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                </label>
               ) : (
                 <label
                   htmlFor="profilePic"
-                  className="text-center cursor-pointer text-gray-400 items-center justify-center flex flex-col"
+                  className="text-center cursor-pointer text-gray-400 items-center justify-center h-full flex flex-col"
                 >
                   <p>Upload your photo</p>
                 </label>
@@ -134,6 +138,7 @@ const ProfileSettings = () => {
                 onChange={handleFileChange}
               />
             </div>
+
             {/* Update Image Button */}
             <div className="flex justify-center items-center">
               <button
@@ -142,7 +147,7 @@ const ProfileSettings = () => {
                 className={`px-4 py-2 rounded-md text-white ${
                   loading ? "bg-gray-400" : "bg-teal-500 hover:bg-teal-600"
                 } focus:outline-none focus:ring-2 focus:ring-teal-400`}
-                disabled={loading || !profilePic}
+                disabled={loading}
               >
                 {imgLoading ? "Updating..." : "Update Image"}
               </button>
