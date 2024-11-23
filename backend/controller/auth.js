@@ -4,7 +4,17 @@ const jwt = require("jsonwebtoken");
 const SuperUser = require("../models/superUser");
 const UserDetails = require("../models/userDetails");
 const { nodemailerTransport } = require("../utilities/gmail");
-const crypto = require("crypto")
+const crypto = require("crypto");
+const streamifier = require("streamifier");
+
+const cloudinary = require("cloudinary").v2;
+require("dotenv").config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 //?------------------------------
 //? signup
@@ -326,8 +336,8 @@ const resetPassword = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-    if(!user.connectedAccounts.includes('Email')){
-      return res.status(404).json({ msg: "Not connected by email" })
+    if (!user.connectedAccounts.includes("Email")) {
+      return res.status(404).json({ msg: "Not connected by email" });
     }
 
     if (user.otp !== otp || user.Expiry < Date.now()) {
@@ -427,6 +437,52 @@ const updateAdminPassword = async (req, res) => {
   }
 };
 
+//? upload or update user image
+const uploadAdminImage = async (req, res) => {
+  try {
+    // Find the user by ID
+    const user = await SuperUser.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Check user role
+    if (user.role !== "superuser" && user.role !== "admin") {
+      return res.status(401).json({ msg: "Not authorized" });
+    }
+
+    // Upload image to Cloudinary
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { resource_type: "image", folder: "user_profiles" },
+      async (error, result) => {
+        if (error) {
+          return res
+            .status(500)
+            .json({ msg: "Cloudinary upload failed", error: error.message });
+        }
+
+        // Save image URL to the user profile
+        user.img = result.secure_url;
+        await user.save();
+
+        // Respond with success
+        res.status(200).json({
+          msg: "Image uploaded successfully",
+          url: result.secure_url,
+          user
+        });
+      }
+    );
+
+    // Ensure the file buffer is passed to the upload stream
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+  } catch (error) {
+    console.error("Error uploading image:", error.message);
+    res.status(500).json({ msg: "Image upload failed", error: error.message });
+  }
+};
+
+
 //?------------------------------
 //? update admin details
 //?------------------------------
@@ -499,5 +555,6 @@ module.exports = {
   updateAdminPassword,
   deleteUser,
   sendOtp,
-  resetPassword
+  resetPassword,
+  uploadAdminImage
 };

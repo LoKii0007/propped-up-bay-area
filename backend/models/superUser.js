@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema(
         return !this.googleId;
       },
     },
+    img :{
+      type : String
+    },
     googleId: {
       type: String, 
       unique: true,

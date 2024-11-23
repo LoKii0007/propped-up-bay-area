@@ -100,7 +100,11 @@ function ClientDetails({ users, setUsers, totalCount, orders, setOrders }) {
     }
   }
 
-  useEffect(()=>{}, [users, filteredUsers])
+  useEffect(()=>{}, [filteredUsers, totalCount])
+
+  useEffect(()=>{
+    setFilteredUsers(users)
+  }, [users])
 
   return (
     <>
@@ -219,7 +223,7 @@ function ClientDetails({ users, setUsers, totalCount, orders, setOrders }) {
           </div>
         </div>
       ) : (
-        <DetailedInfo user={userInfo} orders={orders} setOrders={setOrders} /> // Pass selected user ID
+        <DetailedInfo user={userInfo} orders={orders} setOrders={setOrders} setUsers={setUsers} /> // Pass selected user ID
       )}
     </>
   );

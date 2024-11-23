@@ -1,13 +1,45 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import toast from 'react-hot-toast';
-import { useGlobal } from '../context/GlobalContext';
+import { useState } from "react";
+import axios from "axios";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import toast from "react-hot-toast";
+import { useGlobal } from "../context/GlobalContext";
 
+const DeleteUserModal = ({ open, setOpen, setUsers, userId }) => {
+  const [loading, setLoading] = useState(false);
+  const {baseUrl, setIsInfo, setTotalUserCount, setBreadCrumb, adminActiveView } = useGlobal()
 
-const DeleteUserModal = ({open, setOpen}) => {
-
-    const [loading, ,setLoading] = useState(false)
+  async function handleDeleteUser() {
+    setLoading(true)
+    try {
+      const res = await axios.post(
+        `${baseUrl}/api/user/delete`,
+        { userId },
+        {
+          withCredentials: true,
+          validateStatus: function (status) {
+            return status < 500; // Reject only if the status code is greater than or equal to 500
+          },
+        }
+      )
+      if(res.status !== 200 ){
+        toast.error(res.data.msg || 'Error deleting user. Please try again' )
+      }
+      toast.success('User deleted')
+      setUsers((prev)=> prev.filter((user)=>user._id !== userId) )
+      setTotalUserCount((prev)=>prev-1)
+      setBreadCrumb(adminActiveView)
+      setIsInfo(false) 
+    } catch (error) {
+      toast.error(res.data.msg || 'Server Error deleting user. Please try again' )
+    }finally{
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -32,7 +64,7 @@ const DeleteUserModal = ({open, setOpen}) => {
                     </DialogTitle>
                     <div className="mt-2 text-center w-full">
                       <p className="text-sm text-gray-500">
-                        You want to delete ths user.
+                        You want to delete this user.
                       </p>
                     </div>
                   </div>

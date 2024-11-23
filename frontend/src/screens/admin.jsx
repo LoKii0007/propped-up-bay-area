@@ -15,15 +15,13 @@ import toast from "react-hot-toast";
 
 function Admin() {
   const navigate = useNavigate();
-  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl } = useGlobal();
-  const [activeView, setActiveView] = useState("order requests");
+  const { breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl, totalUserCount, setTotalUserCount,adminActiveView, setAdminActiveView  } = useGlobal();
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
   const [subscribedUsers, setSubscribedUsers] = useState([]);
   const { admin, setAdmin } = useAuth();
   const page = 1;
-  const limit = 20;
-  const [totalUserCount, setTotalUserCount] = useState(0);
+  const limit = 20;;
   const [totalOrderCount, setTotalOrderCount] = useState(0);
 
   //? ----------------------------------
@@ -99,7 +97,7 @@ function Admin() {
   //? update breadcrumb
   function handleView() {
     if (isInfo) setIsInfo(false);
-    if (breadCrumb !== activeView) setBreadCrumb(activeView);
+    if (breadCrumb !== adminActiveView) setBreadCrumb(adminActiveView);
   }
 
   useEffect(() => {}, [orders, users, subscribedUsers]);
@@ -110,8 +108,8 @@ function Admin() {
         <div className="home w-[100vw] flex">
           <div className="sidebar min-w-fit w-3/12 border-r px-10 flex flex-col justify-between gap-5 bg-white">
             <AdminSidebar
-              activeView={activeView}
-              setActiveView={setActiveView}
+              activeView={adminActiveView}
+              setActiveView={setAdminActiveView}
             />
           </div>
 
@@ -155,8 +153,8 @@ function Admin() {
             </div>
             <div className="p-7 bg-white h-[87vh]">
               <div className="active-bottom h-full overflow-y-auto">
-                {activeView === "dashboard" && <Salesreport />}
-                {activeView === "clients" && (
+                {adminActiveView === "dashboard" && <Salesreport />}
+                {adminActiveView === "clients" && (
                   <ClientDetails
                     users={users}
                     setUsers={setUsers}
@@ -165,32 +163,23 @@ function Admin() {
                     setOrders={setOrders}
                   />
                 )}
-                {activeView === "order requests" && (
+                {adminActiveView === "order requests" && (
                   <OrderRequests
                     orders={orders}
                     setOrders={setOrders}
                     totalOrderCount={totalOrderCount}
                   />
                 )}
-                {activeView === "subscriptions" && (
+                {adminActiveView === "subscriptions" && (
                   <OrderRequests
                     orders={subscribedUsers}
                     setOrders={setSubscribedUsers}
                     totalOrderCount={totalOrderCount}
                   />
                 )}
-                {/* {activeView === "subscriptions" && (
-                  <ClientDetails
-                    users={subscribedUsers}
-                    setUsers={setSubscribedUsers}
-                    totalCount={totalUserCount}
-                    orders={orders}
-                    setOrders={setOrders}
-                  />
-                )} */}
-                {activeView === "sales report" && <Salesreport />}
-                {activeView === "invoices" && <Invoices />}
-                {activeView === "settings" && <AdminSettings />}
+                {adminActiveView === "sales report" && <Salesreport />}
+                {adminActiveView === "invoices" && <Invoices />}
+                {adminActiveView === "settings" && <AdminSettings />}
               </div>
             </div>
           </div>

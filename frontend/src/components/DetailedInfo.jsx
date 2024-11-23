@@ -7,7 +7,7 @@ import ProfileCompleteRemind from "@/ui/ProfileCompleteRemind";
 import DeleteUserModal from "@/ui/DeleteUserModal";
 import Accordian from "@/ui/Accordian";
 
-function DetailedInfo({ user, orders, setOrders }) {
+function DetailedInfo({ user, orders, setOrders, setUsers }) {
   const { baseUrl } = useGlobal();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -201,7 +201,7 @@ function DetailedInfo({ user, orders, setOrders }) {
       </div>
 
       {/* modal  */}
-      <DeleteUserModal open={modal} setOpen={setModal} />
+      <DeleteUserModal open={modal} setOpen={setModal} setUsers={setUsers} userId={user._id} />
     </>
   );
 }

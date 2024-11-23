@@ -3,8 +3,8 @@ import { zones } from "../data/staticData";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useGlobal } from "../context/GlobalContext";
-import DatePickerDemo from "@/components/ui/DatePicker";
 import TimePicker from "@/ui/TimePicker";
+import DatePicker from "@/components/ui/DatePicker";
 
 const OpenHouseForm = () => {
   const initialState = {
@@ -340,7 +340,7 @@ const OpenHouseForm = () => {
             Date of First Event <span className="text-red-500">*</span>
           </label>
           <div className="pb-1">
-            <DatePickerDemo
+            <DatePicker
               date={formData.requestedDate}
               selectedDate={handleInputChange}
             />

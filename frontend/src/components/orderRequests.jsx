@@ -303,9 +303,10 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                 filteredOrders
                   ?.slice(startIndex, endIndex)
                   .map((order, index) => (
-                    <div key={index} onClick={() => handleUserClick(index)} className="flex w-full cursor-pointer p-5 gap-2 hover:bg-green-200 custom-transition hover:shadow-md rounded-md ">
+                    <div key={index} className="flex w-full px-5 gap-2 ">
                       <div
-                        className="cursor-pointer grid grid-cols-5 w-5/6 gap-2"
+                        onClick={() => handleUserClick(index)}
+                        className="cursor-pointer grid grid-cols-5 w-5/6 py-5 gap-2 custom-transition hover:shadow-md rounded-md hover:bg-green-200"
                       >
                         <div className="overflow-hidden">{order.orderNo}</div>
                         <div className="overflow-hidden">
@@ -324,7 +325,7 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                           onClick={() => {
                             handleUpdateOrderStatus(index);
                           }}
-                          className={`text-left font-semibold capitalize
+                          className={`text-left font-semibold capitalize py-5
                             ${order.status === "pending" && "text-yellow-500"}
                             ${order.status === "installed" && "text-blue-500"}
                             ${order.status === "completed" && "text-green-500"}

@@ -15,14 +15,12 @@ function OrderInfo({
   setFilteredOrders,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { admin } = useAuth();
+  const { admin, currentUser } = useAuth();
   const [selectedImage, setSelectedImage] = useState(null); // State for selected image
   const [uploading, setUploading] = useState(false); // State for upload status
-  const { baseUrl, currentUser } = useGlobal();
+  const { baseUrl } = useGlobal();
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setisLoading] = useState(true);
-
-  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl, currentUser]);
 
   // Function to handle file selection
   const handleFileChange = (e) => {
@@ -132,6 +130,8 @@ function OrderInfo({
   useEffect(() => {
     getImage();
   }, []);
+
+  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl, currentUser]);
 
   return (
     <>

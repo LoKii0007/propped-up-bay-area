@@ -216,7 +216,8 @@ const updateOpenHouseImage = async (req, res) => {
   }
 };
 
-
+//? ------------------------------
+//? GET order image
 const getOrderImage = async (req, res) => {
   const { orderId, type } = req.query;
 
@@ -233,7 +234,7 @@ const getOrderImage = async (req, res) => {
         .json({ msg: "image fetched", url: image.imageUrl });
     }
     if (type === "postOrder") {
-      const image = await postOrderSchema.findOne({ orderId });
+      const image = await PostOrderImageSchema.findOne({ orderId });
       if (!image) {
         return res.status(400).json({ msg: "image not found" });
       }

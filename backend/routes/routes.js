@@ -1,7 +1,7 @@
 const express = require('express')
 const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails, uploadUserImage, sendReminderEmail} = require('../controller/users')
-const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword, sendOtp, resetPassword } = require('../controller/auth')
+const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword, sendOtp, resetPassword, uploadAdminImage, deleteUser } = require('../controller/auth')
 const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
@@ -53,10 +53,12 @@ Routes.get('/api/orders/get-all',verifyUser, getAllOrdersApi) // get all orders
 Routes.get('/api/user-details/get',verifyUser, getSingleUserDetails) // get single user detail
 Routes.patch('/api/orders/change-status',verifyUser, updateOrderApi) // updation of user orders
 Routes.get('/api/users/get',verifyUser, getAllUsersApi) // get all users
+Routes.post('/api/user/delete',verifyUser, deleteUser) // delete user
 
 Routes.post('/auth/admin-login', adminLogin) // custom admin login
 Routes.patch('/auth/admin/password/update',verifyUser, updateAdminPassword) // update admin password
 Routes.patch('/auth/admin/profile/update',verifyUser, updateAdminDetails) // admin profile update
+Routes.post('/auth/admin/image/update',verifyUser, upload.single('file'), uploadAdminImage) // admin image update
 
 //* -------------------
 //* image routes

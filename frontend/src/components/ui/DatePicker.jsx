@@ -1,72 +1,47 @@
-import React, { useState } from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import * as React from "react";
+import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { format, isBefore, startOfDay } from "date-fns"; // Imported date-fns helpers
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export default function DatePickerWithRange({ setStartDate, setEndDate }) {
-  const [internalDate, setInternalDate] = useState({ from: null, to: null });
-  const [isOpen, setIsOpen] = useState(false);
+export default function DatePicker({ date, selectedDate }) {
+  const [isOpen, setIsOpen] = React.useState(false); // Track the popover state
 
-  const handleSelect = (selectedRange) => {
-    // Ensure selectedRange exists and has valid properties
-    const { from = null, to = null } = selectedRange || {};
-
-    setInternalDate({ from, to }); // Update internal state safely
-
-    if (from) {
-      setStartDate(format(from, "dd-MM-yy")); // Update start date in parent
-    }
-    if (to) {
-      setEndDate(format(to, "dd-MM-yy")); // Update end date in parent
-      setIsOpen(false); // Close popover when range is complete
-    }
+  const handleSelectDate = (date) => {
+    selectedDate(date); // Update the parent state with the selected date
+    setIsOpen(false); // Close the popover after selecting the date
   };
 
   return (
-    <div className={cn("grid gap-2")}>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal",
-              !internalDate.from && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {internalDate.from ? (
-              internalDate.to ? (
-                <>
-                  {format(internalDate.from, "dd-MM-yy")} -{" "}
-                  {format(internalDate.to, "dd-MM-yy")}
-                </>
-              ) : (
-                format(internalDate.from, "dd-MM-yy")
-              )
-            ) : (
-              <span>Pick a date range</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            initialFocus
-            mode="range"
-            selected={internalDate}
-            onSelect={handleSelect}
-            numberOfMonths={2}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-full overflow-hidden justify-start text-left font-normal ",
+            !date && "text-muted-foreground "
+          )}
+        >
+          <CalendarIcon />
+          {date ? format(date, "dd-MM-yy") : <span>Event date</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={handleSelectDate}
+          disabled={(day) => isBefore(day, startOfDay(new Date()))} // Disable past dates
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
