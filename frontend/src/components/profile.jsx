@@ -207,7 +207,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   }, [user, userDetails]);
 
   return (
-    <div className="bg-white rounded-lg p-12 flex flex-col gap-12 mx-auto">
+    <div className="bg-white client-profile rounded-lg p-12 flex flex-col gap-12 mx-auto">
       <div className="flex items-center space-x-4 ">
         {imgUrl ? (
           <img
@@ -279,7 +279,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         <form className=" p-6 rounded-2xl client-form flex flex-col gap-6 ">
           <div className="font-semibold text-lg">Edit profile details</div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-6 edit-profile-fields">
             <div className="mt-1 p-2 block w-full border rounded-md border-[#E5E7EB]">
               <label className="text-[#6C737F] block text-xs ">
                 First Name
@@ -500,11 +500,11 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
               <p className="text-xs text-gray-500">Minimum 6 characters</p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-4">
               <button
                 disabled={passLoading}
                 type="submit"
-                className="m-3 w-[180px] border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+                className="m-3 w-full md:w-[180px] border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
               >
                 {passLoading ? "changing..." : "Change Password"}
               </button>

@@ -4,26 +4,30 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/re
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { useGlobal } from '@/context/GlobalContext';
 
 export default function SignOutModal({ open, setOpen, text, btnText }) {
   const { setCurrentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
+  const {baseUrl} = useGlobal()
 
   async function handleSignOut() {
     setLoading(true);
     try {
       // Make GET request to the logout route
-      const res = await axios.get('/auth/logout', { 
-        withCredentials: true // Send cookies with the request
+      const res = await axios.get(`${baseUrl}/auth/logout`, { 
+        withCredentials: true , validateStatus : (status) => status < 500
       });
 
       if (res.status === 200) {
         setCurrentUser(null);
+        sessionStorage.removeItem("proppedUpUser");
+        sessionStorage.removeItem("proppedUpAdmin");
         toast.success('Signed out successfully');
         navigate('/login')
       } else {
-        throw new Error('Failed to sign out');
+        toast.error('Failed to sign out. Please try again.')
       }
     } catch (error) {
       console.error("Sign-out error:", error);

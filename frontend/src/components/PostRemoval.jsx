@@ -34,13 +34,13 @@ function PostRemoval({ postOrders, setPostOrders, setOrders }) {
             Manage Your subscriptions
           </div>
           <div className="removal-body flex flex-col justify-center w-full ">
-            <div className="grid grid-cols-6 text-[#718096] p-5 gap-2 w-full">
-              <div>Order No.</div>
-              <div>Name</div>
-              <div>Email</div>
-              <div>Total</div>
-              <div>Order date</div>
-              <div>Status</div>
+            <div className="grid grid-cols-3 md:grid-cols-6 text-[#718096] py-3 px-5 md:p-5 gap-2 w-full">
+              <div className="" >Name</div>
+              <div className="" >Order No.</div>
+              <div className="hidden md:block" >Email</div>
+              <div className="hidden md:block" >Total</div>
+              <div className="hidden md:block" >Order date</div>
+              <div className="" >Status</div>
             </div>
             {postOrders.length > 0 ? (
               postOrders.map((order, index) => (
@@ -48,15 +48,16 @@ function PostRemoval({ postOrders, setPostOrders, setOrders }) {
                   <button
                     onClick={() => handleUserClick(index)}
                     key={order._id}
-                    className="removal grid grid-cols-6 p-5 gap-2 w-full text-left "
+                    className="removal grid grid-cols-3 md:grid-cols-6 py-3 px-5 md:p-5 gap-2 w-full text-left "
                   >
-                    <div className="overflow-hidden">{order._id}</div>
+                    
                     <div className="overflow-hidden">
-                      {order.firstName} {order.lastName}
+                      {order.firstName} <span className="hidden md:block"> {order.lastName}</span>
                     </div>
-                    <div className="overflow-hidden">{order.email}</div>
-                    <div className="overflow-hidden">{order.total}</div>
-                    <div className="overflow-hidden">
+                    <div className="overflow-hidden">{order.orderNo}</div>
+                    <div className="overflow-hidden hidden md:block">{order.email}</div>
+                    <div className="overflow-hidden hidden md:block">{order.total}</div>
+                    <div className="overflow-hidden hidden md:block">
                       {parseDate(order.createdAt)}
                     </div>
                     <div className="overflow-hidden">

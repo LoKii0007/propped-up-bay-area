@@ -48,24 +48,26 @@ const ResetPassword = ({ setForget }) => {
     <div>
       {step === 1 && (
         <form
-          className="space-y-6 p-6 rounded-2xl client-form"
+          className="space-y-6 p-6 rounded-2xl client-form flex flex-col"
           onSubmit={handleSubmit(sendOtp)}
         >
           <h2 className="text-xl font-semibold">Reset Password</h2>
-          <label className="pe-4 font-medium">Email</label>
-          <input
-            type="email"
-            {...register("email", { required: true })}
-            placeholder="Enter your email"
-            className="focus:outline-none pt-2 border-b mx-8"
-          />
-          <button
-            disabled={loading}
-            className="border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
-            type="submit"
-          >
-            {!loading ? "Send otp" : "sending.."}
-          </button>
+          <div className="w-full flex flex-col md:flex-row gap-4 md:items-center" >
+            <label className="pe-4 font-medium">Email</label>
+            <input
+              type="email"
+              {...register("email", { required: true })}
+              placeholder="Enter your email"
+              className="focus:outline-none pt-2 border-b sm:mx-8 w-full md:w-1/3 focus:border-b focus:border-green-800"
+            />
+            <button
+              disabled={loading}
+              className="border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+              type="submit"
+            >
+              {!loading ? "Send otp" : "sending.."}
+            </button>
+          </div>
         </form>
       )}
 
@@ -75,7 +77,7 @@ const ResetPassword = ({ setForget }) => {
           onSubmit={handleSubmit(resetPassword)}
         >
           <h2 className="text-xl font-semibold">Verify OTP</h2>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col mt-1 p-2 w-full border rounded-md border-[#E5E7EB ]">
               <label className="text-xs">OTP</label>
               <input
@@ -101,39 +103,9 @@ const ResetPassword = ({ setForget }) => {
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
                 >
                   {showNewPassword ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-eye"
-                    >
-                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
+                    <img src="/svg/show.svg" alt="" />
                   ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-eye-off"
-                    >
-                      <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
-                      <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
-                      <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
-                      <path d="m2 2 20 20" />
-                    </svg>
+                    <img src="/svg/hide.svg" alt="" />
                   )}
                 </button>
               </div>

@@ -1,7 +1,7 @@
 import { californiaCities } from "@/data/staticData";
 import { useState, useRef, useEffect } from "react";
 
-export const SearchableSelect = ({ value, onChange, name, required }) => {
+export const SearchableSelect = ({ value, onChange, name, required, editing }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredOptions, setFilteredOptions] = useState(californiaCities);
@@ -38,7 +38,7 @@ export const SearchableSelect = ({ value, onChange, name, required }) => {
     };
   
     return (
-      <div className="relative w-2/3" ref={dropdownRef}>
+      <div className="relative w-full" ref={dropdownRef}>
         <div
           className="border border-[#646464] rounded px-3 py-2 w-full cursor-pointer flex items-center justify-between"
           onClick={handleInputClick}
@@ -53,15 +53,17 @@ export const SearchableSelect = ({ value, onChange, name, required }) => {
               setIsOpen(true);
             }}
             required={required}
+            disabled={!editing}
             readOnly={!isOpen}
           />
+          {editing && 
           <svg
-            className={`w-4 h-4 transition-transform ${
-              isOpen ? "rotate-180" : ""
+            className={`w-4 h-4 transition-transform ${  isOpen ? "rotate-180" : ""
             }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            
           >
             <path
               strokeLinecap="round"
@@ -70,6 +72,7 @@ export const SearchableSelect = ({ value, onChange, name, required }) => {
               d="M19 9l-7 7-7-7"
             />
           </svg>
+          }
         </div>
   
         {isOpen && (

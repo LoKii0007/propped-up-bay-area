@@ -275,14 +275,13 @@ const authUpdate = async (req, res) => {
 //? ------------------------
 const signOutApi = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user?.userId; // Optional chaining to avoid errors
     if (!userId) {
       return res.status(400).json({ message: "User ID is missing" });
     }
 
     // Clear the authToken cookie
-    res.cookie("authToken", "", {
-      expires: new Date(0), // Setting expiry to a past date
+    res.clearCookie("authToken", {
       secure: true,
       sameSite: "None",
     });
@@ -294,6 +293,7 @@ const signOutApi = async (req, res) => {
     return res.status(500).json({ message: "Server error during sign-out" });
   }
 };
+
 
 //?---------------------------------
 //? --------------- send otp

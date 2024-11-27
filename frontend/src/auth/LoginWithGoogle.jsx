@@ -48,7 +48,7 @@ function LoginWithGoogle() {
 
   return (
     <>
-      <div className="google">
+      <div className="google flex justify-center w-fit ">
         <GoogleLogin onSuccess={loginCredentials} onError={loginError} />
       </div>
     </>

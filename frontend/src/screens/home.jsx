@@ -10,7 +10,8 @@ import { useNavigate } from "react-router-dom";
 import EditProfileForm from "../components/profile";
 import toast from "react-hot-toast";
 import PostRemoval from "../components/PostRemoval";
-
+import { Navbar } from "@/components/Navbar";
+import NavbarTop from "@/components/NavbarTop";
 const Home = () => {
   const { currentUser, setCurrentUser } = useAuth();
   const {
@@ -147,12 +148,15 @@ const Home = () => {
   return (
     <>
       <div className="home w-[100vw] flex h-screen ">
+        <Navbar activeView={activeView} setActiveView={setActiveView}/>
+
         <div className="sidebar min-w-fit w-3/12 px-10 border-r flex flex-col items-center justify-between gap-5 bg-white ">
           <Sidebar activeView={activeView} setActiveView={setActiveView} />
         </div>
 
         <div className="active-content overflow-x-auto w-full h-full ">
-          <div className="active-top bg-[#638856] w-full flex max-h-[13vh] px-12 py-10 justify-between text-white items-center sticky top-0 shadow-sm ">
+
+          <div className="active-top bg-[#638856] w-full hidden md:flex max-h-[13vh] px-12 py-10 justify-between text-white items-center sticky top-0 shadow-sm ">
             <div className={`text-2xl font-bold flex ${isInfo ?'' : 'translate-x-[-48px]'} custom-transition gap-3 items-center capitalize justify-center`}>
               { (
                 <button
@@ -183,7 +187,9 @@ const Home = () => {
               Welcome, {currentUser ? currentUser?.firstName + ' ' + currentUser?.lastName : "Guest"}
             </div>
           </div>
-          <div className="active-bottom h-[87vh] overflow-y-auto p-7">
+
+          <NavbarTop/>
+          <div className="active-bottom h-full md:h-[87vh] overflow-y-auto p-7">
             {activeView === "dashboard" && (
               <ClientOrders
                 orders={orders}

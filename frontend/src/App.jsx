@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import './App.css'
 import { Toaster } from 'react-hot-toast'
 import Home from './screens/home'
 import Admin from "./screens/admin"
@@ -13,6 +12,8 @@ import ConfirmationPage from "./screens/ConfirmationPage";
 import UserInvoice from "./components/UserInvoice";
 import SheetsCallback from "./components/SheetsCallback";
 import ResetScreen from "./screens/ResetScreen";
+import './App.css'
+import '@/css/responsive.css'
 
 function App() {
 

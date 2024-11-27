@@ -532,7 +532,7 @@ function PostOrder() {
               "openSun",
               "doNotDisturb",
             ].map((rider) => (
-              <div key={rider} className="flex items-center gap-12">
+              <div key={rider} className="flex rider-item items-center gap-12">
                 <label className="flex-1">
                   {rider
                     .replace(/([A-Z])/g, " $1")

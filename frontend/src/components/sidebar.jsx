@@ -40,7 +40,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
 
   return (
     <>
-      <div className="admin-board w-full flex flex-col py-1 items-center justify-between h-full gap-2 ">
+      <div className="sidebar-wrapper w-full flex flex-col py-1 items-center justify-between h-full gap-2 ">
         <div className="sidebar-top w-full ">
           <div onClick={()=>handleView('dashboard')} className="logo flex items-center hover:cursor-pointer gap-2 py-10 w-full justify-center">
             <img src="/logo.png" alt="logo" />

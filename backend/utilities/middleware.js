@@ -16,6 +16,12 @@ const verifyUser = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Check if the token is expired
+    if (decoded.exp * 1000 < Date.now()) { // `exp` is in seconds; convert to ms
+      return res.status(401).json({ msg: "Token expired. Please log in again." });
+    }
+
     req.user = decoded;
     next();
   } catch (error) {
@@ -23,6 +29,7 @@ const verifyUser = (req, res, next) => {
     res.status(400).json({ msg: "Invalid token." });
   }
 };
+
 
 //? ----------------------------
 //? middleware to check payment status

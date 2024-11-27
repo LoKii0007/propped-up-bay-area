@@ -38,7 +38,7 @@ function RowHeading({ text, setFilteredData, data, filterValue }) {
     }, [isAscending, filterValue]); 
 
     return (
-        <div className="py-4 row-heading flex items-center gap-4">
+        <div className={` ${(text === 'OrderId' || text=== 'Name') ? 'flex' : 'hidden md:flex' } py-2 md:py-4 row-heading items-center gap-4`}>
             {text}
             <button className="filter-icon hover:bg-gray-200 rotate-90 px-1 py-3 rounded-sm" onClick={handleSort}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-left-right" viewBox="0 0 16 16">

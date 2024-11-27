@@ -42,7 +42,7 @@ function Pagination({
 
   return (
     <>
-      <div className="pagination flex items-center justify-between px-12 ">
+      <div className="pagination flex items-center justify-between px-5 md:px-12 mb-[100px] md:mb-0 ">
         <div className="page-left">
           <label>Show results: </label>
           <input
@@ -77,7 +77,7 @@ function Pagination({
                 <button
                   key={index}
                   onClick={() => handlePageBtn(startPage + index)}
-                  className={`rounded-xl w-10 h-10 ${
+                  className={` text-sm md:text-base rounded-md md:rounded-xl w-8 md:w-10 h-8 md:h-10 ${
                     currentPage === startPage + index ? "bg-[#EAFDF8]" : ""
                   }`}
                 >

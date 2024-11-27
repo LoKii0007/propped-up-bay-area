@@ -13,6 +13,8 @@ import html2pdf from "html2pdf.js";
 import OpenHouseInvoice from "./invoices/openHouseInvoice";
 import PostOrderInvoice from "./invoices/postOrderInvoice";
 import ReactDOM from "react-dom";
+import { useAuth } from "@/context/AuthContext";
+import FilterModal from "@/ui/FilterModal";
 
 function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   const [filteredOrders, setFilteredOrders] = useState(orders);
@@ -20,9 +22,11 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   const [orderStatus, setOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const { setBreadCrumb, isInfo, setIsInfo } = useGlobal();
+  const { currentUser } = useAuth();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [completeOrder, setCompleteOrder] = useState("");
+  const [open, setOpen] = useState(false)
 
   //? ------------------------
   //? pagination
@@ -169,7 +173,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
   //? --------------------
   //? upadting render
   //?---------------------
-  useEffect(() => {}, [
+  useEffect(() => { }, [
     filteredOrders,
     orderType,
     orderStatus,
@@ -237,10 +241,11 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
     <>
       {!isInfo ? (
         <div className="order-req flex flex-col h-full overflow-y-auto ">
-          <div className="req-top mt-4 w-full flex flex-col gap-6 font-medium mb-6 items-center">
+
+          <div className="req-top mt-4 w-full flex flex-col gap-6 font-medium mb-3 md:mb-6 items-center">
             <div className="w-full flex gap-6 font-medium items-center">
-              <div className="filter-left w-1/3">
-                <div className="search rounded-md bg-[#f5f5f5] flex items-center px-3">
+              <div className="filter-left px-5 pe-0 flex md:px-0 w-full md:w-1/3 justify-between ">
+                <div className="search rounded-md bg-[#f5f5f5] md:w-full flex items-center px-3">
                   <div className="search-icon ">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -262,8 +267,14 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                     placeholder="Search by anyhthing..."
                   />
                 </div>
+                <button className='text-black font-semibold flex md:hidden px-5 py-2 ' onClick={() => setOpen(true)}>
+                  <img src="/svg/filter.svg" alt="filter" />
+                </button>
+
+                 {/* --------------------filter modal-------------  */}
+                <FilterModal open={open} setOpen={setOpen} setStartDate={setStartDate} setEndDate={setEndDate} startDate={startDate} endDate={endDate} handleClearFilter={handleClearFilter} handleOrderStatus={handleOrderStatus} orderStatus={orderStatus} orderType={orderType} handleOrderType={handleOrderType} />
               </div>
-              <div className="filter-right items-center justify-end px-6 flex gap-3 w-2/3">
+              <div className="filter-right items-center justify-end px-6 hidden  md:flex gap-3 w-2/3">
                 <div className="">
                   <OrderTypeDropdown
                     filterType={orderType}
@@ -299,7 +310,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
               </div>
             </div>
 
-            <div className="w-full grid grid-cols-4 ">
+            <div className="w-full hidden md:grid grid-cols-4 ">
               <DashboardBtn
                 orderType={orderStatus}
                 handleOrderType={handleOrderStatus}
@@ -330,18 +341,18 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
           <div className="req-bottom w-full h-full flex flex-col gap-6 justify-between">
             <div className=" flex flex-col">
               <div className="flex ">
-                <div className="order-top text-[#718096] grid grid-cols-6 gap-2 px-5 w-[95%] ">
-                  <RowHeading
-                    data={filteredOrders}
-                    setFilteredData={setFilteredOrders}
-                    filterValue={"id"}
-                    text="OrderId"
-                  />
+                <div className="order-top text-[#718096] grid grid-cols-2 md:grid-cols-6 gap-2 px-5 w-[95%] ">
                   <RowHeading
                     data={filteredOrders}
                     setFilteredData={setFilteredOrders}
                     filterValue={"name"}
                     text="Name"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"orderNo"}
+                    text="OrderId"
                   />
                   <RowHeading
                     data={filteredOrders}
@@ -358,7 +369,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                   <RowHeading
                     data={filteredOrders}
                     setFilteredData={setFilteredOrders}
-                    filterValue={"amount"}
+                    filterValue={"total"}
                     text="Amount"
                   />
                   <RowHeading
@@ -368,8 +379,8 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                     text="Status"
                   />
                 </div>
-                <div className="px-4 flex items-center justify-center ">
-                  <img src="/svg/download2.svg" alt="" />
+                <div className="px-5 flex items-center justify-center">
+                  <img className="w-full" src="/svg/download2.svg" alt="" />
                 </div>
               </div>
 
@@ -381,18 +392,19 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                       <div
                         onClick={() => handleUserClick(index)}
                         key={index}
-                        className="cursor-pointer grid grid-cols-6 w-[95%] custom-transition rounded-md p-5 gap-2 hover:bg-green-200 "
+                        className="cursor-pointer grid grid-cols-2 md:grid-cols-6 w-[95%] custom-transition rounded-md py-2 md:py-5 p-5 gap-2 hover:bg-green-200 "
                       >
-                        <div className="overflow-hidden">{order.orderNo}</div>
-                        <div className="">
-                          {order.firstName} {order.lastName}{" "}
+                        <div className="overflow-hidden text-sm md:text-base flex items-center gap-2">
+                          {currentUser.img && <img className="w-8 h-8 rounded-full" src={currentUser.img} alt="" />}
+                          {order.firstName} <span className="hidden md:block"> {order.lastName}</span>
                         </div>
-                        <div className="">{parseDate(order.createdAt)}</div>
-                        <div className="">{parseDate(order.requestedDate)}</div>
-                        <div className="">$ {order.total}</div>
+                        <div className="overflow-hidden text-sm md:text-base flex items-center">{order.orderNo}</div>
+                        <div className="overflow-hidden hidden md:flex items-center text-sm md:text-base">{parseDate(order.createdAt)}</div>
+                        <div className="overflow-hidden hidden md:flex items-center text-sm md:text-base">{parseDate(order.requestedDate)}</div>
+                        <div className="overflow-hidden hidden md:flex items-center text-sm md:text-base">$ {order.total}</div>
 
                         <button
-                          className={`text-left font-semibold capitalize
+                          className={`text-left font-semibold capitalize hidden md:flex items-center text-sm md:text-base
                           ${order.status === "pending" && "text-[#F6B73C]"}
                           ${order.status === "installed" && "text-[#4C9A2A]"}
                           ${order.status === "completed" && "text-[#4C9A2A]"}
@@ -403,7 +415,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                       </div>
                       <button
                         onClick={() => handleInvoiceDownload(order)}
-                        className="px-4"
+                        className="px-5"
                       >
                         <img src="/svg/download.svg" alt="" />{" "}
                       </button>

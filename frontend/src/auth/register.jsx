@@ -50,10 +50,12 @@ function Register() {
 
   return (
     <>
+      <div className="min-h-screen register flex items-center justify-center bg-[#4c9a2a10]">
+
       <ProppedUpLogo />
-      <div className="min-h-screen flex items-center justify-center bg-[#4c9a2a10]">
-        <div className="flex bg-white shadow-lg rounded-[20px] mx-[10%] justify-center items-center">
-          <div className="signup-client w-full md:w-[90%] flex justify-center items-center py-10 gap-8">
+
+        <div className=" register-wrapper flex bg-white shadow-lg rounded-[20px] mx-[10%] justify-center items-center">
+          <div className="signup-client lg:px-[10%] px-[5%] w-full flex justify-center items-center py-10 gap-8">
             <div className="hidden md:flex md:w-1/2">
               <img
                 className=" h-full md:min-w-[340px] "
@@ -63,7 +65,7 @@ function Register() {
             </div>
 
             <div className="w-[90%] md:w-1/2 py-10">
-              <div className="flex justify-center items-center gap-5">
+              <div className="flex justify-center items-center gap-5 admin-logo ">
                 <img
                   src="/logo.png"
                   alt="Propped up Logo"
@@ -72,7 +74,7 @@ function Register() {
                 <h3 className="text-2xl font-semibold">Propped up</h3>
               </div>
 
-              <form onSubmit={handleRegister} className="space-y-4 mt-6">
+              <form onSubmit={handleRegister} className="space-y-4 mt-6 register-form ">
                 <div className="flex space-x-4">
                   <input
                     type="text"
@@ -97,7 +99,7 @@ function Register() {
                   required
                 />
 
-                <div className="relative">
+                <div className="relative ">
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
@@ -148,10 +150,10 @@ function Register() {
                   </button>
                 </div>
 
-                <div className="flex items-center mt-2 px-2 ">
+                <div className="flex items-center terms mt-2 px-2 ">
                   <input
                     type="checkbox"
-                    className="h-4 w-4 text-green-600"
+                    className="h-4 w-4 text-green-600  "
                     required
                   />
                   <label className="ml-2 text-sm text-gray-600">

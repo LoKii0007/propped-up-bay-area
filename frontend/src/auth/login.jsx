@@ -32,7 +32,7 @@ function Login() {
         `${baseUrl}/auth/login`,
         { email, password },
         { withCredentials: true, validateStatus: function (status) {
-          return status < 500; // Reject only if the status code is greater than or equal to 500
+          return status < 500; 
         }}
       );
       console.log(res.data)
@@ -58,11 +58,10 @@ function Login() {
 
   return (
     <>
+      <div className="min-h-screen register flex items-center justify-center bg-[#4c9a2a10]">
       <ProppedUpLogo />
-
-      <div className="min-h-screen flex items-center justify-center bg-[#4c9a2a10]">
-        <div className="flex bg-white shadow-lg rounded-[20px] w-[70%] justify-center items-center">
-          <div className="login-client w-[50vw] flex justify-center items-center py-10 gap-8">
+        <div className="flex register-wrapper bg-white shadow-lg rounded-[20px] lg:w-[70%] w-[90%] justify-center items-center">
+          <div className="login-client signup-client lg:px-[10%] px-[5%] w-full flex justify-center items-center py-10 gap-8">
             <div className="hidden md:flex md:w-1/2">
               <img
                 className="rounded-l-lg h-[60vh] w-full"
@@ -71,12 +70,12 @@ function Login() {
               />
             </div>
             <div className="w-[90%] sm:w-3/4 lg:w-1/2 flex flex-col gap-4 py-8">
-              <div className="flex items-center justify-center mb-6 gap-5">
+              <div className="flex items-center justify-center mb-6 gap-5 admin-logo">
                 <img src="/logo.png" alt="Propped up Logo" className="h-10" />
                 <h3 className="font-semibold text-2xl ">Propped up</h3>
               </div>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
+              <form onSubmit={handleSubmit} className="register-form" >
+                <div className="mb-4 ">
                   <label className="block text-sm font-semibold text-[#101010]">
                     Email
                   </label>

@@ -80,12 +80,12 @@ const SignUpDetails = () => {
       <h1 className="font-bold text-center">Create a new Account</h1>
       <p className="text-center mb-6">Please complete the form below</p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6 details-form">
         <div>
           <h2 className="text-lg font-semibold mb-4">Client Details</h2>
 
           <div className="grid gap-5">
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3 ">Company</label>
               <input
                 type="text"
@@ -97,7 +97,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3 ">CA DRE License</label>
               <input
                 type="text"
@@ -109,7 +109,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3 ">Address</label>
               <input
                 type="text"
@@ -121,7 +121,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3">City</label>
               <input
                 type="text"
@@ -133,7 +133,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3">State</label>
               <SearchableSelect
                 name="state"
@@ -144,7 +144,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3">Zip Code</label>
               <input
                 type="number"
@@ -156,7 +156,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3">Work Phone</label>
               <input
                 type="number"
@@ -168,7 +168,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex w-full items-center gap-4 ">
+            <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3">Mobile Phone</label>
               <input
                 type="number"
@@ -180,7 +180,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex items-center gap-4 ">
+            <div className="flex items-center gap-4 notification ">
               <label className="block text-sm mr-2 w-1/3 ">
                 Receive email notifications:
               </label>
@@ -193,7 +193,7 @@ const SignUpDetails = () => {
               />
             </div>
 
-            <div className="flex items-center gap-4 ">
+            <div className="flex items-center gap-4 notification">
               <label className="block text-sm mr-2 w-1/3 ">
                 Receive text notifications:
               </label>

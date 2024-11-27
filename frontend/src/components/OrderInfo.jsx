@@ -167,7 +167,7 @@ function OrderInfo({
           </div>
         </div>
 
-        <div className="px-12 mx-auto w-8/12">
+        <div className="md:px-12 md:mx-auto md:w-8/12 order-info overflow-x-hidden ">
           <h2 className="text-2xl w-full text-center font-semibold mb-6">
             {order.type} Details
           </h2>
