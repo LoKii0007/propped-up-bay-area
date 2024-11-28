@@ -189,6 +189,7 @@ const Home = () => {
           </div>
 
           <NavbarTop/>
+          
           <div className="active-bottom h-full md:h-[87vh] overflow-y-auto p-7">
             {activeView === "dashboard" && (
               <ClientOrders

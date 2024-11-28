@@ -8,7 +8,7 @@ function Order() {
   return (
     <>
       <div className="order flex flex-col rounded-md gap-2 py-5">
-        <div className="order-top grid grid-cols-2 mx-10 px-2">
+        <div className="order-top grid grid-cols-2 mx-10 px-2 sticky top-[-13px] ">
           <button
             onClick={() => setActiveForm("openHouseForm")}
             className={` ${
@@ -26,7 +26,7 @@ function Order() {
             Post Order
           </button>
         </div>
-        <div className="order-bottom">
+        <div className="order-bottom pb-[80px] md:pb-0 ">
           {activeForm === "openHouseForm" && <OpenHouseForm />}
           {activeForm === "postOrder" && <PostOrder />}
         </div>

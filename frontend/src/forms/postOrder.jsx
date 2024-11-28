@@ -376,8 +376,8 @@ function PostOrder() {
                 (zone) => zone.name === formData.requiredZone.name
               ) !== -1
                 ? zones.findIndex(
-                    (zone) => zone.name === formData.requiredZone.name
-                  )
+                  (zone) => zone.name === formData.requiredZone.name
+                )
                 : ""
             }
             onChange={handleZoneChange}
@@ -564,18 +564,18 @@ function PostOrder() {
         </div>
 
         {/* Post Order Section */}
-        <div className="flex gap-2 border border-gray-300 rounded bg-gray-100 items-center justify-between px-4 py-5">
-          <div className="font-medium text-lg">Postorder</div>
-          <div className="flex gap-2 items-center">
+        <div className="flex flex-col md:flex-row gap-2 border border-gray-300 rounded bg-gray-100 items-center justify-between px-4 py-5">
+          <div className="flex gap-2 items-center justify-between md:justify-normal w-full md:w-fit ">
+            <div className="font-medium text-lg">Postorder</div>
             <div className="font-medium text-md border bg-white border-gray-300 p-2 rounded px-5 ">
               {formData.total}
             </div>
-            <p>USD for the first month then, $15.00 for each month</p>
           </div>
+          <p>USD for the first month then, $15.00 for each month</p>
         </div>
 
         {/* Total Section */}
-        <div className="w-full items-center flex flex-col gap-4 sticky bg-white custom-shadow pt-2 bottom-[-20px]">
+        <div className="w-full items-center flex flex-col gap-4 md:sticky bg-white md:custom-shadow pt-2 md:bottom-[-20px]">
           <div className="flex flex-col text-center">
             <label className="font-medium text-xl">
               Total: ${formData.total}

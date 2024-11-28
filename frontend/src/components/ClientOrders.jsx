@@ -244,7 +244,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
 
           <div className="req-top mt-4 w-full flex flex-col gap-6 font-medium mb-3 md:mb-6 items-center">
             <div className="w-full flex gap-6 font-medium items-center">
-              <div className="filter-left px-5 pe-0 flex md:px-0 w-full md:w-1/3 justify-between ">
+              <div className="filter-left px-5 pe-0 flex md:px-0 w-full md:w-1/3 justify-between items-center ">
                 <div className="search rounded-md bg-[#f5f5f5] md:w-full flex items-center px-3">
                   <div className="search-icon ">
                     <svg
@@ -267,7 +267,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                     placeholder="Search by anyhthing..."
                   />
                 </div>
-                <button className='text-black font-semibold flex md:hidden px-5 py-2 ' onClick={() => setOpen(true)}>
+                <button className='text-black font-semibold flex items-center md:hidden px-5 py-2 ' onClick={() => setOpen(true)}>
                   <img src="/svg/filter.svg" alt="filter" />
                 </button>
 

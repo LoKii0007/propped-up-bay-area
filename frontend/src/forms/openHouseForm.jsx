@@ -267,7 +267,7 @@ const OpenHouseForm = () => {
     <>
       <form
         onSubmit={handleSubmit}
-        className="open-house-form h-full m-5 px-12 gap-3 flex flex-col space-y-3 "
+        className="open-house-form m-5 px-12 gap-3 flex flex-col space-y-3 "
       >
         {/* Name Section */}
         <div className="flex flex-col md:flex-row gap-4">
