@@ -38,8 +38,7 @@ function OrderInfo({
       formData.append("orderId", order._id); // Assuming order ID is available
 
       const res = await axios.post(
-        `${baseUrl}/api/${
-          order.type === "openHouse" ? "open-house" : "post-order"
+        `${baseUrl}/api/${order.type === "openHouse" ? "open-house" : "post-order"
         }/image-upload`,
         formData,
         {
@@ -78,8 +77,7 @@ function OrderInfo({
       formData.append("orderId", order._id); // Assuming order ID is available
 
       const res = await axios.patch(
-        `${baseUrl}/api/${
-          order.type === "openHouse" ? "open-house" : "post-order"
+        `${baseUrl}/api/${order.type === "openHouse" ? "open-house" : "post-order"
         }/image-update`,
         formData,
         {
@@ -131,23 +129,23 @@ function OrderInfo({
     getImage();
   }, []);
 
-  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl, currentUser]);
+  useEffect(() => { }, [order, setOrders, setPostOrders, imageUrl, currentUser]);
 
   return (
     <>
-      <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto">
-        <div className="flex justify-end mb-8 w-full">
+      <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto ">
+        <div className="flex justify-end w-full relative ">
           {/* <button className="text-[#718096] border px-4 py-2 rounded-lg hover:bg-gray-100">
             User Details
           </button> */}
-          <div className="flex space-x-4">
+          <div className="flex space-x-4 absolute right-2 bg-white top-0 z-20 ">
             {["admin", "superuser"].includes(admin?.role) && (
               <ChangeStatusDropdown
                 order={order}
                 setOrders={setOrders}
                 setFilteredOrders={setFilteredOrders}
                 setCompleteOrder={setCompleteOrder}
-                // value={false}
+              // value={false}
               />
             )}
 
@@ -167,8 +165,8 @@ function OrderInfo({
           </div>
         </div>
 
-        <div className="md:px-12 md:mx-auto md:w-8/12 order-info overflow-x-hidden ">
-          <h2 className="text-2xl w-full text-center font-semibold mb-6">
+        <div className="md:mx-auto md:px-[15%] order-info overflow-x-hidden flex flex-col gap-6 py-6 ">
+          <h2 className="text-2xl w-full text-center font-semibold uppercase ">
             {order.type} Details
           </h2>
           <div className="flex flex-col gap-x-10 gap-y-3">
@@ -322,13 +320,12 @@ function OrderInfo({
                 </p>
               </>
             )}
-          </div>
-        </div>
 
-        {(admin?.role === "admin" || admin?.role === "superuser") && (
-          <>
-            {!isLoading ? (
-              <div className="px-12 mx-auto w-8/12 py-6 flex flex-col gap-5 justify-center text-center ">
+          </div>
+          {(admin?.role === "admin" || admin?.role === "superuser") && (
+            <>
+              {!isLoading ? (
+                <div className="w-full py-6 flex flex-col gap-5 justify-center items-center "> 
                 {imageUrl ? (
                   <>
                     <img width={400} src={imageUrl} alt="" />
@@ -364,14 +361,18 @@ function OrderInfo({
                     </button>
                   </>
                 )}
-              </div>
-            ) : (
-              <>
-                <div className="text-center">Loading...</div>
-              </>
-            )}
-          </>
-        )}
+                </div> 
+              
+              ) : (
+                <>
+                  <div className="text-center">Loading...</div>
+                </>
+              )}
+            </>
+          )}
+
+        </div>
+
 
         {currentUser && (
           <>
@@ -393,15 +394,15 @@ function OrderInfo({
       </div>
 
       {/* -------------------------modals ---------------- */}
-        <CancelSubModal
-          setPostOrders={setPostOrders}
-          setOrders={setOrders}
-          orderId={order._id}
-          sessionId={order.sessionId}
-          open={modalOpen}
-          setOpen={setModalOpen}
-        />
-      
+      <CancelSubModal
+        setPostOrders={setPostOrders}
+        setOrders={setOrders}
+        orderId={order._id}
+        sessionId={order.sessionId}
+        open={modalOpen}
+        setOpen={setModalOpen}
+      />
+
     </>
   );
 }
