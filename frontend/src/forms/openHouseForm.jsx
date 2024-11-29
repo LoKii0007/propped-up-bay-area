@@ -61,12 +61,11 @@ const OpenHouseForm = () => {
   //  ---------------------------------
   const handleInputChange = (input) => {
     if (input instanceof Date) {
-      const value = input.toISOString().split("T")[0]; // Format as yyyy-MM-dd
       setFormData({
         ...formData,
-        requestedDate: value,
+        requestedDate: input,
       });
-      checkRushFee(value);
+      checkRushFee(input);
     } else if (input.target) {
       const { name, value, type } = input.target;
       setFormData({
@@ -354,7 +353,7 @@ const OpenHouseForm = () => {
           </label>
           <div className="pb-1">
             <DatePicker
-              date={formData.requestedDate}
+              date={formData.requestedDate ? new Date(formData.requestedDate) : null}
               selectedDate={handleInputChange}
             />
           </div>
