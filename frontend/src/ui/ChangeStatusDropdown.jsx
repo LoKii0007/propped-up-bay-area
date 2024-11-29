@@ -53,7 +53,7 @@ export default function ChangeStatusDropdown({
         <div className="w-full" >
           {status ? 
           <MenuButton
-            className={`capitalize w-full flex gap-x-1.5 font-semibold hover:bg-gray-50`}
+            className={`capitalize w-full flex py-5 gap-3 font-semibold hover:bg-gray-100 items-center`}
           >
             {status}
             <ChevronDownIcon

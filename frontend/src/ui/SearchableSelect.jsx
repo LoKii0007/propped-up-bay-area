@@ -38,7 +38,7 @@ export const SearchableSelect = ({ value, onChange, name, required, editing }) =
     };
   
     return (
-      <div className="relative w-full" ref={dropdownRef}>
+      <div className="relative w-2/3" ref={dropdownRef}>
         <div
           className="border border-[#646464] rounded px-3 py-2 w-full cursor-pointer flex items-center justify-between"
           onClick={handleInputClick}

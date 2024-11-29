@@ -243,7 +243,7 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                 />
               </div>
             </div>
-            <div className="filter-right mx-auto grid grid-cols-2 gap-5 w-2/3">
+            <div className="filter-right mx-auto grid grid-cols-2 items-center gap-5 w-2/3">
               <OrderTypeDropdown
                 filterType={orderType}
                 handleOrderType={handleOrderType}
@@ -303,10 +303,10 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                 filteredOrders
                   ?.slice(startIndex, endIndex)
                   .map((order, index) => (
-                    <div key={index} className="flex w-full px-5 gap-2 ">
+                    <div key={index} className="flex w-full px-5 ps-0 gap-2 ">
                       <div
                         onClick={() => handleUserClick(index)}
-                        className="cursor-pointer grid grid-cols-5 w-5/6 py-5 gap-2 custom-transition hover:shadow-md rounded-md hover:bg-green-200"
+                        className="cursor-pointer grid grid-cols-5 w-5/6 py-5 gap-2 ps-5 custom-transition hover:shadow-md rounded-md hover:bg-green-100"
                       >
                         <div className="overflow-hidden">{order.orderNo}</div>
                         <div className="overflow-hidden">
@@ -320,12 +320,12 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                         </div>
                         <div className="overflow-hidden">$ {order.total}</div>
                       </div>
-                      <div>
+                      <div className="w-1/6" >
                         <button
                           onClick={() => {
                             handleUpdateOrderStatus(index);
                           }}
-                          className={`text-left font-semibold capitalize py-5
+                          className={`text-left font-semibold capitalize hover:bg-gray-100 w-full px-2 rounded-md
                             ${order.status === "pending" && "text-yellow-500"}
                             ${order.status === "installed" && "text-blue-500"}
                             ${order.status === "completed" && "text-green-500"}

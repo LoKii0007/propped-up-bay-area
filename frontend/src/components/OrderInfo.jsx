@@ -135,9 +135,6 @@ function OrderInfo({
     <>
       <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto ">
         <div className="flex justify-end w-full relative ">
-          {/* <button className="text-[#718096] border px-4 py-2 rounded-lg hover:bg-gray-100">
-            User Details
-          </button> */}
           <div className="flex space-x-4 absolute right-2 bg-white top-0 z-20 ">
             {["admin", "superuser"].includes(admin?.role) && (
               <ChangeStatusDropdown
@@ -145,7 +142,6 @@ function OrderInfo({
                 setOrders={setOrders}
                 setFilteredOrders={setFilteredOrders}
                 setCompleteOrder={setCompleteOrder}
-              // value={false}
               />
             )}
 
@@ -325,44 +321,62 @@ function OrderInfo({
           {(admin?.role === "admin" || admin?.role === "superuser") && (
             <>
               {!isLoading ? (
-                <div className="w-full py-6 flex flex-col gap-5 justify-center items-center "> 
-                {imageUrl ? (
-                  <>
-                    <img width={400} src={imageUrl} alt="" />
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      className=""
-                    />
-                    <button
-                      onClick={() => updateImage()}
-                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                      disabled={uploading}
-                    >
-                      {uploading ? "Uploading..." : "Update Image"}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <label className="block font-medium text-gray-700 text-center ">
-                      Upload Order Image
-                    </label>
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      className=""
-                    />
-                    <button
-                      onClick={() => uploadImage()}
-                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                      disabled={uploading}
-                    >
-                      {uploading ? "Uploading..." : "Upload Image"}
-                    </button>
-                  </>
-                )}
-                </div> 
-              
+                <div className="w-full py-6 flex flex-col gap-5 justify-center items-center ">
+                  {imageUrl ? (
+                    <>
+                      <img width={400} src={imageUrl} alt="" />
+                      <input
+                        type="file"
+                        onChange={handleFileChange}
+                        className=""
+                      />
+                      <button
+                        onClick={() => updateImage()}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        disabled={uploading}
+                      >
+                        {uploading ? "Uploading..." : "Update Image"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <label className="block font-medium text-gray-700 text-center ">
+                        Upload Order Image
+                      </label>
+                      <input
+                        type="file"
+                        onChange={handleFileChange}
+                        className=""
+                      />
+                      <button
+                        onClick={() => uploadImage()}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        disabled={uploading}
+                      >
+                        {uploading ? "Uploading..." : "Upload Image"}
+                      </button>
+                    </>
+                  )}
+                </div>
+
+              ) : (
+                <>
+                  <div className="text-center">Loading...</div>
+                </>
+              )}
+            </>
+          )}
+
+          {currentUser && (
+            <>
+              {!isLoading ? (
+                <div className="w-full py-6 flex flex-col gap-5 justify-center items-center ">
+                  {imageUrl ? (
+                    <img width={400} src={imageUrl} alt="image" />
+                  ) : (
+                    "Image not uploaded yet."
+                  )}
+                </div>
               ) : (
                 <>
                   <div className="text-center">Loading...</div>
@@ -372,25 +386,6 @@ function OrderInfo({
           )}
 
         </div>
-
-
-        {currentUser && (
-          <>
-            {!isLoading ? (
-              <div className="px-12 mx-auto w-8/12 py-6 flex justify-center text-center ">
-                {imageUrl ? (
-                  <img width={400} src={imageUrl} alt="image" />
-                ) : (
-                  "Image not uploaded yet."
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="text-center">Loading...</div>
-              </>
-            )}
-          </>
-        )}
       </div>
 
       {/* -------------------------modals ---------------- */}

@@ -59,7 +59,7 @@ const postOrderImage = async (req, res) => {
     // Pipe the file buffer to the Cloudinary upload stream
     streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
-    console.error("Error in image upload:", error);
+    console.error("Error in postOrderImage API: ", error.message);
     res.status(500).json({ message: "Image upload failed!", error: error.message });
   }
 };
@@ -110,7 +110,7 @@ const openHouseImage = async (req, res) => {
     // Pipe the file buffer to the Cloudinary upload stream
     streamifier.createReadStream(req.file.buffer).pipe(uploadedResponse);
   } catch (error) {
-    console.error("Error in image upload:", error);
+    console.error("Error in openHouseImage API: ", error.message);
     res.status(500).json({ message: "Image upload failed!", error: error.message });
   }
 };
@@ -160,11 +160,10 @@ const updatePostOrderImage = async (req, res) => {
     // Pipe the file buffer to the Cloudinary upload stream
     streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
-    console.error("Error in image update:", error);
+    console.error("Error in updatePostOrderImage API: ", error.message);
     res.status(500).json({ msg: "Image update failed!", error: error.message });
   }
 };
-
 
 //? ------------------------------
 //? UPDATE open house order image
@@ -211,7 +210,7 @@ const updateOpenHouseImage = async (req, res) => {
     // Pipe the file buffer to the Cloudinary upload stream
     streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
-    console.error("Error in image update:", error);
+    console.error("Error in updateOpenHouseImage API: ", error.message);
     res.status(500).json({ msg: "Image update failed!", error: error.message });
   }
 };
@@ -243,9 +242,8 @@ const getOrderImage = async (req, res) => {
         .json({ msg: "image fetched", url: image.imageUrl });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ msg: " error fetching image", error: error.message });
+    console.error("Error in getOrderImage API: ", error.message);
+    res.status(500).json({ msg: "Error fetching image", error: error.message });
   }
 };
 

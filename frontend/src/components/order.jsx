@@ -8,7 +8,7 @@ function Order() {
   return (
     <>
       <div className="order flex flex-col rounded-md gap-2 py-5">
-        <div className="order-top grid grid-cols-2 mx-10 px-2 sticky top-[-13px] ">
+        <div className="order-top grid grid-cols-2 mx-10 px-2 sticky top-[-13px] md:static md:top-0 ">
           <button
             onClick={() => setActiveForm("openHouseForm")}
             className={` ${

@@ -2,17 +2,17 @@ import React from 'react'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 
-function OrderTypeDropdown({handleOrderType, filterType}) {
+function OrderTypeDropdown({ handleOrderType, filterType }) {
     return (
         <>
-            <Menu as="div" className="relative inline-block hover:bg-gray-50 py-2 px-6 rounded-md">
-                <div className='' >
-                    <MenuButton className="inline-flex capitalize w-full justify-center gap-x-1.5 rounded-md text-sm font-semibold text-gray-900">
-                        {/* Order Type */}
-                        {filterType}
-                        <ChevronDownIcon aria-hidden="true" className="-mr-1 h-5 w-5 text-gray-400" />
-                    </MenuButton>
-                </div>
+            <Menu as="div" className="relative inline-block hover:bg-gray-50 rounded-md">
+
+                <MenuButton className="inline-flex capitalize w-full justify-center items-center gap-x-1.5 py-2 px-6 rounded-md text-sm font-semibold text-gray-900">
+                    {/* Order Type */}
+                    {filterType}
+                    <ChevronDownIcon aria-hidden="true" className="-mr-1 h-5 w-5 text-gray-400" />
+                </MenuButton>
+
 
                 <MenuItems
                     transition
@@ -22,7 +22,7 @@ function OrderTypeDropdown({handleOrderType, filterType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
-                                className={`${filterType === 'all' && ' text-[#638856] font-semibold ' } py-2 `}
+                                    className={`${filterType === 'all' && ' text-[#638856] font-semibold '} py-2 `}
                                     onClick={() => {
                                         handleOrderType('all');
                                         close(); // Closes the dropdown
@@ -35,7 +35,7 @@ function OrderTypeDropdown({handleOrderType, filterType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
-                                    className={`${filterType === 'openHouse' && 'text-[#638856] font-semibold ' } py-2 `}
+                                    className={`${filterType === 'openHouse' && 'text-[#638856] font-semibold '} py-2 `}
                                     onClick={() => {
                                         handleOrderType('openHouse');
                                         close(); // Closes the dropdown
@@ -48,7 +48,7 @@ function OrderTypeDropdown({handleOrderType, filterType}) {
                         <MenuItem>
                             {({ close }) => (
                                 <button
-                                className={`${filterType === 'postOrder' && 'text-[#638856] font-semibold' } py-2 `}
+                                    className={`${filterType === 'postOrder' && 'text-[#638856] font-semibold'} py-2 `}
                                     onClick={() => {
                                         handleOrderType('postOrder');
                                         close(); // Closes the dropdown

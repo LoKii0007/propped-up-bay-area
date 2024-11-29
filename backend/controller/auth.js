@@ -70,7 +70,7 @@ const signUp = async (req, res) => {
 
     res.status(201).json({ msg: "User saved", user: userResponse });
   } catch (error) {
-    console.error(error.message);
+    console.error("Error in signUp API: ", error.message);
     res.status(500).json({ msg: "Signup server error" });
   }
 };
@@ -119,7 +119,7 @@ const login = async (req, res) => {
 
     res.status(200).json({ user: user2 });
   } catch (error) {
-    console.error("Login api error", error.message);
+    console.error("Error in login API: ", error.message);
     res.status(500).json({ msg: "login Server error" });
   }
 };
@@ -146,10 +146,8 @@ const getUserByToken = async (req, res) => {
 
     return res.status(200).json({ user });
   } catch (err) {
-    console.log("error in getUser api", err.message);
-    return res
-      .status(500)
-      .json({ error: err.message, msg: "error in getUser api" });
+    console.error("Error in getUserByToken API: ", err.message);
+    return res.status(500).json({ error: err.message, msg: "error in getUser api" });
   }
 };
 
@@ -181,7 +179,7 @@ const updatePassword = async (req, res) => {
 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error(error.message);
+    console.error("Error in updatePassword API: ", error.message);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -265,7 +263,7 @@ const authUpdate = async (req, res) => {
       .status(200)
       .json({ msg: "User updated with new auth method", user: userResponse });
   } catch (error) {
-    console.error(error.message);
+    console.error("Error in authUpdate API: ", error.message);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -289,7 +287,7 @@ const signOutApi = async (req, res) => {
     // Send response indicating sign-out success
     return res.status(200).json({ message: "Successfully signed out" });
   } catch (error) {
-    console.error("Error in signOutApi:", error);
+    console.error("Error in signOutApi API: ", error.message);
     return res.status(500).json({ message: "Server error during sign-out" });
   }
 };
@@ -322,7 +320,7 @@ const sendOtp = async (req, res) => {
     await nodemailerTransport.sendMail(mailOptions);
     res.status(200).json({ msg: "OTP sent to email." });
   } catch (error) {
-    console.error("Server error sending otp", error.message);
+    console.error("Error in sendOtp API: ", error.message);
     res.status(500).json({ msg: "Server error", error });
   }
 };
@@ -351,7 +349,7 @@ const resetPassword = async (req, res) => {
     await user.save();
     res.status(200).json({ msg: "Password reset successfully" });
   } catch (error) {
-    console.error("Server error reseting pass", error.message);
+    console.error("Error in resetPassword API: ", error.message);
     res.status(500).json({ msg: "Server error", error });
   }
 };
@@ -395,7 +393,7 @@ const adminLogin = async (req, res) => {
 
     res.status(200).json({ user, msg: "logged in" });
   } catch (error) {
-    console.error(error.message);
+    console.error("Error in adminLogin API: ", error.message);
     res.status(500).json({ msg: "login Server error" });
   }
 };
@@ -432,7 +430,7 @@ const updateAdminPassword = async (req, res) => {
 
     res.status(200).json({ msg: "Password updated successfully" });
   } catch (error) {
-    console.error(error.message);
+    console.error("Error in updateAdminPassword API: ", error.message);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -477,7 +475,7 @@ const uploadAdminImage = async (req, res) => {
     // Ensure the file buffer is passed to the upload stream
     streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
-    console.error("Error uploading image:", error.message);
+    console.error("Error in uploadAdminImage API: ", error.message);
     res.status(500).json({ msg: "Image upload failed", error: error.message });
   }
 };
@@ -510,7 +508,7 @@ const updateAdminDetails = async (req, res) => {
 
     res.status(200).json({ user, msg: "Profile updated successfully" });
   } catch (error) {
-    console.error("Server error while updating profile", error.message);
+    console.error("Error in updateAdminDetails API: ", error.message);
     res.status(500).json({ msg: "Server error while updating profile" });
   }
 };
@@ -538,7 +536,7 @@ const deleteUser = async (req, res) => {
 
     return res.status(200).json({ msg: "user deleted", user: deleted });
   } catch (error) {
-    console.error("Server error while deleting profile", error.message);
+    console.error("Error in deleteUser API: ", error.message);
     res.status(500).json({ msg: "Server error while deleting profile" });
   }
 };

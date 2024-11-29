@@ -42,6 +42,9 @@ const stripeCustomPayment = async (req, res) => {
       invoice_creation: {
         enabled: true,
       },
+      // metadata: {
+      //   customData: JSON.stringify(data),
+      // },
       mode: "payment",
       success_url: `${frontendUrl}/order/openHouse/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendUrl}/order/openHouse/payment?canceled=true`,
@@ -99,9 +102,9 @@ const stripeSubscription = async (req, res) => {
           quantity: 1,
         },
       ],
-      subscription_data: {
-        trial_period_days: 30, // Add 30-day free trial to the subscription
-      },
+      // subscription_data: {
+      //   trial_period_days: 30, // Add 30-day free trial to the subscription
+      // },
       mode: "subscription",
       success_url: `${frontendUrl}/order/postOrder/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendUrl}/order/postOrder/payment?canceled=true`,
@@ -175,7 +178,7 @@ const cancelSubscription = async (req, res) => {
       res.status(400).json({ msg: "No subscription found for this session" });
     }
   } catch (error) {
-    console.error("Error in canceling subscription: ", error);
+    console.error("Error in canceling subscription: ", error.message);
     res.status(500).json({ msg: "Failed to cancel subscription", error });
   }
 };
