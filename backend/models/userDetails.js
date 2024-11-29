@@ -22,11 +22,11 @@ const signUpDetailsSchema = new mongoose.Schema({
   city: {
     type: String,
     required: true,
-    enum: CALIFORNIA_CITIES,
   },
   state: {
     type: String,
     required: true,
+    enum: CALIFORNIA_CITIES,
   },
   zipCode: {
     type: String,
