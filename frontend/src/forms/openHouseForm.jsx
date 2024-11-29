@@ -199,7 +199,7 @@ const OpenHouseForm = () => {
       newTotal += additionalPrices.signReset * formData.additionalSignQuantity;
     if (formData.printAddressSign)
       newTotal +=
-        additionalPrices.AddressPrint * formData.additionalSignQuantity;
+        additionalPrices.AddressPrint
     if (
       formData.twilightTourSlot === "slot1" ||
       formData.twilightTourSlot === "slot2"

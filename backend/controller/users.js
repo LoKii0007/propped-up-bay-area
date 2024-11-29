@@ -71,7 +71,7 @@ const userDetails = async (req, res) => {
       msg: "User details saved successfully",
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in userDetails API: ", error.message);
     return res.status(500).json({
       msg: "User details could not be saved",
       error: error.message,
@@ -104,7 +104,7 @@ const getUserDetailsApi = async (req, res) => {
       userDetails,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in getUserDetailsApi API: ", error.message);
     return res.status(500).json({
       msg: "Could not retrieve user details",
       error: error.message,
@@ -133,7 +133,7 @@ const uploadUserImage = async (req, res) => {
 
     streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
-    console.error("Error uploading image:", error.message);
+    console.error("Error in uploadUserImage API: ", error.message);
     res.status(500).json({ msg: "Image upload failed", error: error.message });
   }
 };
@@ -175,8 +175,8 @@ async function sendReminderEmail(req, res) {
     await nodemailerTransport.sendMail(mailOptions);
     res.status(200).json({ msg: "Notification sent successfully" });
   } catch (error) {
-    console.error('Error sending notification', error.message)
-    res.status(500).json({ msg: "Error sending notification", err : error.message });
+    console.error("Error in sendReminderEmail API: ", error.message);
+    res.status(500).json({ msg: "Error sending notification", err: error.message });
   }
 }
 
@@ -234,10 +234,8 @@ const updateUserDetails = async (req, res) => {
     }
     res.status(404).json({ msg: "User or User Details not found" });
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ msg: "Failed to update profile", error: error.message });
+    console.error("Error in updateUserDetails API: ", error.message);
+    res.status(500).json({ msg: "Failed to update profile", error: error.message });
   }
 };
 
@@ -285,17 +283,14 @@ const getAllUsersApi = async (req, res) => {
       .status(200)
       .json({ users, message: "Users found.", count: totalUsersCount });
   } catch (error) {
-    console.log("Error in getAllUsersApi", error.message);
-    return res
-      .status(500)
-      .json({ message: "Error in getAllUsersApi", error: error.message });
+    console.error("Error in getAllUsersApi API: ", error.message);
+    return res.status(500).json({ message: "Error in getAllUsersApi", error: error.message });
   }
 };
 
 //?------------------------------
 //? get single userDetails -- admin route
 //?------------------------------
-
 const getSingleUserDetails = async (req, res) => {
   const { userId } = req.query;
   const requesterId = req.user.userId; // from middleware
@@ -323,13 +318,11 @@ const getSingleUserDetails = async (req, res) => {
       userDetails,
     });
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({
-        message: "Failed to retrieve user details",
-        error: error.message,
-      });
+    console.error("Error in getSingleUserDetails API: ", error.message);
+    res.status(500).json({
+      message: "Failed to retrieve user details",
+      error: error.message,
+    });
   }
 };
 
