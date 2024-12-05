@@ -189,16 +189,14 @@ const cancelSubscription = async (req, res) => {
 const stipeSubscriptionWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
-  console.log('sig', sig)
-  console.log('endpointSecret', endpointSecret)
   console.log('req.body',  req.body.toString("utf8"))
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent( req.body.toString("utf8") , sig , endpointSecret);
+    event = stripe.webhooks.constructEvent( JSON.stringify(req.body) , sig , endpointSecret);
   } catch (err) {
-    console.log("Webhook Error: ", err.message);
+    console.error("Webhook event construction error: ", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -208,17 +206,21 @@ const stipeSubscriptionWebhook = async (req, res) => {
       const session = event.data.object;
       const sessionId = session.id;
 
-      console.log('session metadata', JSON.parse(session.metadata))
+      try {
+        console.log('session metadata', JSON.parse(session.metadata))
 
-      const orderId = JSON.parse(session.metadata.orderId);
-
-      const order = await openHouseSchema.findByIdAndUpdate(orderId, { paid: true }, { new: true });
-
-      if (!order) {
-        return res.status(404).json({ msg: "Order not found" });
+        const orderId = JSON.parse(session.metadata.orderId);
+  
+        const order = await openHouseSchema.findByIdAndUpdate(orderId, { paid: true }, { new: true });
+  
+        if (!order) {
+          return res.status(404).json({ msg: "Order not found" });
+        }
+  
+        console.log('order updated successfully', order) 
+      } catch (error) {
+        console.error('error in open house webhook', error.message)
       }
-
-      console.log('order updated successfully', order)
 
       if (session.subscription) {
         try {
