@@ -189,6 +189,10 @@ const cancelSubscription = async (req, res) => {
 const stipeSubscriptionWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
+  console.log('req.body', req.body.toString())
+  console.log('sig', sig)
+  console.log('endpointSecret', endpointSecret)
+
   let event;
 
   try {
