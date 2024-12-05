@@ -192,7 +192,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent( req.body , sig , endpointSecret);
+    event = stripe.webhooks.constructEvent( req.body.toString("utf8") , sig , endpointSecret);
   } catch (err) {
     console.error("Webhook event construction error: ", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
