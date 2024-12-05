@@ -189,6 +189,10 @@ const cancelSubscription = async (req, res) => {
 const stipeSubscriptionWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
+  console.log('sig', sig)
+  console.log('endpointSecret', endpointSecret)
+  console.log('req.body', req.body)
+  
   let event;
 
   try {
@@ -204,7 +208,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
       const session = event.data.object;
       const sessionId = session.id;
 
-      console.log(JSON.parse(session.metadata.customData))
+      console.log('session metadata', JSON.parse(session.metadata))
 
       const orderId = JSON.parse(session.metadata.orderId);
 
