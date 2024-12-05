@@ -1,4 +1,5 @@
 const { postOrderSchema } = require("../models/postOrderSchema");
+const { openHouseSchema } = require("../models/openHouseSchema");
 const User = require("../models/user");
 const { nodemailerTransport, gmailTemplate } = require("../utilities/gmail");
 const {verifyOpenHouseTotal, verifyPostOrderTotal} = require("../utilities/verifyTotal");
