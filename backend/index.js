@@ -19,16 +19,11 @@ app.use(cors({
 }))
 
 app.use(express.static('public'))
-app.use(bodyParser.json())
-
-// app.use(
-//     '/api/orders/post-order/subscription-webhook',
-//     bodyParser.raw({ type: "application/json" }) // Raw parsing for Stripe webhook
-// );
 
 app.post('/api/orders/webhook', bodyParser.raw({ type: "application/json" }), stipeSubscriptionWebhook) 
 app.use(express.json())
 app.use(cookieParser())
+// app.use(bodyParser.json())
 
 app.use('/', Routes)
 
