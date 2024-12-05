@@ -234,7 +234,7 @@ const OpenHouseForm = () => {
 
       const res = await axios.post(
         `${baseUrl}/api/orders/open-house-order`,
-        orderData,
+        data,
         { withCredentials: true, validateStatus : (status) => status < 500 }
       );
 
