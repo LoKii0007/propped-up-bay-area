@@ -191,12 +191,12 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
   console.log('sig', sig)
   console.log('endpointSecret', endpointSecret)
-  console.log('req.body', req.body)
+  console.log('req.body',  req.body.toString("utf8"))
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, req.headers["stripe-signature"] , endpointSecret);
+    event = stripe.webhooks.constructEvent( req.body.toString("utf8") , sig , endpointSecret);
   } catch (err) {
     console.log("Webhook Error: ", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
