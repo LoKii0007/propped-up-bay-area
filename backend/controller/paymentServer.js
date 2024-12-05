@@ -189,10 +189,6 @@ const cancelSubscription = async (req, res) => {
 const stipeSubscriptionWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
-  console.log('req.body', req.body.toString())
-  console.log('sig', sig)
-  console.log('endpointSecret', endpointSecret)
-
   let event;
 
   try {
@@ -209,9 +205,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
       const sessionId = session.id;
 
       try {
-        console.log('session metadata', JSON.parse(session.metadata))
+        console.log('session', session)
+        console.log('here')
+        console.log('session metadata', session.metadata)
 
-        const orderId = JSON.parse(session.metadata.orderId);
+        const orderId = session.metadata.orderId
   
         const order = await openHouseSchema.findByIdAndUpdate(orderId, { paid: true }, { new: true });
   
