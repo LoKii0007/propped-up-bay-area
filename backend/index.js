@@ -4,6 +4,7 @@ const cors = require('cors')
 const Routes = require('./routes/routes')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
+const { stipeSubscriptionWebhook } = require('./controller/paymentServer')
 
 const app = express()
 const PORT = 5000
@@ -20,10 +21,12 @@ app.use(cors({
 app.use(express.static('public'))
 app.use(bodyParser.json())
 
-app.use(
-    '/api/orders/post-order/subscription-webhook',
-    bodyParser.raw({ type: "application/json" }) // Raw parsing for Stripe webhook
-);
+// app.use(
+//     '/api/orders/post-order/subscription-webhook',
+//     bodyParser.raw({ type: "application/json" }) // Raw parsing for Stripe webhook
+// );
+
+app.post('/api/orders/webhook', bodyParser.raw({ type: "application/json" }), stipeSubscriptionWebhook) 
 app.use(express.json())
 app.use(cookieParser())
 
