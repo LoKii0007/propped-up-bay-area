@@ -189,12 +189,10 @@ const cancelSubscription = async (req, res) => {
 const stipeSubscriptionWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
-  console.log('req.body',  req.body.toString("utf8"))
-
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent( JSON.stringify(req.body) , sig , endpointSecret);
+    event = stripe.webhooks.constructEvent( req.body , sig , endpointSecret);
   } catch (err) {
     console.error("Webhook event construction error: ", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);

@@ -21,9 +21,9 @@ app.use(cors({
 app.use(express.static('public'))
 
 app.post('/api/orders/webhook', express.raw({ type: "application/json" }), stipeSubscriptionWebhook) 
-app.use(express.json())
+// app.use(express.json())
 app.use(cookieParser())
-// app.use(bodyParser.json())
+app.use(bodyParser.json())
 
 app.use('/', Routes)
 
