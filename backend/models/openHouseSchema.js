@@ -10,15 +10,39 @@ const formDataSchema = new Schema({
   orderNo : {
     type : String,
   },
-  type : {type : String, required : true},
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
+  type : {
+    type : String, 
+    required : true
+  },
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName: {
+    type: String,
+    required: true
+  },
+  email: { 
+    type: String, 
+    required: true 
+  },
+  phone: { 
+    type: String, 
+    required: true 
+  },
 
-  requestedDate: { type: Date, required: true },
-  firstEventStartTime: { type: String, required: true },
-  firstEventEndTime: { type: String, required: true },
+  requestedDate: { 
+    type: Date, 
+    required: true 
+  },
+  firstEventStartTime: { 
+    type: String, 
+    required: true 
+  },
+  firstEventEndTime: { 
+    type: String, 
+    required: true 
+  },
 
   firstEventAddress: {
     streetAddress: { type: String, required: true },
@@ -35,12 +59,23 @@ const formDataSchema = new Schema({
     resetPrice: { type: Number, default: 0 },
   },
 
-  pickSign: { type: Boolean, default: false },
-  additionalSignQuantity: { type: Number, default: 0 },
+  pickSign: { 
+    type: Boolean, 
+    default: false 
+  },
+  additionalSignQuantity: { 
+    type: Number, 
+    default: 0 
+  },
 
-  twilightTourSlot: { type: String },
+  twilightTourSlot: { 
+    type: String 
+  },
 
-  printAddressSign: { type: Boolean, default: false },
+  printAddressSign: { 
+    type: Boolean, 
+    default: false 
+  },
 
   printAddress: {
     streetAddress: { type: String },
@@ -52,11 +87,18 @@ const formDataSchema = new Schema({
 
   additionalInstructions: { type: String },
 
-  total: { type: Number, default: 0 },
+  total: { 
+    type: Number, 
+    default: 0 
+  },
   status : {
     type:String,
     enum : ['pending', 'completed', 'installed'],
     default : 'pending'
+  },
+  paid: { 
+    type: Boolean, 
+    default: false 
   },
   createdAt: {
     type: Date,

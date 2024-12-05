@@ -53,7 +53,8 @@ const ConfirmationPage = () => {
 
     //? check if payment was successfull or not
     if (success) {
-      checkPaymentStatus();
+      // checkPaymentStatus();
+      navigate("/");
     } else if (canceled) {
       toast.error("Payment was canceled. Please try again.");
       navigate("/");

@@ -9,6 +9,7 @@ const Routes = express.Router()
 const multer = require('multer');
 const { generateAuthUrl, addDataToMultipleSheet, getTokens } = require('../utilities/sheetautomation')
 const upload = multer({ storage: multer.memoryStorage() }); 
+const { getOpenHousePrices, editOpenHousePrices, addAdditionalPrices, getAdditionalPrices, editAdditionalPrices } = require('../controller/prices')
 
 
 //? -----------------------------
@@ -37,24 +38,30 @@ Routes.post('/api/user/send-reminder',verifyUser, sendReminderEmail) // send not
 //? -----------------------------
 //? orders route
 //? -----------------------------
-Routes.post('/api/orders/open-house-order', checkPaymentStatus ,verifyUser, createOpenHouseOrderApi) //openhouse new order
+Routes.post('/api/orders/open-house-order' ,verifyUser, createOpenHouseOrderApi) //openhouse new order
 Routes.post('/api/orders/post-order',checkPaymentStatus, verifyUser, createPostOrderApi) // new postorder
-
 Routes.get('/api/orders/open-house-order', verifyUser , getOpenHouseOrderApi) //openhouse get
 Routes.get('/api/orders/post-order',verifyUser, getPostOrderApi) // postorder get
-
 Routes.get('/api/invoice/open-house-order', getOpenHouseInvoiceApi) // openhouse invoice get
 
 
 //? -----------------------------
 //? admin only routes
 //? -----------------------------
+
+//* -----------------------------
+//* order routes
 Routes.get('/api/orders/get-all',verifyUser, getAllOrdersApi) // get all orders
+
+//* -----------------------------
+//* user routes
 Routes.get('/api/user-details/get',verifyUser, getSingleUserDetails) // get single user detail
 Routes.patch('/api/orders/change-status',verifyUser, updateOrderApi) // updation of user orders
 Routes.get('/api/users/get',verifyUser, getAllUsersApi) // get all users
 Routes.post('/api/user/delete',verifyUser, deleteUser) // delete user
 
+//* -----------------------------
+//* admin routes
 Routes.post('/auth/admin-login', adminLogin) // custom admin login
 Routes.patch('/auth/admin/password/update',verifyUser, updateAdminPassword) // update admin password
 Routes.patch('/auth/admin/profile/update',verifyUser, updateAdminDetails) // admin profile update
@@ -68,6 +75,23 @@ Routes.patch('/api/open-house/image-update', verifyUser,upload.single('image'), 
 Routes.patch('/api/post-order/image-update', verifyUser,upload.single('image'), updatePostOrderImage)  // update postorder
 Routes.get('/api/orders/image-get', getOrderImage)  // get image
 
+//* -------------------
+//* pricing routes
+Routes.get('/api/pricing/get-zone-prices', verifyUser, getOpenHousePrices) // get openhouse pricing
+Routes.patch('/api/pricing/edit-zone-prices', verifyUser, editOpenHousePrices) // edit openhouse pricing
+// Routes.post('/api/pricing/add-zone-prices', addZonePrices) // add zone prices
+Routes.post('/api/pricing/add-additional-prices', addAdditionalPrices) // add additional prices
+Routes.get('/api/pricing/get-additional-prices', verifyUser, getAdditionalPrices) // get additional prices
+Routes.patch('/api/pricing/edit-additional-prices', verifyUser, editAdditionalPrices) // edit additional prices
+
+//* -----------------------------
+//* google sheets routes
+Routes.get('/api/sheets/auth', verifyUser, generateAuthUrl)     
+Routes.get('/api/sheets/add-callback', getTokens )     
+
+// test for sheets
+Routes.post('/api/sheets', addDataToMultipleSheet)   
+
 
 //? -----------------------------
 //? payment route
@@ -77,13 +101,5 @@ Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSub
 Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.post('/webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
-
-
-// google sheets admin
-Routes.get('/api/sheets/auth', verifyUser, generateAuthUrl)     
-Routes.get('/api/sheets/add-callback', getTokens )     
-
-// test for sheets
-Routes.post('/api/sheets', addDataToMultipleSheet)
 
 module.exports = Routes

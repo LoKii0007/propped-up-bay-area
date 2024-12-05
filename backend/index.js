@@ -17,13 +17,13 @@ app.use(cors({
     credentials: true,
 }))
 
+app.use(express.static('public'))
+app.use(bodyParser.json())
+
 app.use(
     '/api/orders/post-order/subscription-webhook',
     bodyParser.raw({ type: "application/json" }) // Raw parsing for Stripe webhook
-  );
-
-app.use(express.static('public'))
-app.use(bodyParser.json())
+);
 app.use(express.json())
 app.use(cookieParser())
 

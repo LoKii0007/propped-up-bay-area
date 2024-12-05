@@ -1,33 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useGlobal } from "@/context/GlobalContext";
 import { useLocation } from "react-router-dom";
+import Loader from "./ui/loader";
 
 const ResetPassword = ({ setForget }) => {
   const { register, handleSubmit } = useForm();
-  const [step, setStep] = useState(1); // Step 1: Email, Step 2: OTP + New Password
+  const [step, setStep] = useState(1); 
   const [email, setEmail] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false); // State for showing/hiding password
   const { baseUrl } = useGlobal();
   const [loading, setLoading] = useState(false);
-  const location = useLocation();
+  const [otpLoading, setOtpLoading] = useState(false);
+  const location = useLocation()
+  const [timer, setTimer] = useState(300); // 5 minutes = 300 seconds
+  const timerRef = useRef(null)
 
+  //?-----------------------------
+  //? send otp
   const sendOtp = async (data) => {
     try {
-      setLoading(true);
+      setOtpLoading(true);
       setEmail(data.email);
       await axios.post(`${baseUrl}/auth/send-otp`, { email: data.email });
+
+      //? clear previous timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      
+      //? reset timer to 5 minutes
+      setTimer(300);
+      
+      //? start new timer
+      timerRef.current = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(timerRef.current);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000)
       toast.success("otp sent. Please check your gmail");
       setStep(2); // Move to OTP verification step
     } catch (error) {
       toast.error(error.response.data.message || "Error sending OTP");
     } finally {
-      setLoading(false);
+      setOtpLoading(false);
     }
   };
 
+  //?-----------------------------
+  //? reset password
   const resetPassword = async (data) => {
     try {
       setLoading(true);
@@ -43,6 +70,16 @@ const ResetPassword = ({ setForget }) => {
       setLoading(false);
     }
   };
+
+  //?-----------------------------
+  //? cleanup timer on component unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div>
@@ -61,11 +98,11 @@ const ResetPassword = ({ setForget }) => {
               className="focus:outline-none pt-2 border-b sm:mx-8 w-full md:w-1/3 focus:border-b focus:border-green-800"
             />
             <button
-              disabled={loading}
+              disabled={otpLoading}
               className="border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
               type="submit"
             >
-              {!loading ? "Send otp" : "sending.."}
+              {!otpLoading ? "Send otp" : "sending.."}
             </button>
           </div>
         </form>
@@ -77,6 +114,7 @@ const ResetPassword = ({ setForget }) => {
           onSubmit={handleSubmit(resetPassword)}
         >
           <h2 className="text-xl font-semibold">Verify OTP</h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col mt-1 p-2 w-full border rounded-md border-[#E5E7EB ]">
               <label className="text-xs">OTP</label>
@@ -112,6 +150,22 @@ const ResetPassword = ({ setForget }) => {
             </div>
           </div>
 
+
+          <div className="timer">{timer > 0 ? `This otp is valid for ${Math.floor(timer)} seconds.` : "OTP expired, please request a new one."}</div>
+
+
+          <div className="flex flex-col sm:flex-row sm:items-center items-start gap-4">
+          {timer <= 0 && (
+            <div
+              onClick={() => sendOtp({email})}
+              className="border-green-800 cursor-pointer w-[170px] font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+            >
+              <div className="flex justify-center items-center w-full ">
+                {otpLoading ? <Loader/> : "Request new OTP"}
+              </div>
+            </div>
+          )}
+
           <button
             disabled={loading}
             className="border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
@@ -119,6 +173,8 @@ const ResetPassword = ({ setForget }) => {
           >
             {!loading ? "Reset Password" : "Updating.."}
           </button>
+          </div>
+
           {location.pathname === "reset-pass" && (
             <button
               onClick={() => setForget(false)}

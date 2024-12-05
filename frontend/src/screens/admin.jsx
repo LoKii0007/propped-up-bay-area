@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import toast from "react-hot-toast";
+import PricingList from "@/components/PricingList";
 
 function Admin() {
   const navigate = useNavigate();
@@ -178,6 +179,7 @@ function Admin() {
                   />
                 )}
                 {adminActiveView === "sales report" && <Salesreport />}
+                {adminActiveView === "edit pricing" && <PricingList />}
                 {adminActiveView === "invoices" && <Invoices />}
                 {adminActiveView === "settings" && <AdminSettings />}
               </div>

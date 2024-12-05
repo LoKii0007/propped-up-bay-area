@@ -22,10 +22,14 @@ const SignUpDetails = () => {
 
   const navigate = useNavigate();
   const { baseUrl } = useGlobal();
-  const {setCurrentUser } = useAuth();
+  const { setCurrentUser, currentUser } = useAuth();
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
+  // async function getUser(){
+
+  //?---------------------------------
+  //? handle change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
@@ -67,6 +71,13 @@ const SignUpDetails = () => {
       setLoading(false);
     }
   };
+
+
+  useEffect(() => {
+    if (currentUser?.profileCompleted) {
+      navigate("/")
+    }
+  }, [currentUser]);
 
   return (
     <div className="max-w-3xl mx-auto p-8 overflow-y-auto ">
@@ -135,13 +146,15 @@ const SignUpDetails = () => {
 
             <div className="flex w-full items-center gap-4 form-item ">
               <label className="block text-[16px] w-1/3">State</label>
-              <SearchableSelect
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-                required
-                editing={editing}
-              />
+              <div className="w-2/3">
+                <SearchableSelect
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  required
+                  editing={editing}
+                />
+              </div>
             </div>
 
             <div className="flex w-full items-center gap-4 form-item ">

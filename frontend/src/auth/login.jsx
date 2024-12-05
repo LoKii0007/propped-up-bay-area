@@ -22,7 +22,7 @@ function Login() {
     if(currentUser && !currentUser.profileCompleted ){
       navigate('/signup/details')
     }
-  }, []);
+  }, [currentUser]);
 
   async function handleSubmit(e) {
     e.preventDefault();

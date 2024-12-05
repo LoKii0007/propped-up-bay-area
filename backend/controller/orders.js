@@ -129,12 +129,12 @@ const createOpenHouseOrderApi = async (req, res) => {
       total,
     ];
 
-    try {
-      // addToSheet(googleSheetdata);
-      addToGoogleSheet({data : googleSheetdata, targetSheet: 'openHouseOrders'})
-    } catch (error) {
-      console.log("Open house order google sheet api error : ", error.message);
-    }
+    // try {
+    //   // addToSheet(googleSheetdata);
+    //   addToGoogleSheet({data : googleSheetdata, targetSheet: 'openHouseOrders'})
+    // } catch (error) {
+    //   console.log("Open house order google sheet api error : ", error.message);
+    // }
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(userId, {

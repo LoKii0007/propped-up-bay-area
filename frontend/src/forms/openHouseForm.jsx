@@ -232,22 +232,22 @@ const OpenHouseForm = () => {
     const data = { ...formData, type: "openHouse" };
     try {
 
-      // const res = await axios.post(
-      //   `${baseUrl}/api/orders/open-house-order`,
-      //   orderData,
-      //   { withCredentials: true, validateStatus : (status) => status < 500 }
-      // );
+      const res = await axios.post(
+        `${baseUrl}/api/orders/open-house-order`,
+        orderData,
+        { withCredentials: true, validateStatus : (status) => status < 500 }
+      );
 
-      // if (res.status !== 201) {
-      //   setLoading(false);
-      //   toast.error(res.data.msg || "Error creating order");
-      //   return;
-      // }
+      if (res.status !== 201) {
+        setLoading(false);
+        toast.error(res.data.msg || "Error creating order");
+        return;
+      }
 
       // Step 1: Verifying payment by creating a checkout session
       const payment = await axios.post(
         `${baseUrl}/api/orders/open-house/create-checkout-session`,
-        { data: formData },
+        { data: res.data.order },
         { withCredentials: true, validateStatus: (status) => status < 500 }
       );
 

@@ -12,6 +12,8 @@ import { useGlobal } from "../context/GlobalContext";
 import InvoiceDownload from "./invoiceDownload";
 import axios from "axios";
 import DatePickerWithRange from "./ui/DatePickerWithRange";
+import StartDatePicker from "./ui/StartDatePicker";
+import EndDatePicker from "./ui/EndDatePicker";
 
 function Invoices() {
   const [orders, setOrders] = useState([]);
@@ -46,20 +48,20 @@ function Invoices() {
     try {
       const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
         params: { page: orderPage, limit },
-        withCredentials: true, validateStatus : (status) => status < 500
+        withCredentials: true, validateStatus: (status) => status < 500
       });
       if (res.status === 404) {
         toast.custom(res.data.message || 'no orders found');
-      }else if(res.status === 200){
+      } else if (res.status === 200) {
         const allOrders = res.data.orders;
         setOrders(allOrders);
         setTotalOrderCount(res.data.couunt)
         setFilteredInvoices(allOrders);
         // setTotalPages(Math.ceil(allOrders.length / displayCount));
         resetPagination(allOrders)
-      }else{
+      } else {
         toast.error(res.data.message || 'Error fetching invoices. Please try again')
-      } 
+      }
     } catch (error) {
       toast.error('Server error. Please try again')
     }
@@ -74,9 +76,9 @@ function Invoices() {
       const res = await axios.get(`${baseUrl}/api/orders/get-all`, {
         params: { page: orderPage + 1, limit },
         withCredentials: true,
-        validateStatus : (status) => status < 500
+        validateStatus: (status) => status < 500
       });
-      if(res.status === 404){
+      if (res.status === 404) {
         toast(res.data.message || "no more orders found")
       }
       else if (res.status === 200) {
@@ -119,35 +121,35 @@ function Invoices() {
       toast.error("Both start date and end date are required");
       return [];
     }
-  
+
     const start = new Date(startDate);
     const end = new Date(endDate);
-  
+
     // Check if dates are valid
     if (isNaN(start) || isNaN(end)) {
       toast.error("Invalid date format. Please provide valid dates.");
       return [];
     }
-  
+
     // Ensure that startDate is before or equal to endDate
     if (start > end) {
       toast.error("Start date cannot be after end date");
       return [];
     }
-  
+
     return orders.filter((data) => {
       const invoiceDate = new Date(data.createdAt);
-  
+
       // Ensure invoiceDate is a valid date
       if (isNaN(invoiceDate)) {
         console.warn(`Invalid date in orders: ${data.createdAt}`);
         return false;
       }
-  
+
       return invoiceDate >= start && invoiceDate <= end;
     });
   }
-  
+
 
   //? ---------------------------
   //? invoice info
@@ -340,7 +342,7 @@ function Invoices() {
                   className="w-full py-2 px-3 focus-visible:outline-none bg-[#f5f5f5]"
                   type="text"
                   value={searchTerm}
-                  onChange={(e)=>handleSearch(e)}
+                  onChange={(e) => handleSearch(e)}
                   placeholder="Search by name or invoice no"
                 />
               </div>
@@ -403,9 +405,19 @@ function Invoices() {
                 </MenuItems>
               </Menu>
 
-              <DatePickerWithRange setStartDate={setStartDate} setEndDate={setEndDate} />
+              <div className="grid grid-cols-2 gap-3 border rounded-md ">
+                <StartDatePicker
+                  date={startDate}
+                  selectedDate={(newDate) => setStartDate(newDate)}
+                />
 
-              <button className="border border-gray-300 rounded-md bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100" onClick={handleAllinvoice}>Download All</button>
+                <EndDatePicker
+                  date={endDate}
+                  selectedDate={(newDate) => setEndDate(newDate)}
+                />
+              </div>
+
+              <button className="border border-gray-300 rounded-md bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100" onClick={handleAllinvoice}>Download range</button>
             </div>
           </div>
 
@@ -449,19 +461,19 @@ function Invoices() {
                   </div>
                 ))}
               {orders.length < totalOrderCount && currentPage === totalPages && (
-                  <div className="flex justify-center">
-                    {nextLoading ? (
-                      "loading..."
-                    ) : (
-                      <button
-                        onClick={() => handleNextOrders()}
-                        className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
-                      >
-                        Load more
-                      </button>
-                    )}
-                  </div>
-                )}
+                <div className="flex justify-center">
+                  {nextLoading ? (
+                    "loading..."
+                  ) : (
+                    <button
+                      onClick={() => handleNextOrders()}
+                      className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                    >
+                      Load more
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             <Pagination
               startPage={startPage}

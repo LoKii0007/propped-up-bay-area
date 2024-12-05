@@ -42,9 +42,9 @@ const stripeCustomPayment = async (req, res) => {
       invoice_creation: {
         enabled: true,
       },
-      // metadata: {
-      //   customData: JSON.stringify(data),
-      // },
+      metadata: {
+        orderId: JSON.stringify(data._id),
+      },
       mode: "payment",
       success_url: `${frontendUrl}/order/openHouse/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendUrl}/order/openHouse/payment?canceled=true`,
@@ -205,6 +205,16 @@ const stipeSubscriptionWebhook = async (req, res) => {
       const sessionId = session.id;
 
       console.log(JSON.parse(session.metadata.customData))
+
+      const orderId = JSON.parse(session.metadata.orderId);
+
+      const order = await openHouseSchema.findByIdAndUpdate(orderId, { paid: true }, { new: true });
+
+      if (!order) {
+        return res.status(404).json({ msg: "Order not found" });
+      }
+
+      console.log('order updated successfully', order)
 
       if (session.subscription) {
         try {
