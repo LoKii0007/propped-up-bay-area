@@ -195,11 +195,11 @@ const gmailTemplateOrderConfirmation = (type) => `
   The Proppedup Bay Area Team
 `;
 
-const gmailTemplateCustomerDeleted = () => `
+const gmailTemplateCustomerDeleted = (firstName) => `
   Dear Admin,
   <br>
   <br>
-  A customer has been deleted from the system. Please verify the details.
+  A customer with name ${firstName} has been deleted from the system. Please verify the details.
   <br>
   <br>
   Warm regards,  

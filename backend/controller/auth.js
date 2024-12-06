@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SuperUser = require("../models/superUser");
 const UserDetails = require("../models/userDetails");
-const { nodemailerTransport, gmailTemplateSignup, gmailTemplatePasswordChanged, gmailTemplateResetPassword, gmailTemplateAdminLogin } = require("../utilities/gmail");
+const { nodemailerTransport, gmailTemplateSignup, gmailTemplatePasswordChanged, gmailTemplateResetPassword, gmailTemplateAdminLogin, gmailTemplateAdminPasswordChanged, gmailTemplateCustomerDeleted } = require("../utilities/gmail");
 const crypto = require("crypto");
 const streamifier = require("streamifier");
 
@@ -204,10 +204,10 @@ const updatePassword = async (req, res) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      res.status(201).json({ message: "Password updated successfully" });
+      res.status(200).json({ message: "Password updated successfully" });
     } catch (error) {
       console.error("Email sending error:", error.message);
-      res.status(201).json({
+      res.status(200).json({
         message: "Password updated successfully, but email could not be sent",
       });
     }
@@ -392,10 +392,10 @@ const resetPassword = async (req, res) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      res.status(201).json({ msg: "Password updated successfully" });
+      res.status(200).json({ msg: "Password updated successfully" });
     } catch (error) {
       console.error("Email sending error:", error.message);
-      res.status(201).json({
+      res.status(200).json({
         msg: "Password updated successfully, but email could not be sent",
       });
     }
@@ -453,10 +453,11 @@ const adminLogin = async (req, res) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      res.status(201).json({ msg: "logged in" });
+      res.status(200).json({ user: user2, msg: "logged in" });
     } catch (error) {
       console.error("Email sending error:", error.message);
-      res.status(201).json({
+      res.status(200).json({
+        user: user2,
         msg: "logged in, but email could not be sent",
       });
     }
@@ -498,7 +499,24 @@ const updateAdminPassword = async (req, res) => {
     // Save the updated user
     await user.save();
 
-    res.status(200).json({ msg: "Password updated successfully" });
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: [user.email],
+      subject: "Propped up password updated",
+      html: gmailTemplateAdminPasswordChanged(),
+    };
+
+    try {
+      await nodemailerTransport.sendMail(mailOptions);
+      res.status(200).json({ msg: "Password updated successfully" });
+    } catch (error) {
+      console.error("Email sending error:", error.message);
+      res.status(200).json({
+        msg: "Password updated successfully, but email could not be sent",
+      });
+    }
+
+    // res.status(200).json({ msg: "Password updated successfully" });
   } catch (error) {
     console.error("Error in updateAdminPassword API: ", error.message);
     res.status(500).json({ msg: "Server error" });
@@ -604,7 +622,22 @@ const deleteUser = async (req, res) => {
       await UserDetails.findOneAndDelete({ userId });
     }
 
-    return res.status(200).json({ msg: "user deleted", user: deleted });
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: [deleted.email, 'lokeshyadav@gmail.com'],
+      subject: "Propped up account deleted",
+      html: gmailTemplateCustomerDeleted(deleted.firstName),
+    };
+
+    try {
+      await nodemailerTransport.sendMail(mailOptions);
+      res.status(200).json({ msg: "user deleted", user: deleted });
+    } catch (error) {
+      console.error("Email sending error:", error.message);
+      res.status(200).json({
+        msg: "user deleted, but email could not be sent",
+      });
+    }
   } catch (error) {
     console.error("Error in deleteUser API: ", error.message);
     res.status(500).json({ msg: "Server error while deleting profile" });

@@ -21,15 +21,21 @@ export default function ChangeStatusDropdown({
   async function handleStatusChange(status) {
     setLoading(true);
     try {
-      const res = await axios.patch(
-        `${baseUrl}/api/orders/change-status`,
+
+      const res = await toast.promise(
+        axios.patch(
+          `${baseUrl}/api/orders/change-status`,
         { status, orderId: order._id, orderType: order.type },
-        { withCredentials: true }
+          { withCredentials: true }
+        ),
+        {
+          loading: "Updating status...",
+          success: "Status updated successfully",
+        }
       );
       if (res.status !== 200) {
         toast.error(res.data.msg || "Error updating status. Please try again");
       } else {
-        toast.success("status updated successfully", { position: "top-right" });
         setOrders((prev) =>
           prev.map((o) => (o._id === order._id ? { ...o, status } : o))
         );

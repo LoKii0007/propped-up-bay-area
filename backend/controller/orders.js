@@ -196,13 +196,13 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      res.status(201).json({ order, msg: "Order placed successfully" });
+      // res.status(200).json({ order, msg: "Order placed successfully" });
     } catch (error) {
       console.error("Email sending error:", error.message);
-      res.status(201).json({
-        order,
-        msg: "Order placed successfully, but email could not be sent",
-      });
+      // res.status(200).json({
+      //   order,
+      //   msg: "Order placed successfully, but email could not be sent",
+      // });
     }
   } catch (error) {
     console.error("Error in completeOpenHouseOrder", error.message);
@@ -522,10 +522,10 @@ const updateOrderApi = async (req, res) => {
       try {
         await nodemailerTransport.sendMail(mailOptions);
         await nodemailerTransport.sendMail(mailOptionsAdmin);
-        res.status(201).json({msg: "Order updated successfully!" });
+        res.status(200).json({msg: "Order updated successfully!" });
       } catch (error) {
         console.error("Email sending error:", error.message);
-        res.status(201).json({
+        res.status(200).json({
           msg: "Order updated successfully, but email could not be sent",
         });
       }
@@ -560,15 +560,15 @@ const updateOrderApi = async (req, res) => {
       try {
         await nodemailerTransport.sendMail(mailOptions);
         await nodemailerTransport.sendMail(mailOptionsAdmin);
-        res.status(201).json({msg: "Order updated successfully!" });
+        res.status(200).json({msg: "Order updated successfully!" });
       } catch (error) {
         console.error("Email sending error:", error.message);
-        res.status(201).json({
+        res.status(200).json({
           msg: "Order updated successfully, but email could not be sent",
         });
       }
 
-      return res.status(200).json({ msg: "Order updated successfully!" });
+      // return res.status(200).json({ msg: "Order updated successfully!" });
     }
 
     // return res.status(400).json({ msg: "Invalid order type" });

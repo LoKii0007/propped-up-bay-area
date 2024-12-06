@@ -87,8 +87,8 @@ function Admin() {
       handleOrders();
     } else {
       const data = JSON.parse(sessionStorage.getItem("proppedUpAdmin"));
-      console.log(admin);
-      if (data) {
+      console.log('admin',data);
+      if (data !== undefined) {
         setAdmin(data);
       }
     }
@@ -101,7 +101,7 @@ function Admin() {
     if (breadCrumb !== adminActiveView) setBreadCrumb(adminActiveView);
   }
 
-  useEffect(() => {}, [orders, users, subscribedUsers]);
+  useEffect(() => {}, [orders, users, subscribedUsers, admin]);
 
   return (
     <>
