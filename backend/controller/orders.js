@@ -31,7 +31,7 @@ const createOpenHouseOrderApi = async (req, res) => {
       total,
     } = req.body;
 
-    // Validate total
+    //TODO Validate total
     if (!total || typeof total !== "number" || total <= 0) {
       return res.status(400).json({ msg: "Invalid total amount" });
     }
@@ -46,14 +46,6 @@ const createOpenHouseOrderApi = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    const counter = await orderCounterSchema.findOne();
-
-    // Format the order number (e.g., OH0001, OH0002, ...)
-    const orderNo = `OH${String(counter.count).padStart(5, '0')}`;
-  
-    // Increment the count for the next order
-    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } })
-
     const order = await openHouseSchema.create({
       userId,
       type,
@@ -61,7 +53,6 @@ const createOpenHouseOrderApi = async (req, res) => {
       lastName,
       email,
       phone,
-      orderNo,
       requestedDate,
       firstEventStartTime,
       firstEventEndTime,
@@ -93,59 +84,105 @@ const createOpenHouseOrderApi = async (req, res) => {
       total,
     });
 
+    return res.status(201).json({ order, msg: "Order placed successfully" });
+  } catch (error) {
+    console.error("Order creation error:", error.message);
+    res.status(500).json({ msg: "Error placing order", error: error.message });
+  }
+};
+
+//? -------complete openHouseOrderApi
+//? ---------------------------------
+const completeOpenHouseOrder = async (orderId, session) => {
+  try {
+    const order = await openHouseSchema.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ msg: "Order not found" });
+    }
+
+    // update paid
+    await order.updateOne({ paid: true });
+
+    const counter = await orderCounterSchema.findOne();
+
+    // Format the order number (e.g., OH0001, OH0002, ...)
+    const orderNo = `OH${String(counter.count).padStart(5, "0")}`;
+
+    // update orderNo
+    await order.updateOne({ orderNo });
+
+    // Increment the count for the next order
+    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } });
+
     // adding data to google sheets
     googleSheetdata = [
-      firstName,
-      lastName,
-      email,
-      phone,
-      requestedDate,
-      firstEventStartTime,
-      firstEventEndTime,
+      order.firstName,
+      order.lastName,
+      order.email,
+      order.phone,
+      order.requestedDate,
+      order.firstEventStartTime,
+      order.firstEventEndTime,
       [
-        firstEventAddress?.streetAddress,
-        firstEventAddress?.city,
-        firstEventAddress?.state,
-        firstEventAddress?.postalCode,
+        order.firstEventAddress?.streetAddress,
+        order.firstEventAddress?.city,
+        order.firstEventAddress?.state,
+        order.firstEventAddress?.postalCode,
       ]
         .filter(Boolean)
         .join(", "), // Combined firstEventAddress as a single block
 
       [
-        printAddress?.streetAddress,
-        printAddress?.city,
-        printAddress?.state,
-        printAddress?.postalCode,
+        order.printAddress?.streetAddress,
+        order.printAddress?.city,
+        order.printAddress?.state,
+        order.printAddress?.postalCode,
       ]
         .filter(Boolean)
         .join(", "), // Combined printAddress as a single block
 
-      requiredZone?.name,
-      pickSign,
-      additionalSignQuantity,
-      twilightTourSlot,
-      printAddressSign,
-      additionalInstructions,
-      total,
+      order.requiredZone?.name,
+      order.pickSign,
+      order.additionalSignQuantity,
+      order.twilightTourSlot,
+      order.printAddressSign,
+      order.additionalInstructions,
+      order.total,
     ];
 
-    // try {
-    //   // addToSheet(googleSheetdata);
-    //   addToGoogleSheet({data : googleSheetdata, targetSheet: 'openHouseOrders'})
-    // } catch (error) {
-    //   console.log("Open house order google sheet api error : ", error.message);
-    // }
+    try {
+      addToGoogleSheet({
+        data: googleSheetdata,
+        targetSheet: "openHouseOrders",
+      });
+    } catch (error) {
+      console.log("Open house order google sheet api error : ", error.message);
+    }
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
-    await User.findByIdAndUpdate(userId, {
+    await User.findByIdAndUpdate(order.userId, {
       $inc: { totalOrders: 1, totalSpent: total },
     });
 
+    //getting invoice url
+    const invoices = await stripe.invoices.list({
+      customer: session.customer,
+      limit: 1, // Retrieve only the latest invoice
+    });
+
+    let invoiceUrl ;
+    if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url){
+      invoiceUrl = invoices.data[0].hosted_invoice_url
+    }else{
+      invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`
+    }
+
+    const userEmail = await User.findById(order.userId);
+
     // Send email with Nodemailer
-    const invoiceUrl = req.stripe?.invoiceUrl || `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
-      to: [email, user.email],
+      to: [email, userEmail.email],
       subject: "Propped up order confirmed",
       html: gmailTemplate("Your order is placed successfully", invoiceUrl),
     };
@@ -161,8 +198,7 @@ const createOpenHouseOrderApi = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Order creation error:", error.message);
-    res.status(500).json({ msg: "Error placing order", error: error.message });
+    console.error("Error in completeOpenHouseOrder", error.message);
   }
 };
 
@@ -206,11 +242,11 @@ const createPostOrderApi = async (req, res) => {
 
     const counter = await orderCounterSchema.findOne();
 
-    // Format the order number 
-    const orderNo = `PO${String(counter.count).padStart(5, '0')}`;
-  
+    // Format the order number
+    const orderNo = `PO${String(counter.count).padStart(5, "0")}`;
+
     // Increment the count for the next order
-    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } })
+    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } });
 
     const newForm = new postOrderSchema({
       userId,
@@ -302,7 +338,10 @@ const createPostOrderApi = async (req, res) => {
 
     try {
       // addToSheet(googleSheetdata);
-      addToGoogleSheet({data : googleSheetdata, targetSheet: 'postHouseOrders'})
+      addToGoogleSheet({
+        data: googleSheetdata,
+        targetSheet: "postHouseOrders",
+      });
     } catch (error) {
       console.log("Post order google sheet api error : ", error.message);
     }
@@ -407,15 +446,14 @@ const getPostOrderApi = async (req, res) => {
   }
 };
 
-
 //? ---------------------------
 //? -------get openhouse invoice
 //? ---------------------------
 const getOpenHouseInvoiceApi = async (req, res) => {
   try {
-    const {orderId} = req.query
-    if(!orderId){
-      return res.status(404).json({ msg: "No order found" })
+    const { orderId } = req.query;
+    if (!orderId) {
+      return res.status(404).json({ msg: "No order found" });
     }
 
     const order = await openHouseSchema.findById(orderId);
@@ -424,7 +462,7 @@ const getOpenHouseInvoiceApi = async (req, res) => {
       return res.status(404).json({ msg: "No order found" });
     }
 
-    return res.status(200).json({ invoice : order });
+    return res.status(200).json({ invoice: order });
   } catch (error) {
     console.log("Error in getOpenHouseInvoiceApi", error.message);
     return res
@@ -437,7 +475,7 @@ const getOpenHouseInvoiceApi = async (req, res) => {
 //*----------admin api
 
 //? ---------------------------
-//? -------update Orders Api 
+//? -------update Orders Api
 //? ---------------------------
 const updateOrderApi = async (req, res) => {
   try {
@@ -482,7 +520,7 @@ const updateOrderApi = async (req, res) => {
 };
 
 //? ---------------------------
-//? -------get all Orders API 
+//? -------get all Orders API
 //? ---------------------------
 const getAllOrdersApi = async (req, res) => {
   let orders = [];
@@ -496,18 +534,21 @@ const getAllOrdersApi = async (req, res) => {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    const page = parseInt(req.query.page) || 1; // Get page number 
-    const limit = parseInt(req.query.limit) || 20;  // get limit
+    const page = parseInt(req.query.page) || 1; // Get page number
+    const limit = parseInt(req.query.limit) || 20; // get limit
     const skip = (page - 1) * limit; //  how many orders to skip
 
     // Find total users
-    let totalOrderCount = 0 
+    let totalOrderCount = 0;
     if (page === 1) {
       totalOrderCount = await openHouseSchema.countDocuments();
       totalOrderCount += await postOrderSchema.countDocuments();
     }
 
-    const openHouseOrders = await openHouseSchema.find().skip(skip).limit(limit);
+    const openHouseOrders = await openHouseSchema
+      .find()
+      .skip(skip)
+      .limit(limit);
 
     const postOrders = await postOrderSchema.find().skip(skip).limit(limit);
 
@@ -518,7 +559,9 @@ const getAllOrdersApi = async (req, res) => {
       return res.status(404).json({ message: "No orders found" });
     }
 
-    return res.status(200).json({ orders, message: "orders found .", count : totalOrderCount });
+    return res
+      .status(200)
+      .json({ orders, message: "orders found .", count: totalOrderCount });
   } catch (error) {
     console.log("Error in getAllOrdersApi", error.message);
     return res
@@ -534,5 +577,6 @@ module.exports = {
   createPostOrderApi,
   updateOrderApi,
   getAllOrdersApi,
-  getOpenHouseInvoiceApi
+  getOpenHouseInvoiceApi,
+  completeOpenHouseOrder,
 };

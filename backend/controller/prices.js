@@ -15,20 +15,7 @@ const addZonePrices = async (req, res) => {
 }
 
 const getOpenHousePrices = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-
-    const user = await SuperUser.findById(userId);
-
-    // Check if user is authorized
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
-    }
-
-    if (user.role !== "superuser" && user.role !== "admin") {
-      return res.status(401).json({ msg: "Not authorized" });
-    }
-    
+  try {    
     const zonePrices = await zonePricesSchema.find();
     res.status(200).json({zonePrices});
   } catch (error) {
@@ -70,9 +57,9 @@ const editOpenHousePrices = async (req, res) => {
 
 const addAdditionalPrices = async (req, res) => {
     try {
-      const { name, price } = req.body;
+      const { name, price, type } = req.body;
   
-      const additionalPrices = await additionalPricesSchema.create({ name, price });
+      const additionalPrices = await additionalPricesSchema.create({ name, price, type });
       res.status(200).json(additionalPrices);
     } catch (error) {
       console.error("Error adding zone prices:", error.message);
@@ -81,20 +68,7 @@ const addAdditionalPrices = async (req, res) => {
   }
 
   const getAdditionalPrices = async (req, res) => {
-    try {
-      const userId = req.user.userId;
-  
-      const user = await SuperUser.findById(userId);
-  
-      // Check if user is authorized
-      if (!user) {
-        return res.status(404).json({ msg: "User not found" });
-      }
-  
-      if (user.role !== "superuser" && user.role !== "admin") {
-        return res.status(401).json({ msg: "Not authorized" });
-      }
-      
+    try {      
       const additionalPrices = await additionalPricesSchema.find();
       res.status(200).json({additionalPrices});
     } catch (error) {

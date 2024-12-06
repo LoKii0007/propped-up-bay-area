@@ -26,31 +26,34 @@ const PostOrderPricing = () => {
           validateStatus: (status) => status < 500,
         }
       );
-      setAdditionalPrices(res.data.additionalPrices);
+      const filteredPrices = res.data.additionalPrices.filter(
+        (price) => price.type === "postOrder"
+      );
+      setAdditionalPrices(filteredPrices);
     } catch (error) {
       toast.error(error.response.data.msg);
     }
   }
 
-  async function updateAdditionalPrices(id) {
+  async function updateAdditionalPrices(id, name) {
     if (!editAdditionalPrices) {
       setEditAdditionalPrices(true);
       setSelectedAdditionalPrice(id);
     } else {
       const additionalPrice = additionalPrices.find(
         (price) => price._id === id
-      );
+        );
       setLoading2(true);
       try {
         const res = await axios.patch(
-          `${baseUrl}/api/pricing/additional-prices`,
-          { id, price: additionalPrice.price },
+          `${baseUrl}/api/pricing/edit-additional-prices`,
+          { id, price: Number(additionalPrice.price) },
           { withCredentials: true, validateStatus: (status) => status < 500 }
         );
         if (res.status !== 200) {
           toast.error(res.data.msg);
         } else {
-          toast.success("Additional prices updated successfully");
+          toast.success(`${name} updated successfully`);
           setEditAdditionalPrices(false);
         }
       } catch (error) {
@@ -66,16 +69,22 @@ const PostOrderPricing = () => {
   }, []);
 
   useEffect(() => {
-    console.log(additionalPrices)
-  }, [additionalPrices])
+    console.log(additionalPrices);
+  }, [additionalPrices]);
 
   return (
     <div className="post-order-pricing mx-[5%] h-full flex flex-col gap-8 p-12 ">
-
       {additionalPrices.map((price) => (
-        <PriceInput key={price._id} price={price} updateAdditionalPrices={updateAdditionalPrices} editAdditionalPrices={editAdditionalPrices} selectedAdditionalPrice={selectedAdditionalPrice} />
-      )) }
-
+        <PriceInput
+          key={price._id}
+          price={price}
+          updateAdditionalPrices={updateAdditionalPrices}
+          editAdditionalPrices={editAdditionalPrices}
+          selectedAdditionalPrice={selectedAdditionalPrice}
+          setAdditionalPrices={setAdditionalPrices}
+          additionalPrices={additionalPrices}
+        />
+      ))}
     </div>
   );
 };

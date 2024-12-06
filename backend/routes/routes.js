@@ -77,11 +77,11 @@ Routes.get('/api/orders/image-get', getOrderImage)  // get image
 
 //* -------------------
 //* pricing routes
-Routes.get('/api/pricing/get-zone-prices', verifyUser, getOpenHousePrices) // get openhouse pricing
+Routes.get('/api/pricing/get-zone-prices', getOpenHousePrices) // get openhouse pricing
 Routes.patch('/api/pricing/edit-zone-prices', verifyUser, editOpenHousePrices) // edit openhouse pricing
 // Routes.post('/api/pricing/add-zone-prices', addZonePrices) // add zone prices
 Routes.post('/api/pricing/add-additional-prices', addAdditionalPrices) // add additional prices
-Routes.get('/api/pricing/get-additional-prices', verifyUser, getAdditionalPrices) // get additional prices
+Routes.get('/api/pricing/get-additional-prices', getAdditionalPrices) // get additional prices
 Routes.patch('/api/pricing/edit-additional-prices', verifyUser, editAdditionalPrices) // edit additional prices
 
 //* -----------------------------

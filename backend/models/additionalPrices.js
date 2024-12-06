@@ -11,7 +11,8 @@ const schema = new mongoose.Schema({
     },
     type: {
         type: String,
-        required: true
+        required: true,
+        enum: ["openHouse", "postOrder"]
     }
 })
 

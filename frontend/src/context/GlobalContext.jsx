@@ -1,4 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export const GlobalContext = React.createContext()
 
@@ -10,9 +12,56 @@ export function GlobalContextProvider({children}){
     const [activeView, setActiveView] = useState('dashboard')
     const [totalUserCount, setTotalUserCount] = useState(0)
     const [adminActiveView, setAdminActiveView] = useState("order requests")
+    const [zonePrices, setZonePrices] = useState([])
+    const [additionalPrices, setAdditionalPrices] = useState([])
+
+    async function getZonePrices() {
+        try {
+          const res = await axios.get(`${baseUrl}/api/pricing/get-zone-prices`, {
+            withCredentials: true,
+            validateStatus: (status) => status < 500,
+          });
+          if (res.status !== 200) {
+            toast.error('Failed to fetch zone prices. please try again later');
+          } else {
+            console.log(res.data);
+            setZonePrices(res.data.zonePrices);
+          }
+        } catch (error) {
+          toast.error('Failed to fetch zone prices. please try again later');
+        }
+      }
+    
+      async function getAdditionalPrices() {
+        try {
+          const res = await axios.get(
+            `${baseUrl}/api/pricing/get-additional-prices`,
+            {
+              withCredentials: true,
+              validateStatus: (status) => status < 500,
+            }
+          );
+          if (res.status !== 200) {
+            toast.error('Failed to fetch additional prices. please try again later');
+          } else {
+            // const filteredPrices = res.data.additionalPrices.filter(price => price.type === "openHouse");
+            setAdditionalPrices(res.data.additionalPrices);
+          }
+        } catch (error) {
+          toast.error('Failed to fetch additional prices. please try again later');
+        }
+      }
+
+      useEffect(() => {
+        getZonePrices();
+        getAdditionalPrices();
+      }, []);
+      
+      useEffect(() => {
+      }, [zonePrices, additionalPrices]);
 
     return(
-        <GlobalContext.Provider value={{adminActiveView, setAdminActiveView, setSettingsActiveView, settingsActiveView, breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl, activeView, setActiveView, totalUserCount, setTotalUserCount}} >
+        <GlobalContext.Provider value={{adminActiveView, setAdminActiveView, setSettingsActiveView, settingsActiveView, breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl, activeView, setActiveView, totalUserCount, setTotalUserCount, zonePrices, additionalPrices}} >
            {children}
         </GlobalContext.Provider>
     )

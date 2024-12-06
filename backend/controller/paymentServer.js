@@ -2,7 +2,11 @@ const { postOrderSchema } = require("../models/postOrderSchema");
 const { openHouseSchema } = require("../models/openHouseSchema");
 const User = require("../models/user");
 const { nodemailerTransport, gmailTemplate } = require("../utilities/gmail");
-const {verifyOpenHouseTotal, verifyPostOrderTotal} = require("../utilities/verifyTotal");
+const {
+  verifyOpenHouseTotal,
+  verifyPostOrderTotal,
+} = require("../utilities/verifyTotal");
+const { completeOpenHouseOrder } = require("./orders");
 require("dotenv").config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -193,7 +197,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent( req.body.toString("utf8") , sig , endpointSecret);
+    event = stripe.webhooks.constructEvent(
+      req.body.toString("utf8"),
+      sig,
+      endpointSecret
+    );
   } catch (err) {
     console.error("Webhook event construction error: ", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -205,25 +213,16 @@ const stipeSubscriptionWebhook = async (req, res) => {
       const session = event.data.object;
       const sessionId = session.id;
 
-      try {
-        console.log('session', session)
-        console.log('here')
-        console.log('session metadata', session.metadata)
-
-        const orderId = session.metadata.orderId
-  
-        const order = await openHouseSchema.findByIdAndUpdate(orderId, { paid: true }, { new: true });
-  
-        if (!order) {
-          return res.status(404).json({ msg: "Order not found" });
+      if (session.mode === "payment") {
+        try {
+          const orderId = session.metadata.orderId;
+          completeOpenHouseOrder(orderId, session);
+        } catch (error) {
+          console.error("error in open house webhook", error.message);
         }
-  
-        console.log('order updated successfully', order) 
-      } catch (error) {
-        console.error('error in open house webhook', error.message)
       }
 
-      if (session.subscription) {
+      if (session.mode === "subscription") {
         try {
           // Find the post-order form associated with the sessionId
           const order = await postOrderSchema.findOne({ sessionId });

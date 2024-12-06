@@ -54,6 +54,7 @@ const ConfirmationPage = () => {
     //? check if payment was successfull or not
     if (success) {
       // checkPaymentStatus();
+      toast.success("Payment successful. Please wait while we process your order.");
       navigate("/");
     } else if (canceled) {
       toast.error("Payment was canceled. Please try again.");

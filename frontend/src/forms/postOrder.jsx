@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { zones } from "../data/staticData";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useGlobal } from "../context/GlobalContext";
@@ -47,16 +46,23 @@ function PostOrder() {
       doNotDisturb: 0,
     },
   };
-  const additionalPrices = {
-    flyerBox: 10,
-    lighting: 35,
-    rider: 10,
-    post: 15,
-  };
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const { baseUrl } = useGlobal();
+  const { baseUrl, additionalPrices: postOrderPrices, zonePrices : zones } = useGlobal();
+
+  const additionalPrices = {
+    flyerBox: postOrderPrices.find(price => price.name === "Flyer Box")?.price,
+    lighting: postOrderPrices.find(price => price.name === "Lighting")?.price,
+    rider: postOrderPrices.find(price => price.name === "Rider")?.price,
+    post: postOrderPrices.find(price => price.name === "Post")?.price || 15,
+  };
+
+  useEffect(() => {
+    // console.log(postOrderPrices);
+    // console.log(additionalPrices);
+    // console.log(zones);
+  }, [postOrderPrices, additionalPrices, zones]);
 
   //? ----------------------------------
   //? handling inputs
@@ -387,7 +393,7 @@ function PostOrder() {
             <option value="">Please Select</option>
             {zones.map((data, index) => (
               <option key={index} value={index}>
-                {data.text}
+                {data.text.slice(0, data.text.indexOf("-"))} - ${data.price}
               </option>
             ))}
           </select>
@@ -459,7 +465,7 @@ function PostOrder() {
             onChange={handleInputChange}
           />
           <label className="font-medium text-sm">
-            Yes I would like to add a flyer box for $10 additional
+            Yes I would like to add a flyer box for ${additionalPrices.flyerBox} additional
           </label>
         </div>
 
@@ -472,7 +478,7 @@ function PostOrder() {
             onChange={handleInputChange}
           />
           <label className="font-medium text-sm">
-            Yes I would like to add lighting for $35 additional
+            Yes I would like to add lighting for ${additionalPrices.lighting} additional
           </label>
         </div>
 
@@ -520,7 +526,7 @@ function PostOrder() {
         <div className="flex flex-col">
           <label className="font-medium text-sm">Riders</label>
           <p className="mb-2">
-            Each rider costs $10. Enter the required number.
+            Each rider costs ${additionalPrices.rider}. Enter the required number.
           </p>
           <hr />
           <div className=" flex flex-col gap-2 w-max pt-4">
@@ -571,7 +577,7 @@ function PostOrder() {
               {formData.total}
             </div>
           </div>
-          <p>USD for the first month then, $15.00 for each month</p>
+          <p>USD for the first month then, ${additionalPrices.post} for each month</p>
         </div>
 
         {/* Total Section */}

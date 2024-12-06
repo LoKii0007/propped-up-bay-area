@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema({
-  zonePrice: { 
+  price: { 
     type: Number, 
     required: true 
   },

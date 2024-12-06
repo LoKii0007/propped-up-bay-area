@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { zones } from "../data/staticData";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useGlobal } from "../context/GlobalContext";
@@ -43,18 +42,24 @@ const OpenHouseForm = () => {
     total: 0,
   };
 
-  const additionalPrices = {
-    signReset: 5,
-    AddressPrint: 10,
-    TwilightHour: 25,
-    RushFee: 25,
-  };
-
   const [formData, setFormData] = useState(initialState);
   const [rushFee, setRushFee] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().getHours());
   const [loading, setLoading] = useState(false);
-  const { baseUrl } = useGlobal();
+  const { baseUrl, zonePrices:zones, additionalPrices : openHousePrices } = useGlobal();
+
+  const additionalPrices = {
+    signReset: openHousePrices.find(price => price.name === "Sign Reset per sign")?.price,
+    AddressPrint: openHousePrices.find(price => price.name === "Address Print")?.price,
+    TwilightHour: openHousePrices.find(price => price.name === "Twilight Tour")?.price,
+    RushFee: openHousePrices.find(price => price.name === "Rush Fee")?.price,
+  };
+
+  useEffect(() => {
+    console.log(additionalPrices);
+    console.log(zones);
+  }, [additionalPrices, zones]);
+
 
   // ----------------------------------
   // handling inputs
@@ -369,34 +374,6 @@ const OpenHouseForm = () => {
         </div>
 
         {/* Time of First Event and End Time Section */}
-        {/* <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex flex-col">
-            <label className="font-medium text-sm">
-              Time of First Event <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="time"
-              name="firstEventStartTime"
-              value={formData.firstEventStartTime}
-              onChange={handleInputChange}
-              required
-              className="border border-gray-300 p-2 rounded-sm"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="font-medium text-sm">
-              End Time of Event <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="time"
-              name="firstEventEndTime"
-              value={formData.firstEventEndTime}
-              onChange={handleInputChange}
-              required
-              className="border border-gray-300 p-2 rounded-sm"
-            />
-          </div>
-        </div> */}
         <TimePicker formData={formData} setFormData={setFormData} />
         
 
@@ -477,7 +454,7 @@ const OpenHouseForm = () => {
             <option value="">Please Select</option>
             {zones.map((data, index) => (
               <option key={index} value={index}>
-                {data.text}
+                {data.text.slice(0, data.text.indexOf("-"))} - ${data.price}
               </option>
             ))}
           </select>
@@ -515,7 +492,7 @@ const OpenHouseForm = () => {
         {/* Additional Sign Quantity Section */}
         <div className="flex flex-col">
           <label className="font-medium text-sm">
-            No. of Additional Sign Quantity ($5 per sign)
+            No. of Additional Sign Quantity (${additionalPrices.signReset} per sign)
           </label>
           <input
             type="number"
@@ -542,7 +519,7 @@ const OpenHouseForm = () => {
             />
             <span className="text-sm text-gray-500">
               Do you need the address printed on each sign? Requires 48 hours
-              notice with $10 additional charge.
+              notice with ${additionalPrices.AddressPrint} additional charge.
             </span>
           </div>
         </div>
@@ -550,7 +527,7 @@ const OpenHouseForm = () => {
         {/* Twilight Tours Section */}
         <div className="flex flex-col gap-1">
           <label className="font-medium text-sm">
-            Twilight Tours - $25 (This is to be added to the regular price of
+            Twilight Tours - ${additionalPrices.TwilightHour} (This is to be added to the regular price of
             open house signs any time there’s a broker tour){" "}
             <span className="text-red-500">*</span>
           </label>
