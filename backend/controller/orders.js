@@ -96,7 +96,8 @@ const createOpenHouseOrderApi = async (req, res) => {
 //? ---------------------------------
 const completeOpenHouseOrder = async (orderId, session) => {
   try {
-    const order = await openHouseSchema.findById(orderId);
+    const id = new mongoose.Types.ObjectId(orderId);
+    const order = await openHouseSchema.findById(id);
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
     }
