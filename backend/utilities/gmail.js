@@ -12,11 +12,13 @@ const gmailTemplate = (message, link) => `
 
 const gmailTemplateSignup = (firstName) => `
   Dear ${firstName},
-
+  <br>
   Thank you for signing up with Proppedup Bay Area! We’re excited to help you streamline your open house needs and post orders with ease.
   <br>
   Your account is now ready, and you can begin exploring our services, including:
+  <br>
   - Open House Support
+  <br>
   - Post Order Services
   <br>
   We’re here to make your experience smooth and hassle-free. If you have any questions or need assistance, don’t hesitate to reach out at info@proppedupbayarea.com – we’re always happy to help.
@@ -24,6 +26,7 @@ const gmailTemplateSignup = (firstName) => `
   Thanks again for choosing Proppedup Bay Area. We look forward to being a part of your success!
   <br>
   Warm regards,   
+  <br>
   The Proppedup Bay Area Team
 `;
 
@@ -36,7 +39,8 @@ const gmailTemplateIncompleteProfile = (firstName) => `
   <br>
   If you have any questions or need assistance, feel free to contact us at info@proppedupbayarea.com.
   <br>
-Warm regards,  
+  Warm regards,  
+  <br>
   The Proppedup Bay Area Team
 `;
 

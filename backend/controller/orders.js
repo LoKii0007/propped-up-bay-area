@@ -6,6 +6,8 @@ const { gmailTemplate, nodemailerTransport } = require("../utilities/gmail");
 const { addToGoogleSheet } = require("../utilities/sheetautomation");
 const orderCounterSchema = require("../models/orderCounterSchema");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const mongoose = require("mongoose");
+
 
 //? ---------------------------
 //? -------create openHouseOrderApi
