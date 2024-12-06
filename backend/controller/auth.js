@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SuperUser = require("../models/superUser");
 const UserDetails = require("../models/userDetails");
-const { nodemailerTransport } = require("../utilities/gmail");
+const { nodemailerTransport, gmailTemplateSignup } = require("../utilities/gmail");
 const crypto = require("crypto");
 const streamifier = require("streamifier");
 
@@ -68,7 +68,25 @@ const signUp = async (req, res) => {
     delete userResponse.totalSpent;
     delete userResponse._id;
 
-    res.status(201).json({ msg: "User saved", user: userResponse });
+    // Send email with Nodemailer
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Propped up order confirmed",
+      html: gmailTemplateSignup(firstName),
+    };
+
+    try {
+      await nodemailerTransport.sendMail(mailOptions);
+      res.status(201).json({ user: userResponse, msg: "User saved successfully" });
+    } catch (error) {
+      console.error("Email sending error:", error.message);
+      res.status(201).json({
+        user: userResponse,
+        msg: "User saved successfully, but email could not be sent",
+      });
+    }
+
   } catch (error) {
     console.error("Error in signUp API: ", error.message);
     res.status(500).json({ msg: "Signup server error" });
