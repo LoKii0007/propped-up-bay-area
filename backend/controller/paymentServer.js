@@ -83,9 +83,9 @@ const stripeSubscription = async (req, res) => {
       return res.status(400).json({ message: "Invalid custom amount" });
     }
 
-    // if (!verifyPostOrderTotal(data)) {
-    //   return res.status(400).json({ msg: "Price mismatch. Please try again" });
-    // }
+    if (!verifyPostOrderTotal(data)) {
+      return res.status(400).json({ msg: "Price mismatch. Please try again" });
+    }
 
     const amountInCents = data.total * 100;
 
@@ -107,6 +107,9 @@ const stripeSubscription = async (req, res) => {
           quantity: 1,
         },
       ],
+      metadata: {
+        orderId: JSON.stringify(data._id),
+      },
       // subscription_data: {
       //   trial_period_days: 30, // Add 30-day free trial to the subscription
       // },
