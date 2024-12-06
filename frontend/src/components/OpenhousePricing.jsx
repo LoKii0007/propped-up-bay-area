@@ -113,7 +113,10 @@ const OpenhousePricing = () => {
         toast.error(res.data.msg);
       } else {
         console.log(res.data);
-        setZonePrices(res.data.zonePrices);
+        const filteredPrices = res.data.zonePrices.filter(  
+          (price) => price.type === "openHouse"
+        );
+        setZonePrices(filteredPrices);
       }
     } catch (error) {
       toast.error(error.response.data.msg);

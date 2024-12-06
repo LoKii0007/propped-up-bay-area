@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SuperUser = require("../models/superUser");
 const UserDetails = require("../models/userDetails");
-const { nodemailerTransport, gmailTemplateSignup } = require("../utilities/gmail");
+const { nodemailerTransport, gmailTemplateSignup, gmailTemplatePasswordChanged, gmailTemplateResetPassword, gmailTemplateAdminLogin } = require("../utilities/gmail");
 const crypto = require("crypto");
 const streamifier = require("streamifier");
 
@@ -195,7 +195,24 @@ const updatePassword = async (req, res) => {
     // Save the updated user
     await user.save();
 
-    res.status(200).json({ message: "Password updated successfully" });
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: [user.email],
+      subject: "Propped up password updated",
+      html: gmailTemplatePasswordChanged(),
+    };
+
+    try {
+      await nodemailerTransport.sendMail(mailOptions);
+      res.status(201).json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Email sending error:", error.message);
+      res.status(201).json({
+        message: "Password updated successfully, but email could not be sent",
+      });
+    }
+
+    // res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("Error in updatePassword API: ", error.message);
     res.status(500).json({ message: "Server error" });
@@ -332,7 +349,7 @@ const sendOtp = async (req, res) => {
       from: process.env.SENDER_EMAIL,
       to: email,
       subject: "Reset Password OTP",
-      text: `Your OTP for password reset is ${otp}. It is valid for 5 minutes.`,
+      html: gmailTemplateResetPassword(user.firstName, otp),
     };
 
     await nodemailerTransport.sendMail(mailOptions);
@@ -365,6 +382,24 @@ const resetPassword = async (req, res) => {
     user.Expiry = undefined;
 
     await user.save();
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: [user.email],
+      subject: "Propped up password updated",
+      html: gmailTemplatePasswordChanged(),
+    };
+
+    try {
+      await nodemailerTransport.sendMail(mailOptions);
+      res.status(201).json({ msg: "Password updated successfully" });
+    } catch (error) {
+      console.error("Email sending error:", error.message);
+      res.status(201).json({
+        msg: "Password updated successfully, but email could not be sent",
+      });
+    }
+
     res.status(200).json({ msg: "Password reset successfully" });
   } catch (error) {
     console.error("Error in resetPassword API: ", error.message);
@@ -409,7 +444,24 @@ const adminLogin = async (req, res) => {
     const user2 = user.toObject();
     delete user2.password;
 
-    res.status(200).json({ user, msg: "logged in" });
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: [user.email],
+      subject: "Propped up admin login",
+      html: gmailTemplateAdminLogin(user.firstName),
+    };
+
+    try {
+      await nodemailerTransport.sendMail(mailOptions);
+      res.status(201).json({ msg: "logged in" });
+    } catch (error) {
+      console.error("Email sending error:", error.message);
+      res.status(201).json({
+        msg: "logged in, but email could not be sent",
+      });
+    }
+
+    // res.status(200).json({ user, msg: "logged in" });
   } catch (error) {
     console.error("Error in adminLogin API: ", error.message);
     res.status(500).json({ msg: "login Server error" });

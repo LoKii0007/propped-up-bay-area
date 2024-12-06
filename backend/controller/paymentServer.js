@@ -102,7 +102,6 @@ const stripeSubscription = async (req, res) => {
           quantity: 1,
         },
         {
-          // price: "price_1QH5BiSBgjrcPEt3WZQKnEZH",
           price: "price_1QMSxESBgjrcPEt399r9hu9F",
           quantity: 1,
         },

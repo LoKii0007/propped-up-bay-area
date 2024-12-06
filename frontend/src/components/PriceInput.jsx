@@ -27,7 +27,7 @@ const PriceInput = ({ editAdditionalPrices, loading2, selectedAdditionalPrice, u
             disabled={loading2}
             className="border-2 border-[#34CAA5] px-6 py-2 rounded-md"
           >
-            {editAdditionalPrices && selectedAdditionalPrice === price._id ? "Save" : "Edit"}
+            { loading2 && selectedAdditionalPrice === price._id ? "Saving..." : editAdditionalPrices && selectedAdditionalPrice === price._id ? "Save" : "Edit"}
           </button>
         </div>
       </div>

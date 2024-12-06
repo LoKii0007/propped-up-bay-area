@@ -3,7 +3,7 @@ const UserDetails = require("../models/userDetails");
 const User = require("../models/user");
 const SuperUser = require("../models/superUser");
 const streamifier = require("streamifier");
-const { nodemailerTransport } = require("../utilities/gmail");
+const { nodemailerTransport, gmailTemplateIncompleteProfile } = require("../utilities/gmail");
 
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
@@ -148,7 +148,6 @@ async function sendReminderEmail(req, res) {
 
     if (!email) {
       return res.status(401).json({ msg: "Please provide a valid email" });
-      return;
     }
 
     const requestingUser = await SuperUser.findById(req.user.userId);
@@ -164,12 +163,16 @@ async function sendReminderEmail(req, res) {
       return res.status(401).json({ msg: "Unauthorized" });
     }
 
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: email, 
       subject: "Reminder Notification",
-      text: "Your reminder notification",
-      html: `<p>You haven't completed your profile yet. please complete your profile</p>`,
+      html: gmailTemplateIncompleteProfile(user.firstName),
     };
 
     await nodemailerTransport.sendMail(mailOptions);

@@ -17,6 +17,11 @@ const schema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  type: {
+    type: String,
+    required: true,
+    enum: ["openHouse", "postOrder"],
+  },
 });
 
 const zonePricesSchema = mongoose.model("ZonePrices", schema);

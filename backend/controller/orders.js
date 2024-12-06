@@ -2,12 +2,16 @@ const { openHouseSchema } = require("../models/openHouseSchema");
 const { postOrderSchema } = require("../models/postOrderSchema");
 const User = require("../models/user");
 const SuperUser = require("../models/superUser");
-const { gmailTemplate, nodemailerTransport } = require("../utilities/gmail");
+const {
+  gmailTemplateOrder,
+  nodemailerTransport,
+  gmailTemplateOrderStatus,
+  gmailTemplateOrderStatusUpdate,
+} = require("../utilities/gmail");
 const { addToGoogleSheet } = require("../utilities/sheetautomation");
 const orderCounterSchema = require("../models/orderCounterSchema");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const mongoose = require("mongoose");
-
+const { ObjectId } = require("mongodb");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -98,7 +102,8 @@ const createOpenHouseOrderApi = async (req, res) => {
 //? ---------------------------------
 const completeOpenHouseOrder = async (orderId, session) => {
   try {
-    const id = mongoose.Types.ObjectId(orderId);
+    console.log("orderId", orderId);
+    const id = ObjectId(orderId);
     const order = await openHouseSchema.findById(id);
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
@@ -174,11 +179,11 @@ const completeOpenHouseOrder = async (orderId, session) => {
       limit: 1, // Retrieve only the latest invoice
     });
 
-    let invoiceUrl ;
-    if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url){
-      invoiceUrl = invoices.data[0].hosted_invoice_url
-    }else{
-      invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`
+    let invoiceUrl;
+    if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
+      invoiceUrl = invoices.data[0].hosted_invoice_url;
+    } else {
+      invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
     }
 
     const userEmail = await User.findById(order.userId);
@@ -186,9 +191,9 @@ const completeOpenHouseOrder = async (orderId, session) => {
     // Send email with Nodemailer
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
-      to: [email, userEmail.email],
+      to: [order.email, userEmail.email],
       subject: "Propped up order confirmed",
-      html: gmailTemplate("Your order is placed successfully", invoiceUrl),
+      html: gmailTemplateOrder(order.firstName, "open house", invoiceUrl),
     };
 
     try {
@@ -501,7 +506,33 @@ const updateOrderApi = async (req, res) => {
         return res.status(404).json({ msg: "Order not found" });
       }
 
-      return res.status(200).json({ msg: "Order updated successfully!" });
+      // Send email with Nodemailer
+      const mailOptions = {
+        from: process.env.SENDER_EMAIL,
+        to: [updatedOrder.email],
+        subject: "Propped up order status updated",
+        html: gmailTemplateOrderStatus(updatedOrder.firstName, status),
+      };
+
+      const mailOptionsAdmin = {
+        from: process.env.SENDER_EMAIL,
+        to: ['lokeshyadav@gmail.com'],
+        subject: "Propped up order status updated",
+        html: gmailTemplateOrderStatusUpdate(),
+      };
+
+      try {
+        await nodemailerTransport.sendMail(mailOptions);
+        await nodemailerTransport.sendMail(mailOptionsAdmin);
+        res.status(201).json({msg: "Order updated successfully!" });
+      } catch (error) {
+        console.error("Email sending error:", error.message);
+        res.status(201).json({
+          msg: "Order updated successfully, but email could not be sent",
+        });
+      }
+
+      // return res.status(200).json({ msg: "Order updated successfully!" });
     } else if (orderType === "postOrder") {
       const updatedOrder = await postOrderSchema.findByIdAndUpdate(
         orderId,
@@ -513,10 +544,36 @@ const updateOrderApi = async (req, res) => {
         return res.status(404).json({ msg: "Order not found" });
       }
 
+      // Send email with Nodemailer
+      const mailOptions = {
+        from: process.env.SENDER_EMAIL,
+        to: [updatedOrder.email],
+        subject: "Propped up order status updated",
+        html: gmailTemplateOrderStatus(updatedOrder.firstName, status),
+      };
+
+      const mailOptionsAdmin = {
+        from: process.env.SENDER_EMAIL,
+        to: ['lokeshyadav@gmail.com'],
+        subject: "Propped up order status updated",
+        html: gmailTemplateOrderStatusUpdate(),
+      };
+
+      try {
+        await nodemailerTransport.sendMail(mailOptions);
+        await nodemailerTransport.sendMail(mailOptionsAdmin);
+        res.status(201).json({msg: "Order updated successfully!" });
+      } catch (error) {
+        console.error("Email sending error:", error.message);
+        res.status(201).json({
+          msg: "Order updated successfully, but email could not be sent",
+        });
+      }
+
       return res.status(200).json({ msg: "Order updated successfully!" });
     }
 
-    return res.status(400).json({ msg: "Invalid order type" });
+    // return res.status(400).json({ msg: "Invalid order type" });
   } catch (error) {
     console.log("error in update orders api", error.message);
     return res.status(500).json({ msg: "error in update orders api" });
