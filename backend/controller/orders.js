@@ -11,7 +11,6 @@ const {
 const { addToGoogleSheet } = require("../utilities/sheetautomation");
 const orderCounterSchema = require("../models/orderCounterSchema");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { ObjectId } = require("mongodb");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -103,8 +102,7 @@ const createOpenHouseOrderApi = async (req, res) => {
 const completeOpenHouseOrder = async (orderId, session) => {
   try {
     console.log("orderId", orderId);
-    const id = ObjectId(orderId);
-    const order = await openHouseSchema.findById(id);
+    const order = await openHouseSchema.findOne({ _id: orderId });
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
     }
