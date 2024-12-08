@@ -106,8 +106,8 @@ const completeOpenHouseOrder = async (orderId, session) => {
     console.log("orderId",typeof orderId);
     console.log("orderId",orderId);
 
-    // const id = new mongoose.Schema.Types.ObjectId(orderId)
-    const order = await openHouseSchema.findById(orderId);
+    const sanitizedId = orderId.toString().replace(/^["']|["']$/g, '').trim()
+    const order = await openHouseSchema.findById(sanitizedId);
 
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
