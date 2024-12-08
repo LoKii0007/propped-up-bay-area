@@ -65,7 +65,7 @@ const formSchema = new Schema({
   },
   sessionId : {
     type : String,
-    required : true
+    // required : true
   },
   createdAt: {
     type: Date,

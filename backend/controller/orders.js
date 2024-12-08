@@ -103,16 +103,14 @@ const createOpenHouseOrderApi = async (req, res) => {
 //? ---------------------------------
 const completeOpenHouseOrder = async (orderId, session) => {
   try {
-    console.log("orderId",typeof orderId);
-    console.log("orderId",orderId);
 
     const sanitizedId = orderId.toString().replace(/^["']|["']$/g, '').trim()
     const order = await openHouseSchema.findById(sanitizedId);
 
     if (!order) {
-      return res.status(404).json({ msg: "Order not found" });
+      console.log("Order not found");
+      return false
     }
-    console.log("here " );
 
     // update paid
     await order.updateOne({ paid: true });
@@ -203,8 +201,10 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
+      return true
       console.log("order updated and email sent successfully");
     } catch (error) {
+      return false
       console.error("order updated but email could not be sent", error.message);
     }
   } catch (error) {
@@ -306,14 +306,13 @@ const createPostOrderApi = async (req, res) => {
 //? ------------------------------------------
 const completePostOrder = async (orderId, session) => {
   try {
-    console.log("orderId",typeof orderId);
     
     const sanitizedId = orderId.toString().replace(/^["']|["']$/g, '').trim()
     const order = await postOrderSchema.findById(sanitizedId);
     if (!order) {
-      return res.status(404).json({ msg: "Order not found" });
-    }
-    console.log("here " );
+      console.log("Order not found");
+      return false
+    }   
 
     // update paid
     await order.updateOne({ paid: true });
@@ -418,8 +417,10 @@ const completePostOrder = async (orderId, session) => {
     try {
       await nodemailerTransport.sendMail(mailOptions);
       console.log("order updated and email sent successfully");
+      return true
     } catch (error) {
       console.error("order updated but email could not be sent", error.message);
+      return false
     }
   } catch (error) {
     console.error("Error in completePostOrder", error.message);
@@ -441,12 +442,13 @@ const getOpenHouseOrderApi = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    const orders = await openHouseSchema.find({ userId });
+    const orders = await openHouseSchema.find({ userId, paid: true });
     if (!orders.length) {
       // Check if orders array is empty
       console.log("No order found");
       return res.status(404).json({ msg: "No order found" });
     }
+    
 
     return res.status(200).json({ orders });
   } catch (error) {
@@ -472,7 +474,7 @@ const getPostOrderApi = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    const orders = await postOrderSchema.find({ userId });
+    const orders = await postOrderSchema.find({ userId, paid: true });
     if (!orders.length) {
       // Check if orders array is empty
       console.log("No order found");
@@ -629,23 +631,27 @@ const getAllOrdersApi = async (req, res) => {
     }
 
     const page = parseInt(req.query.page) || 1; // Get page number
-    const limit = parseInt(req.query.limit) || 20; // get limit
-    const skip = (page - 1) * limit; //  how many orders to skip
+    const limit = parseInt(req.query.limit) || 20; // Get limit
+    const skip = (page - 1) * limit; // How many orders to skip
 
-    // Find total users
+    // Calculate total order count (for the first page)
     let totalOrderCount = 0;
     if (page === 1) {
-      totalOrderCount = await openHouseSchema.countDocuments();
-      totalOrderCount += await postOrderSchema.countDocuments();
+      totalOrderCount = await openHouseSchema.countDocuments({ paid: true });
+      totalOrderCount += await postOrderSchema.countDocuments({ paid: true });
     }
 
-    const openHouseOrders = await openHouseSchema
-      .find()
-      .skip(skip)
-      .limit(limit);
+    // Fetch orders from the first collection
+    let openHouseOrders = await openHouseSchema.find({ paid: true }).skip(skip).limit(limit);
 
-    const postOrders = await postOrderSchema.find().skip(skip).limit(limit);
+    // Calculate remaining limit
+    const remainingLimit = limit - openHouseOrders.length;
 
+    // If the limit isn't filled, fetch the remaining orders from the second collection
+    let postOrders = await postOrderSchema.find({ paid: true }).skip(skip).limit(remainingLimit + limit);
+    
+
+    // Combine the orders
     orders.push(...openHouseOrders, ...postOrders);
 
     if (orders.length === 0) {
@@ -653,16 +659,20 @@ const getAllOrdersApi = async (req, res) => {
       return res.status(404).json({ message: "No orders found" });
     }
 
-    return res
-      .status(200)
-      .json({ orders, message: "orders found .", count: totalOrderCount });
+    return res.status(200).json({
+      orders,
+      message: "Orders found.",
+      count: totalOrderCount,
+    });
   } catch (error) {
     console.log("Error in getAllOrdersApi", error.message);
-    return res
-      .status(500)
-      .json({ message: "Error in getAllOrdersApi", error: error.message });
+    return res.status(500).json({
+      message: "Error in getAllOrdersApi",
+      error: error.message,
+    });
   }
 };
+
 
 module.exports = {
   createOpenHouseOrderApi,

@@ -39,7 +39,7 @@ Routes.post('/api/user/send-reminder',verifyUser, sendReminderEmail) // send not
 //? orders route
 //? -----------------------------
 Routes.post('/api/orders/open-house-order' ,verifyUser, createOpenHouseOrderApi) //openhouse new order
-Routes.post('/api/orders/post-order',checkPaymentStatus, verifyUser, createPostOrderApi) // new postorder
+Routes.post('/api/orders/post-order', verifyUser, createPostOrderApi) // new postorder
 Routes.get('/api/orders/open-house-order', verifyUser , getOpenHouseOrderApi) //openhouse get
 Routes.get('/api/orders/post-order',verifyUser, getPostOrderApi) // postorder get
 Routes.get('/api/invoice/open-house-order', getOpenHouseInvoiceApi) // openhouse invoice get
@@ -98,8 +98,6 @@ Routes.post('/api/sheets', addDataToMultipleSheet)
 //? -----------------------------
 Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
 Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
-// Routes.post('/api/orders/post-order/subscription-webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
-Routes.post('/webhook', stipeSubscriptionWebhook)  //postorder subscription webhook
 Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
 module.exports = Routes

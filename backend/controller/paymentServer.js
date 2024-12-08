@@ -29,9 +29,9 @@ const stripeCustomPayment = async (req, res) => {
       return res.status(400).json({ message: "Invalid custom amount" });
     }
 
-    // if (!verifyOpenHouseTotal(data)) {
-    //   return res.status(400).json({ msg: "Price mismatch. Please try again" });
-    // }
+    if (!verifyOpenHouseTotal(data)) {
+      return res.status(400).json({ msg: "Prices may have been updated. Please refresh the page and try again." });
+    }
 
     // Convert to cents
     const amountInCents = Math.round(data.total * 100);
@@ -88,7 +88,7 @@ const stripeSubscription = async (req, res) => {
     }
 
     if (!verifyPostOrderTotal(data)) {
-      return res.status(400).json({ msg: "Price mismatch. Please try again" });
+      return res.status(400).json({ msg: "Prices may have been updated. Please refresh the page and try again." });
     }
 
     const amountInCents = data.total * 100;
@@ -221,7 +221,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
       if (session.mode === "payment") {
         try {
           const orderId = session.metadata.orderId;
-          completeOpenHouseOrder(orderId , session);
+          if (completeOpenHouseOrder(orderId , session)) {
+            res.status(200).json({ msg: "Order processed successfully." });
+          } else {
+            res.status(400).json({ msg: "Order not found." });
+          }
         } catch (error) {
           console.error("error in open house webhook", error.message);
         }
@@ -229,19 +233,18 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
       if (session.mode === "subscription") {
         try {
-          //Todo fix mongoose id type
-          const order = await postOrderSchema.findById(
-            session.metadata.orderId
-          );
+
+          const sanitizedId = orderId.toString().replace(/^["']|["']$/g, '').trim()
+          const order = await postOrderSchema.findById(sanitizedId);
 
           if (!order) {
-            console.log("No order found ", session.metadata.orderId);
+            console.log("No order found ", sanitizedId);
             return res.status(404).send("Order not found.");
           }
 
           if (order.paid === false) {
             completePostOrder(order._id, session);
-            return;
+            return res.status(200).json({ msg: "Order processed successfully." });
           }
 
           // Retrieve the user's email (from Stripe)
@@ -284,12 +287,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
           // Send the email
           try {
             await nodemailerTransport.sendMail(mailOptions);
-            console.log("Invoice email sent successfully.");
+            return res.status(200).json({ msg: "Order processed successfully." });
           } catch (error) {
             console.error("Error sending email:", error.message);
+            return res.status(500).json({ msg: "Error sending email" });
           }
-
-          res.status(200).json({ msg: "Order processed successfully." });
         } catch (error) {
           console.error(
             "Error handling checkout session completed:",

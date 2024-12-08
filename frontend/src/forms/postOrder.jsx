@@ -49,7 +49,9 @@ function PostOrder() {
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const { baseUrl, additionalPrices: postOrderPrices, zonePrices : zones } = useGlobal();
+  const { baseUrl, additionalPrices: postOrderPrices, zonePrices } = useGlobal();
+
+  const zones = zonePrices.filter(zone => zone.type === "postOrder");
 
   const additionalPrices = {
     flyerBox: postOrderPrices.find(price => price.name === "Flyer Box")?.price,
@@ -59,10 +61,7 @@ function PostOrder() {
   };
 
   useEffect(() => {
-    // console.log(postOrderPrices);
-    // console.log(additionalPrices);
-    // console.log(zones);
-  }, [postOrderPrices, additionalPrices, zones]);
+  }, [ additionalPrices, zones]);
 
   //? ----------------------------------
   //? handling inputs
@@ -162,10 +161,30 @@ function PostOrder() {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+    if(!formData.requestedDate) {
+      toast.error("Please select a date for the event");
+      setLoading(false);
+      return;
+    }
     try {
+      
+      // step1: creating order
+      const res = await axios.post(
+        `${baseUrl}/api/orders/post-order`,
+        formData,
+        { withCredentials: true, validateStatus : (status) => status < 500 }
+      );
+
+      if (res.status !== 201) {
+        setLoading(false);
+        toast.error(res.data.msg || "Error creating order");
+        return;
+      }
+
+      // step2: creating subscription schedule
       const payment = await axios.post(
         `${baseUrl}/api/orders/post-order/subscription-schedule`,
-        { data: formData },
+        { data: res.data.order },
         { withCredentials: true, validateStatus: (status) => status < 500 }
       );
 
@@ -175,12 +194,10 @@ function PostOrder() {
         return;
       }
 
-      sessionStorage.setItem("orderData", JSON.stringify(formData));
-
-      // Step 2: Redirect to the Stripe checkout session
+      // step3: Redirect to the Stripe checkout session
       window.location.href = payment.data.url;
     } catch (error) {
-      toast.error("Server error");
+      toast.error("Server error. Please try again later.");
       setLoading(false);
     }
   }
@@ -283,6 +300,7 @@ function PostOrder() {
             value={formData.listingAddress.streetAddress}
             onChange={(e) => handleAddressChange(e, "listingAddress")}
             className="border border-gray-300 p-2 rounded mt-2"
+            required
           />
           <input
             type="text"
@@ -300,6 +318,7 @@ function PostOrder() {
               value={formData.listingAddress.city}
               onChange={(e) => handleAddressChange(e, "listingAddress")}
               className="border border-gray-300 p-2 rounded"
+              required
             />
             <input
               type="text"
@@ -308,6 +327,7 @@ function PostOrder() {
               value={formData.listingAddress.state}
               onChange={(e) => handleAddressChange(e, "listingAddress")}
               className="border border-gray-300 p-2 rounded"
+              required
             />
           </div>
           <input
@@ -317,6 +337,7 @@ function PostOrder() {
             value={formData.listingAddress.postalCode}
             onChange={(e) => handleAddressChange(e, "listingAddress")}
             className="border border-gray-300 p-2 rounded mt-2"
+            required
           />
         </div>
 

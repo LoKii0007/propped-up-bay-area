@@ -1,4 +1,25 @@
-const { zones, openHouseAdditionalPrices, postOrderAdditionalPrices } = require("../data/pricingData");
+const zonePricesSchema = require("../models/zonePrices");
+const additionalPricesSchema = require("../models/additionalPrices");
+
+async function getOpenHouseZones() {
+  const zones = await zonePricesSchema.find({ type: "openHouse" });
+  return zones;
+}
+
+async function getPostOrderZones() {
+  const zones = await zonePricesSchema.find({ type: "postOrder" });
+  return zones;
+}
+
+async function getOpenHouseAdditionalPrices() {
+  const additionalPrices = await additionalPricesSchema.findOne({ type: "openHouse" });
+  return additionalPrices;
+}
+
+async function getPostOrderAdditionalPrices() {
+  const additionalPrices = await additionalPricesSchema.findOne({ type: "postOrder" });
+  return additionalPrices;
+}
 
 // Helper function to check if the event is within the same week as today
 const isSameWeek = (date, currentDate) => {
@@ -58,8 +79,11 @@ const checkRushFee = (selectedDate) => {
 };
 
 
-const verifyOpenHouseTotal = (data) => {
+const verifyOpenHouseTotal = async (data) => {
   try {
+    const zones = await getOpenHouseZones();
+    const openHouseAdditionalPrices = await getOpenHouseAdditionalPrices();
+
     const selectedZone = zones.find(
       (zone) => zone.name.toLowerCase() === data.requiredZone.name.toLowerCase()
     );
@@ -110,8 +134,10 @@ const verifyOpenHouseTotal = (data) => {
 };
 
 
-const verifyPostOrderTotal = (data) => {
+const verifyPostOrderTotal = async (data) => {
   try {
+    const zones = await getPostOrderZones();
+    const postOrderAdditionalPrices = await getPostOrderAdditionalPrices();
 
     // Find the zone price by name
     const selectedZone = zones.find(
@@ -149,12 +175,6 @@ const verifyPostOrderTotal = (data) => {
           Number(data.riders[riderType]) * Number(postOrderAdditionalPrices.rider);
       });
     }
-
-    // Check and apply rush fee if applicable
-    // Uncomment if needed:
-    // if (checkRushFee(data.requestedDate)) {
-    //   calculatedTotal += Number(openHouseAdditionalPrices.RushFee);
-    // }
 
     // Compare the calculated total with the provided total
     const isTotalValid = calculatedTotal === Number(data.total);

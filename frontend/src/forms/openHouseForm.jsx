@@ -46,7 +46,7 @@ const OpenHouseForm = () => {
   const [rushFee, setRushFee] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().getHours());
   const [loading, setLoading] = useState(false);
-  const { baseUrl, zonePrices:zones, additionalPrices : openHousePrices } = useGlobal();
+  const { baseUrl, zonePrices, additionalPrices : openHousePrices } = useGlobal();
 
   const additionalPrices = {
     signReset: openHousePrices.find(price => price.name === "Sign Reset per sign")?.price,
@@ -54,6 +54,8 @@ const OpenHouseForm = () => {
     TwilightHour: openHousePrices.find(price => price.name === "Twilight Tour")?.price,
     RushFee: openHousePrices.find(price => price.name === "Rush Fee")?.price,
   };
+
+  const zones = zonePrices.filter(zone => zone.type === "openHouse");
 
   useEffect(() => {
     console.log(additionalPrices);
@@ -234,9 +236,15 @@ const OpenHouseForm = () => {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+    if(!formData.requestedDate) {
+      toast.error("Please select a date for the event");
+      setLoading(false);
+      return;
+    }
     const data = { ...formData, type: "openHouse" };
     try {
 
+      // step1: creating order
       const res = await axios.post(
         `${baseUrl}/api/orders/open-house-order`,
         data,
@@ -249,7 +257,7 @@ const OpenHouseForm = () => {
         return;
       }
 
-      // Step 1: Verifying payment by creating a checkout session
+      // Step 2: Verifying payment by creating a checkout session
       const payment = await axios.post(
         `${baseUrl}/api/orders/open-house/create-checkout-session`,
         { data: res.data.order },
@@ -262,10 +270,7 @@ const OpenHouseForm = () => {
         return;
       }
 
-      // Store order data in sessionStorage
-      sessionStorage.setItem("orderData", JSON.stringify(data));
-
-      // Step 2: Redirect to the Stripe checkout session
+      // Step 3: Redirect to the Stripe checkout session
       window.location.href = payment.data.url;
     } catch (error) {
       toast.error("Server Error");
