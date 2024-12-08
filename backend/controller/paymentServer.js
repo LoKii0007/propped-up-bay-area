@@ -221,10 +221,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
       if (session.mode === "payment") {
         try {
           const orderId = session.metadata.orderId;
-          if (completeOpenHouseOrder(orderId , session)) {
-            res.status(200).json({ msg: "Order processed successfully." });
+          const result = completeOpenHouseOrder(orderId , session);
+          if (result.success) {
+            res.status(200).json({ msg: result.msg });
           } else {
-            res.status(400).json({ msg: "Order not found." });
+            res.status(400).json({ msg: result.msg });
           }
         } catch (error) {
           console.error("error in open house webhook", error.message);
@@ -243,10 +244,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
           }
 
           if (order.paid === false) {
-            if (completePostOrder(order._id, session)) {
-              return res.status(200).json({ msg: "Order processed successfully." });
+            const result = completePostOrder(order._id, session);
+            if (result.success) {
+              return res.status(200).json({ msg: result.msg });
             } else {
-              return res.status(400).json({ msg: "Order not found." });
+              return res.status(400).json({ msg: result.msg });
             }
           }
 

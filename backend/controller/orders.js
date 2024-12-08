@@ -11,8 +11,6 @@ const {
 const { addToGoogleSheet } = require("../utilities/sheetautomation");
 const orderCounterSchema = require("../models/orderCounterSchema");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { ObjectId } = require("mongodb");
-const mongoose = require("mongoose");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -109,7 +107,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     if (!order) {
       console.log("Order not found");
-      return false
+      return { msg: "Order not found", success: false }
     }
 
     // update paid
@@ -201,14 +199,15 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      return true
       console.log("order updated and email sent successfully");
+      return { msg: "Order updated and email sent successfully", success: true }
     } catch (error) {
-      return false
       console.error("order updated but email could not be sent", error.message);
+      return { msg: "Order updated but email could not be sent", success: false }
     }
   } catch (error) {
     console.error("Error in completeOpenHouseOrder", error.message);
+    return { msg: "Error in completeOpenHouseOrder", success: false }
   }
 };
 
@@ -311,7 +310,7 @@ const completePostOrder = async (orderId, session) => {
     const order = await postOrderSchema.findById(sanitizedId);
     if (!order) {
       console.log("Order not found");
-      return false
+      return { msg: "Order not found", success: false }
     }   
 
     // update paid
@@ -417,13 +416,14 @@ const completePostOrder = async (orderId, session) => {
     try {
       await nodemailerTransport.sendMail(mailOptions);
       console.log("order updated and email sent successfully");
-      return true
+      return { msg: "Order updated and email sent successfully", success: true }
     } catch (error) {
       console.error("order updated but email could not be sent", error.message);
-      return false
+      return { msg: "Order updated but email could not be sent", success: false }
     }
   } catch (error) {
     console.error("Error in completePostOrder", error.message);
+    return { msg: "Error in completePostOrder", success: false }
   }
 };
 
