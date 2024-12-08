@@ -107,6 +107,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
     console.log("orderId",orderId);
 
     const id = new mongoose.Types.ObjectId(orderId)
+    console.log("id",id);
     const order = await openHouseSchema.findOne({ _id: id });
 
     if (!order) {
