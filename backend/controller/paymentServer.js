@@ -221,7 +221,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
       if (session.mode === "payment") {
         try {
           const orderId = session.metadata.orderId;
-          completeOpenHouseOrder(orderId, session);
+          completeOpenHouseOrder(String(orderId), session);
         } catch (error) {
           console.error("error in open house webhook", error.message);
         }

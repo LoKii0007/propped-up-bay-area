@@ -102,7 +102,7 @@ const createOpenHouseOrderApi = async (req, res) => {
 //? ---------------------------------
 const completeOpenHouseOrder = async (orderId, session) => {
   try {
-    console.log("orderId", orderId);
+    console.log("orderId",typeof orderId);
     const id = new ObjectId(orderId)
     const order = await openHouseSchema.findOne({ _id: id });
     if (!order) {
