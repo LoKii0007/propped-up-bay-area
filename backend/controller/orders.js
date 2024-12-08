@@ -175,7 +175,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(order.userId, {
-      $inc: { totalOrders: 1, totalSpent: total },
+      $inc: { totalOrders: 1, totalSpent: order.total },
     });
 
     //getting invoice url
@@ -307,8 +307,9 @@ const createPostOrderApi = async (req, res) => {
 const completePostOrder = async (orderId, session) => {
   try {
     console.log("orderId",typeof orderId);
-    const id = new ObjectId(orderId)
-    const order = await postOrderSchema.findById({ _id: id });
+    
+    const sanitizedId = orderId.toString().replace(/^["']|["']$/g, '').trim()
+    const order = await postOrderSchema.findById(sanitizedId);
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
     }
@@ -387,7 +388,7 @@ const completePostOrder = async (orderId, session) => {
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
     await User.findByIdAndUpdate(order.userId, {
-      $inc: { totalOrders: 1, totalSpent: total },
+      $inc: { totalOrders: 1, totalSpent: order.total },
       isSubscribed: true
     });
 
