@@ -111,7 +111,7 @@ const stripeSubscription = async (req, res) => {
         },
       ],
       metadata: {
-        orderId: JSON.stringify(data._id),
+        orderId: data._id,
       },
       // subscription_data: {
       //   trial_period_days: 30, // Add 30-day free trial to the subscription
@@ -221,7 +221,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
       if (session.mode === "payment") {
         try {
           const orderId = session.metadata.orderId;
-          completeOpenHouseOrder(String(orderId), session);
+          completeOpenHouseOrder(orderId , session);
         } catch (error) {
           console.error("error in open house webhook", error.message);
         }
