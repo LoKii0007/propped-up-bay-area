@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";  
 
 const ConfirmationPage = () => {
@@ -15,11 +14,13 @@ const ConfirmationPage = () => {
     //? check if payment was successfull or not
     if (success) {
       toast.success("Payment successful. Please wait while we process your order.");
+      console.log("Payment successful. Please wait while we process your order.");
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } else if (canceled) {
       toast.error("Payment was canceled. Please try again.");
+      console.log("Payment was canceled. Please try again.");
       navigate("/");
     }
   }, [location.search]);

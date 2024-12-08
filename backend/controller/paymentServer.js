@@ -234,7 +234,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
       if (session.mode === "subscription") {
         try {
 
-          const sanitizedId = orderId.toString().replace(/^["']|["']$/g, '').trim()
+          const sanitizedId = session.metadata.orderId.toString().replace(/^["']|["']$/g, '').trim()
           const order = await postOrderSchema.findById(sanitizedId);
 
           if (!order) {
