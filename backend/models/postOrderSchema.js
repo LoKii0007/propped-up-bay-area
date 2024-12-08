@@ -63,6 +63,10 @@ const formSchema = new Schema({
     type : Boolean,
     default : true
   },
+  paid : {
+    type : Boolean,
+    default : false
+  },
   sessionId : {
     type : String,
     // required : true
