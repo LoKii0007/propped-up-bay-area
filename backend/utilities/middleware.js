@@ -34,7 +34,7 @@ const verifyUser = (req, res, next) => {
 //? ----------------------------
 //? middleware to check payment status
 //? ----------------------------
-const checkPaymentStatus = async (req, res, next) => {
+const checkPaymentStatus = async (req, res) => {
   const { sessionId } = req.query;
   console.log('sessionId : ', sessionId )
   try {
@@ -42,44 +42,13 @@ const checkPaymentStatus = async (req, res, next) => {
 
     // Check if the payment status is 'paid'
     if (session && session.payment_status === "paid") {
-      // Ensure the session has a valid customer ID
-      console.log('session : ',session.customer)
-      if (session.customer) {
-        // Retrieve the list of invoices for this customer
-        const invoices = await stripe.invoices.list({
-          customer: session.customer,
-          limit: 1, // Retrieve only the latest invoice
-        });
-        console.log('invoices : ', invoices.data.length)
-        // Ensure there's at least one invoice and it has a hosted URL
-        if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
-          const invoiceUrl = invoices.data[0].hosted_invoice_url;
-
-          // Add sessionId and invoiceUrl to the request object
-          req.stripe = {
-            sessionId,
-            invoiceUrl
-          };
-        }
-      } else {
-        // Handle case where no customer ID is found
-        req.stripe = {
-          sessionId,
-          invoiceUrl : false
-        };
-      }
-
-      next();
+      return res.status(200).json({ success: true, msg: "Payment completed" });
     } else {
-      return res
-        .status(400)
-        .json({ success: false, msg: "Payment not completed" });
+      return res.status(400).json({ success: false, msg: "Payment not completed" });
     }
   } catch (error) {
     console.error(error.message);
-    return res
-      .status(500)
-      .json({ msg: "Failed to retrieve session", error: error.message });
+    return res.status(500).json({ msg: "Failed to retrieve session", error: error.message });
   }
 };
 

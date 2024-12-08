@@ -243,12 +243,15 @@ const stipeSubscriptionWebhook = async (req, res) => {
           }
 
           if (order.paid === false) {
-            completePostOrder(order._id, session);
-            return res.status(200).json({ msg: "Order processed successfully." });
+            if (completePostOrder(order._id, session)) {
+              return res.status(200).json({ msg: "Order processed successfully." });
+            } else {
+              return res.status(400).json({ msg: "Order not found." });
+            }
           }
 
           // Retrieve the user's email (from Stripe)
-          const customerDetails = checkoutSessionCompleted.customer_details;
+          const customerDetails = session.customer_details;
           const stripeEmail = customerDetails.email;
 
           // Find the user in the database by userId from the order
@@ -293,10 +296,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
             return res.status(500).json({ msg: "Error sending email" });
           }
         } catch (error) {
-          console.error(
-            "Error handling checkout session completed:",
-            error.message
-          );
+          console.error("Error handling checkout session completed:",error.message);
           res.status(500).send("Internal Server Error");
         }
       }

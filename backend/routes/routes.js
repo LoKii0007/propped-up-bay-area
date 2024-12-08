@@ -96,6 +96,7 @@ Routes.post('/api/sheets', addDataToMultipleSheet)
 //? -----------------------------
 //? payment route
 //? -----------------------------
+Routes.get('/api/payment/check-status', checkPaymentStatus) // check payment status
 Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
 Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
 Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
