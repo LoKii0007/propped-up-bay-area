@@ -17,7 +17,7 @@ const gmailTemplateOrder = (firstName, type, link) => `
   ${
     link
       ? `<a href="${link}">View Invoice</a>`
-      : "Error sending invoice. Please send an email on someone@gmail.com to receive the invoice"
+      : "Error sending invoice. Please send an email on info@proppedupbayarea.com to receive the invoice."
   }
   <br>
   <br>
@@ -43,7 +43,7 @@ const gmailTemplatePostOrder  = (firstName, link) => `
   ${
     link
       ? `<a href="${link}">View Invoice</a>`
-      : "Error sending invoice. Please send an email on someone@gmail.com to receive the invoice"
+      : "Error sending invoice. Please send an email on info@proppedupbayarea.com to receive the invoice."
   }
   <br>
   <br>

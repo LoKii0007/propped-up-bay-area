@@ -1,4 +1,11 @@
 @media screen and (max-width:780px){
+
+    .google div div div{
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
     /* --------------------- login -------------------  */
     .admin-wrapper{
         /* background-color: transparent !important; */
@@ -82,18 +89,21 @@
         display: none !important;
     }
     .active-bottom{
-        padding: 12px !important;
+        padding:0px 12px !important;
     }
 
     /* ---------------------profile-------------------  */
     .client-profile{
-        padding: 0% !important;
         padding-bottom: 120px !important;
         overflow-y: scroll;
         height: fit-content !important;
     }
     .edit-profile-fields{
         grid-template-columns: 1fr !important;
+    }
+
+    .client-form{
+        font-size: 14px !important;
     }
     
      /* ---------------------order-------------------  */
@@ -116,5 +126,26 @@
 
      nav{
         background-color: whitesmoke !important;
+     }
+
+     /* ---------------------order info-------------------  */
+     .order-info{
+        font-size: 13px !important;
+     }
+
+     .order-info h2{
+        font-size: 18px !important;
+     }
+     .order-info-container{
+        padding: 0px 8px !important;
+     }
+     .active-bottom{
+        padding:0px 8px !important;
+     }
+     .update-btn{
+        position: static !important;
+     }
+     .update-btn-container{
+        justify-content: center !important;
      }
 }

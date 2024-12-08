@@ -11,6 +11,7 @@ const {
 const { addToGoogleSheet } = require("../utilities/sheetautomation");
 const orderCounterSchema = require("../models/orderCounterSchema");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { ObjectId } = require("mongodb");
 
 //? ---------------------------
 //? -------create openHouseOrderApi
@@ -102,10 +103,12 @@ const createOpenHouseOrderApi = async (req, res) => {
 const completeOpenHouseOrder = async (orderId, session) => {
   try {
     console.log("orderId", orderId);
-    const order = await openHouseSchema.findOne({ _id: orderId });
+    const id = ObjectId(orderId)
+    const order = await openHouseSchema.findOne({ _id: id });
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
     }
+    console.log("here " );
 
     // update paid
     await order.updateOne({ paid: true });
@@ -196,18 +199,15 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      // res.status(200).json({ order, msg: "Order placed successfully" });
+      console.log("order updated and email sent successfully");
     } catch (error) {
-      console.error("Email sending error:", error.message);
-      // res.status(200).json({
-      //   order,
-      //   msg: "Order placed successfully, but email could not be sent",
-      // });
+      console.error("order updated but email could not be sent", error.message);
     }
   } catch (error) {
     console.error("Error in completeOpenHouseOrder", error.message);
   }
 };
+
 
 //? ------------------------------------------
 //? -------- createPostOrderApi -------------
@@ -247,17 +247,8 @@ const createPostOrderApi = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    const counter = await orderCounterSchema.findOne();
-
-    // Format the order number
-    const orderNo = `PO${String(counter.count).padStart(5, "0")}`;
-
-    // Increment the count for the next order
-    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } });
-
     const newForm = new postOrderSchema({
       userId,
-      orderNo,
       type,
       firstName,
       lastName,
@@ -291,103 +282,142 @@ const createPostOrderApi = async (req, res) => {
       lighting,
       numberOfPosts,
       riders,
-      sessionId: req.stripe.sessionId,
     });
 
     const savedForm = await newForm.save();
 
+    res
+      .status(201)
+      .json({ order: savedForm, msg: "Order placed successfully" });  
+  } catch (error) {
+    console.error("Error creating post order:", error.message);
+    res
+      .status(500)
+      .json({ msg: "Error creating post order", error: error.message });
+  }
+};
+
+//? ------------------------------------------
+//? -------- completePostOrder -------------
+//? ------------------------------------------
+const completePostOrder = async (orderId, session) => {
+  try {
+    console.log("orderId", orderId);
+    const id = ObjectId(orderId)
+    const order = await postOrderSchema.findOne({ _id: id });
+    if (!order) {
+      return res.status(404).json({ msg: "Order not found" });
+    }
+    console.log("here " );
+
+    // update paid
+    await order.updateOne({ paid: true });
+    await order.updateOne({ sessionId: session.id });
+
+    const counter = await orderCounterSchema.findOne();
+
+    // Format the order number (e.g., OH0001, OH0002, ...)
+    const orderNo = `OH${String(counter.count).padStart(5, "0")}`;
+
+    // update orderNo
+    await order.updateOne({ orderNo });
+
+    // Increment the count for the next order
+    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } });
+
     // adding data to google sheets
     const listingAddressBlock = [
-      listingAddress.streetAddress,
-      listingAddress.streetAddress2 || "",
-      listingAddress.city,
-      listingAddress.state,
-      listingAddress.postalCode,
+      order.listingAddress.streetAddress,
+      order.listingAddress.streetAddress2 || "",
+      order.listingAddress.city,
+      order.listingAddress.state,
+      order.listingAddress.postalCode,
     ]
       .filter(Boolean)
       .join(", ");
 
     const billingAddressBlock = [
-      billingAddress.streetAddress,
-      billingAddress.streetAddress2 || "",
-      billingAddress.city,
-      billingAddress.state,
-      billingAddress.postalCode,
+      order.billingAddress.streetAddress,
+      order.billingAddress.streetAddress2 || "",
+      order.billingAddress.city,
+      order.billingAddress.state,
+      order.billingAddress.postalCode,
     ]
       .filter(Boolean)
       .join(", ");
 
     const googleSheetdata = [
-      type,
-      firstName,
-      lastName,
-      email,
-      phone,
-      requestedDate,
+      order.type,
+      order.firstName,
+      order.lastName,
+      order.email,
+      order.phone,
+      order.requestedDate,
       listingAddressBlock, // Single string for listing address
       billingAddressBlock, // Single string for billing address
       requiredZone.name,
-      requiredZone.text || "",
-      requiredZone.price,
-      additionalInstructions || "",
-      total,
-      postColor || "",
-      flyerBox,
-      lighting,
-      numberOfPosts,
-      riders.comingSoon,
-      riders.pending,
-      riders.openSatSun,
-      riders.openSat,
-      riders.openSun,
-      riders.doNotDisturb,
+      order.requiredZone.text || "",
+      order.requiredZone.price,
+      order.additionalInstructions || "",
+      order.total,
+      order.postColor || "",
+      order.flyerBox,
+      order.lighting,
+      order.numberOfPosts,
+      order.riders.comingSoon,
+      order.riders.pending,
+      order.riders.openSatSun,
+      order.riders.openSat,
+      order.riders.openSun,
+      order.riders.doNotDisturb,
     ];
 
     try {
-      // addToSheet(googleSheetdata);
       addToGoogleSheet({
         data: googleSheetdata,
         targetSheet: "postHouseOrders",
       });
     } catch (error) {
-      console.log("Post order google sheet api error : ", error.message);
+      console.log("Post house order google sheet api error : ", error.message);
     }
 
     // Increment totalOrders by 1 and totalSpent by total using $inc
-    await User.findByIdAndUpdate(userId, {
+    await User.findByIdAndUpdate(order.userId, {
       $inc: { totalOrders: 1, totalSpent: total },
+      isSubscribed: true
     });
 
-    await User.findByIdAndUpdate(userId, {
-      isSubscribed: true,
+    //getting invoice url
+    const invoices = await stripe.invoices.list({
+      customer: session.customer,
+      limit: 1, // Retrieve only the latest invoice
     });
+
+    let invoiceUrl;
+    if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
+      invoiceUrl = invoices.data[0].hosted_invoice_url;
+    } else {
+      invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+    }
+
+    const user = await User.findById(order.userId);
 
     // Send email with Nodemailer
-    const invoiceUrl = req.stripe?.invoiceUrl || false;
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
-      to: [email, user.email],
+      to: [order.email, user.email],
       subject: "Propped up order confirmed",
-      html: gmailTemplate("Your order is placed successfully", invoiceUrl),
+      html: gmailTemplateOrder(order.firstName, "post order", invoiceUrl),
     };
 
     try {
       await nodemailerTransport.sendMail(mailOptions);
-      res
-        .status(201)
-        .json({ order: savedForm, msg: "Order placed successfully" });
+      console.log("order updated and email sent successfully");
     } catch (error) {
-      console.error("Email sending error:", error.message);
-      res.status(201).json({
-        order,
-        msg: "Order placed successfully, but email could not be sent",
-      });
+      console.error("order updated but email could not be sent", error.message);
     }
   } catch (error) {
-    console.error("Error creating post order:", error);
-    res
-      .status(500)
-      .json({ msg: "Error creating post order", error: error.message });
+    console.error("Error in completePostOrder", error.message);
   }
 };
 
@@ -638,4 +668,5 @@ module.exports = {
   getAllOrdersApi,
   getOpenHouseInvoiceApi,
   completeOpenHouseOrder,
+  completePostOrder,
 };

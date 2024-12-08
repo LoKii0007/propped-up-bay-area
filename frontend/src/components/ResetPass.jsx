@@ -85,7 +85,7 @@ const ResetPassword = ({ setForget }) => {
     <div>
       {step === 1 && (
         <form
-          className="space-y-6 p-6 rounded-2xl client-form flex flex-col"
+          className="space-y-6 md:p-6 px-3 py-4 rounded-2xl client-form flex flex-col"
           onSubmit={handleSubmit(sendOtp)}
         >
           <h2 className="text-xl font-semibold">Reset Password</h2>
@@ -99,7 +99,7 @@ const ResetPassword = ({ setForget }) => {
             />
             <button
               disabled={otpLoading}
-              className="border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
+              className="border-green-800 font-semibold border text-green-800 px-4 py-2 mt-2 md:mt-0 rounded-md hover:border-green-900"
               type="submit"
             >
               {!otpLoading ? "Send otp" : "sending.."}
@@ -110,12 +110,12 @@ const ResetPassword = ({ setForget }) => {
 
       {step === 2 && (
         <form
-          className="space-y-6 p-6 rounded-2xl client-form"
+          className="space-y-6 md:p-6 px-3 py-4 rounded-2xl client-form" 
           onSubmit={handleSubmit(resetPassword)}
         >
           <h2 className="text-xl font-semibold">Verify OTP</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-6 gap-4">
             <div className="flex flex-col mt-1 p-2 w-full border rounded-md border-[#E5E7EB ]">
               <label className="text-xs">OTP</label>
               <input
@@ -151,7 +151,7 @@ const ResetPassword = ({ setForget }) => {
           </div>
 
 
-          <div className="timer">{timer > 0 ? `This otp is valid for ${Math.floor(timer)} seconds.` : "OTP expired, please request a new one."}</div>
+          <div className="timer">{timer > 0 ? `This otp is only valid for ${Math.floor(timer)} seconds.` : "OTP expired, please request a new one."}</div>
 
 
           <div className="flex flex-col sm:flex-row sm:items-center items-start gap-4">

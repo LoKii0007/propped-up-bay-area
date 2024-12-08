@@ -207,17 +207,17 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   }, [user, userDetails]);
 
   return (
-    <div className="bg-white client-profile rounded-lg p-12 flex flex-col gap-12 mx-auto">
-      <div className="flex items-center space-x-4 ">
+    <div className="bg-white client-profile rounded-lg md:p-12 p-2 flex flex-col gap-12 mx-auto">
+      <div className="flex items-center space-x-4 user-logo">
         {imgUrl ? (
           <img
-            className="w-16 h-16 rounded-full bg-green-700 object-cover"
+            className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-green-700 object-cover "
             src={imgUrl}
             alt="User Avatar"
           />
         ) : (
           <div
-            className={`w-16 h-16 rounded-full text-2xl flex items-center justify-center text-white font-bold ${getRandomColor(
+            className={`w-10 h-10 md:w-16 md:h-16 rounded-full text-2xl flex items-center justify-center text-white font-bold ${getRandomColor(
               user?.firstName
             )}`}
           >
@@ -276,10 +276,10 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
       </div>
 
       {!loadingDetails ? (
-        <form className=" p-6 rounded-2xl client-form flex flex-col gap-6 ">
-          <div className="font-semibold text-lg">Edit profile details</div>
+        <form className=" md:p-6 px-2 py-4 rounded-2xl client-form flex flex-col md:gap-6 gap-4 ">
+          <div className="font-semibold text-lg px-2 ">Edit profile details</div>
 
-          <div className="grid grid-cols-2 gap-6 edit-profile-fields">
+          <div className="grid grid-cols-2 md:gap-6 gap-3 edit-profile-fields">
             <div className="mt-1 p-2 block w-full border rounded-md border-[#E5E7EB]">
               <label className="text-[#6C737F] block text-xs ">
                 First Name
@@ -385,7 +385,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
             </div>
           </div>
 
-          <div className="space-y-4 px-4">
+          <div className="space-y-4 md:px-4 px-1 ">
             <div className="flex items-center gap-4 w-full md:w-2/3 lg:w-1/2 justify-between">
               <label className="text-[#6C737F] ">
                 Receive email notifications:
@@ -414,7 +414,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
             </div>
           </div>
 
-          <div className="flex gap-8 items-center p-3">
+          <div className="flex gap-8 items-center md:p-3 p-1">
             {isEditing ? (
               <button
                 type="button"
@@ -451,7 +451,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         (!forget ? (
           <form
             onSubmit={handleChangePassword}
-            className="space-y-6 p-6 rounded-2xl client-form "
+            className="space-y-6 md:p-6 px-2 py-4 rounded-2xl client-form "
           >
             <div className="font-semibold grid text-lg">Change password</div>
             <div className="xl:w-1/2 lg:w-2/3 w-full border p-2 rounded-md  ">
@@ -471,7 +471,11 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
                   onClick={() => setShowOldPass(!showOldPass)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
                 >
-                  {showOldPass ? "Hide" : "Show"}
+                  {showOldPass ? (
+                    <img src="/svg/show.svg" alt="hide" />
+                  ) : (
+                    <img src="/svg/hide.svg" alt="show" />
+                  )}
                 </button>
               </div>
             </div>
@@ -494,7 +498,11 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
                   onClick={() => setShowNewPass(!showNewPass)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
                 >
-                  {showNewPass ? "Hide" : "Show"}
+                  {showNewPass ? (
+                    <img src="/svg/show.svg" alt="hide" />
+                  ) : (
+                    <img src="/svg/hide.svg" alt="show" />
+                  )}
                 </button>
               </div>
               <p className="text-xs text-gray-500">Minimum 6 characters</p>

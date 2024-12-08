@@ -133,9 +133,9 @@ function OrderInfo({
 
   return (
     <>
-      <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto ">
-        <div className="flex justify-end w-full relative ">
-          <div className="flex space-x-4 absolute right-2 bg-white top-0 z-20 ">
+      <div className="bg-white w-full h-full px-[5%] order-info-container flex flex-col overflow-y-auto ">
+        <div className="flex justify-end w-full relative update-btn-container ">
+          <div className="flex space-x-4 absolute update-btn right-2 bg-white top-0 z-20 ">
             {["admin", "superuser"].includes(admin?.role) && (
               <ChangeStatusDropdown
                 order={order}
@@ -166,7 +166,7 @@ function OrderInfo({
             {order.type} Details
           </h2>
           <div className="flex flex-col gap-x-10 gap-y-3">
-            <p className="text-md grid grid-cols-2">
+            <p className="text-md grid grid-cols-2  ">
               <span>First Name:</span> {order.firstName}
             </p>
             <p className="text-md grid grid-cols-2">

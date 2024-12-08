@@ -48,11 +48,11 @@ function PostRemoval({ postOrders, setPostOrders, setOrders }) {
                   <button
                     onClick={() => handleUserClick(index)}
                     key={order._id}
-                    className="removal grid grid-cols-3 md:grid-cols-6 py-3 px-5 md:p-5 gap-2 w-full text-left "
+                    className="removal grid grid-cols-3 md:grid-cols-6 py-3 px-5 md:p-5 gap-2 w-full text-left hover:bg-green-100 rounded-md custom-transition"
                   >
                     
-                    <div className="overflow-hidden">
-                      {order.firstName} <span className="hidden md:block"> {order.lastName}</span>
+                    <div className="overflow-hidden flex gap-1">
+                      {order.firstName}<span className="hidden md:block">{order.lastName}</span>
                     </div>
                     <div className="overflow-hidden">{order.orderNo}</div>
                     <div className="overflow-hidden hidden md:block">{order.email}</div>

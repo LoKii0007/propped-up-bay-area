@@ -8,7 +8,7 @@ const ConnectedAccounts = () => {
   console.log(currentUser)
 
   return (
-    <div className="connected p-6 rounded-2xl client-form flex flex-col gap-6">
+    <div className="connected md:p-6 px-3 py-4 rounded-2xl client-form flex flex-col gap-6">
       <div className="text-xl font-semibold">Connected accounts</div>
       <div className="flex flex-col gap-4">
 

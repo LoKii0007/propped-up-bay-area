@@ -1,12 +1,16 @@
 const { postOrderSchema } = require("../models/postOrderSchema");
 const { openHouseSchema } = require("../models/openHouseSchema");
 const User = require("../models/user");
-const { nodemailerTransport, gmailTemplate } = require("../utilities/gmail");
+const {
+  nodemailerTransport,
+  gmailTemplate,
+  gmailTemplateOrder,
+} = require("../utilities/gmail");
 const {
   verifyOpenHouseTotal,
   verifyPostOrderTotal,
 } = require("../utilities/verifyTotal");
-const { completeOpenHouseOrder } = require("./orders");
+const { completeOpenHouseOrder, completePostOrder } = require("./orders");
 require("dotenv").config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -213,7 +217,6 @@ const stipeSubscriptionWebhook = async (req, res) => {
   switch (event.type) {
     case "checkout.session.completed":
       const session = event.data.object;
-      const sessionId = session.id;
 
       if (session.mode === "payment") {
         try {
@@ -226,12 +229,19 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
       if (session.mode === "subscription") {
         try {
-          // Find the post-order form associated with the sessionId
-          const order = await postOrderSchema.findOne({ sessionId });
+          //Todo fix mongoose id type
+          const order = await postOrderSchema.findById(
+            session.metadata.orderId
+          );
 
           if (!order) {
-            console.log("No order found for session ID:", sessionId);
+            console.log("No order found ", session.metadata.orderId);
             return res.status(404).send("Order not found.");
+          }
+
+          if (order.paid === false) {
+            completePostOrder(order._id, session);
+            return;
           }
 
           // Retrieve the user's email (from Stripe)
@@ -246,21 +256,30 @@ const stipeSubscriptionWebhook = async (req, res) => {
           }
 
           // Send the invoice email to both the user email and Stripe email
-          const invoiceUrl = req.stripe?.invoiceUrl || false;
+
+          const invoices = await stripe.invoices.list({
+            customer: session.customer,
+            limit: 1, // Retrieve only the latest invoice
+          });
+
+          let invoiceUrl;
+          if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
+            invoiceUrl = invoices.data[0].hosted_invoice_url;
+          } else {
+            invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+          }
+
           const mailOptions = {
             from: process.env.SENDER_EMAIL,
             to: [stripeEmail, user.email, order.email], // Send to all emails
             subject: "Propped Up Order Confirmed",
-            html: gmailTemplate(
-              "Your order is placed successfully",
-              invoiceUrl
-            ),
+            html: gmailTemplateOrder(order.firstName, "post order", invoiceUrl),
           };
 
           // Increment the user's total orders and spent amount
-          await User.findByIdAndUpdate(order.userId, {
-            $inc: { totalOrders: 1, totalSpent: order.total },
-          });
+          // await User.findByIdAndUpdate(order.userId, {
+          //   $inc: { totalOrders: 1, totalSpent: order.total },
+          // });
 
           // Send the email
           try {

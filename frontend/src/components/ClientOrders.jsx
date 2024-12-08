@@ -345,7 +345,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                   <RowHeading
                     data={filteredOrders}
                     setFilteredData={setFilteredOrders}
-                    filterValue={"name"}
+                    filterValue={"firstName lastName"}
                     text="Name"
                   />
                   <RowHeading
