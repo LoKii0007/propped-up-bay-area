@@ -12,6 +12,8 @@ import toast from "react-hot-toast";
 import PostRemoval from "../components/PostRemoval";
 import { Navbar } from "@/components/Navbar";
 import NavbarTop from "@/components/NavbarTop";
+import DraftOrders from "@/components/DraftOrders";
+
 const Home = () => {
   const { currentUser, setCurrentUser } = useAuth();
   const {
@@ -143,7 +145,8 @@ const Home = () => {
     }
   }, [currentUser]);
 
-  useEffect(() => {}, [postOrders]);
+  useEffect(() => {
+  }, [postOrders, activeView]);
 
   return (
     <>
@@ -207,6 +210,7 @@ const Home = () => {
                 postOrders={postOrders}
               />
             )}
+            {activeView === "draft orders" && <DraftOrders/>}
             {activeView === "profile" && (
               <EditProfileForm
                 loadingDetails={loadingDetails}

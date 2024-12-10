@@ -120,7 +120,7 @@ const ProfileSettings = () => {
                   <img
                     src={imgUrl}
                     alt="Profile"
-                    className="w-full h-full object-cover"
+                    className=" h-[250px] object-cover"
                   />
                 </label>
               ) : (

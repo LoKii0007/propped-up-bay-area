@@ -10,13 +10,13 @@ import { parseDate } from "../helpers/utilities";
 import axios from "axios";
 import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
 
-function OrderRequests({orders, setOrders, totalOrderCount}) {
+function OrderRequests({ orders, setOrders, totalOrderCount }) {
   // const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState(orders);
   const [orderType, setOrderType] = useState("all");
   const [orderStatus, setOrderStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const {setBreadCrumb, isInfo, setIsInfo, baseUrl } = useGlobal();
+  const { setBreadCrumb, isInfo, setIsInfo, baseUrl, breadcrumb } = useGlobal();
   const [completeOrder, setCompleteOrder] = useState({});
   const [loading, setLoading] = useState(false);
   const [nextLoading, setnextLoading] = useState(false);
@@ -54,7 +54,7 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
         setOrders(allOrders);
         setFilteredOrders(allOrders);
         setTotalPages(Math.ceil(allOrders.length / displayCount));
-        setTotalOrderCount(res.data.count)
+        setTotalOrderCount(res.data.count);
       } else if (res.status === 404) {
         toast.custom(res.data.message || "no orders found");
       } else {
@@ -80,12 +80,43 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
       });
       if (res.status === 200) {
         setOrderPage((prev) => prev + 1);
-        const allOrders = [...orders, ...res.data.orders];
-        setFilteredOrders(allOrders);
-        setOrders(allOrders);
-        setTotalPages(Math.ceil(allOrders.length / displayCount));
-        resetPagination(allOrders);
-        console.log("res : ", allOrders);
+        const updatedOrders = [...orders, ...res.data.orders];
+
+        setOrders(updatedOrders);
+
+        setFilteredOrders(updatedOrders);
+
+        setTotalPages(Math.ceil(updatedOrders.length / displayCount));
+        // resetPagination(updatedOrders);
+        // console.log("res : ", updatedOrders);
+      } else {
+        toast(res.data.message || "no more orders found");
+      }
+    } catch (error) {
+      toast.error("Server error. Please try again");
+    } finally {
+      setnextLoading(false);
+    }
+  }
+
+  async function handleNextPostOrders() {
+    setnextLoading(true);
+    try {
+      const res = await axios.get(`${baseUrl}/api/orders/admin-post-orders`, {
+        params: { page: orderPage + 1, limit },
+        withCredentials: true,
+        validateStatus: (status) => status < 500,
+      });
+      if (res.status === 200) {
+        setOrderPage((prev) => prev + 1);
+        const updatedOrders = [...orders, ...res.data.orders];
+
+        setOrders(updatedOrders);
+        setFilteredOrders(updatedOrders);
+
+        setTotalPages(Math.ceil(updatedOrders.length / displayCount));
+        // resetPagination(updatedOrders);
+        // console.log("res : ", updatedOrders);
       } else {
         toast(res.data.message || "no more orders found");
       }
@@ -98,8 +129,8 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
 
   useEffect(() => {
     // handleOrders();
-    console.log('orders1',orders)
-    setFilteredOrders(orders)
+    console.log("orders1", orders);
+    setFilteredOrders(orders);
   }, [orders]);
 
   //? -------------------------
@@ -130,7 +161,6 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
     setFilteredOrders(filtered); // updating parent
     resetPagination(filtered); // reset pagination
   }, [searchTerm, displayCount]);
-
 
   //? -------------------------
   //? filter - order status
@@ -203,6 +233,7 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
     orderType,
     orderStatus,
     completeOrder,
+    breadcrumb,
   ]);
 
   //? --------------------
@@ -238,7 +269,7 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                   className="w-full py-2 px-3 focus-visible:outline-none bg-[#f5f5f5]"
                   type="text"
                   value={searchTerm}
-                  onChange={(e)=>setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search by anyhthing..."
                 />
               </div>
@@ -252,10 +283,6 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                 filterType={orderStatus}
                 handleOrderType={handleOrderStatus}
               />
-              {/* <button className="font-semibold">
-                <img src="" alt="" />
-                Date filters
-              </button> */}
             </div>
           </div>
 
@@ -320,7 +347,7 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                         </div>
                         <div className="overflow-hidden">$ {order.total}</div>
                       </div>
-                      <div className="w-1/6" >
+                      <div className="w-1/6">
                         <button
                           onClick={() => {
                             handleUpdateOrderStatus(index);
@@ -348,15 +375,26 @@ function OrderRequests({orders, setOrders, totalOrderCount}) {
                   {loading ? "loading..." : "You don't have any orders yet."}
                 </div>
               )}
-              {orders.length < totalOrderCount && currentPage === totalPages && (
+              {orders.length < totalOrderCount &&
+                currentPage === totalPages && (
                   <div className="flex justify-center">
-                    <button
-                      disabled={nextLoading}
-                      onClick={() => handleNextOrders()}
-                      className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
-                    >
-                      {nextLoading ? "loading..." : "Load more"}
-                    </button>
+                    {breadcrumb === "Order requests" ? (
+                      <button
+                        disabled={nextLoading}
+                        onClick={() => handleNextOrders()}
+                        className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                      >
+                        {nextLoading ? "loading..." : "Load more"}
+                      </button>
+                    ) : (
+                      <button
+                        disabled={nextLoading}
+                        onClick={() => handleNextPostOrders()}
+                        className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
+                      >
+                        {nextLoading ? "loading..." : "Load more"}
+                      </button>
+                    )}
                   </div>
                 )}
             </div>

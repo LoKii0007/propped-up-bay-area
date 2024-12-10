@@ -18,7 +18,7 @@ function OrderInfo({
   const { admin, currentUser } = useAuth();
   const [selectedImage, setSelectedImage] = useState(null); // State for selected image
   const [uploading, setUploading] = useState(false); // State for upload status
-  const { baseUrl } = useGlobal();
+  const { baseUrl, breadCrumb } = useGlobal();
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setisLoading] = useState(true);
 
@@ -129,13 +129,15 @@ function OrderInfo({
     getImage();
   }, []);
 
-  useEffect(() => { }, [order, setOrders, setPostOrders, imageUrl, currentUser]);
+  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl, currentUser, breadCrumb]);
+
+  
 
   return (
     <>
       <div className="bg-white w-full h-full px-[5%] order-info-container flex flex-col overflow-y-auto ">
         <div className="flex justify-end w-full relative update-btn-container ">
-          <div className="flex space-x-4 absolute update-btn right-2 bg-white top-0 z-20 ">
+          <div className={`flex space-x-4 absolute update-btn right-2 bg-white ${breadCrumb !== "Customer info" ? 'top-0' : 'top-4' } z-20 `}>
             {["admin", "superuser"].includes(admin?.role) && (
               <ChangeStatusDropdown
                 order={order}
@@ -161,8 +163,8 @@ function OrderInfo({
           </div>
         </div>
 
-        <div className="md:mx-auto md:px-[15%] order-info overflow-x-hidden flex flex-col gap-6 py-6 ">
-          <h2 className="text-2xl w-full text-center font-semibold uppercase ">
+        <div className={`md:mx-auto order-info overflow-x-hidden flex flex-col gap-6 ${breadCrumb !== "Customer info" ? "md:px-[5%] py-6 " : "mt-5"}`}>
+          <h2 className={` ${breadCrumb === "Customer info" ? "text-left text-xl" : "text-center text-2xl "} w-full font-semibold uppercase `}>
             {order.type} Details
           </h2>
           <div className="flex flex-col gap-x-10 gap-y-3">

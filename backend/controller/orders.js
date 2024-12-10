@@ -320,7 +320,7 @@ const completePostOrder = async (orderId, session) => {
     const counter = await orderCounterSchema.findOne();
 
     // Format the order number (e.g., OH0001, OH0002, ...)
-    const orderNo = `OH${String(counter.count).padStart(5, "0")}`;
+    const orderNo = `PO${String(counter.count).padStart(5, "0")}`;
 
     // update orderNo
     await order.updateOne({ orderNo });
@@ -515,6 +515,42 @@ const getOpenHouseInvoiceApi = async (req, res) => {
   }
 };
 
+
+//? ---------------------------
+//? -------getDraftOrdersApi-----
+//? ---------------------------
+const getDraftOrdersApi = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ msg: "User not authorized" });
+    }
+
+    const limit = parseInt(req.query.limit) || 20;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    let orders = [];
+
+    const openHouseOrders = await openHouseSchema.find({ userId, paid: false }).skip(skip).limit(limit);
+
+    const remainingLimit = limit - openHouseOrders.length;
+    const postOrders = await postOrderSchema.find({ userId, paid: false }).skip(skip).limit(remainingLimit + limit);
+
+    orders.push(...openHouseOrders, ...postOrders);
+
+    return res.status(200).json({ orders, msg: "Orders found" });
+  } catch (error) {
+    console.log("Error in getDraftOrdersApi", error.message);
+    return res.status(500).json({ msg: "Error in getDraftOrdersApi", error: error.message });
+  }
+};
+
 //*--------------------------------
 //*----------admin api
 
@@ -644,12 +680,8 @@ const getAllOrdersApi = async (req, res) => {
     // Fetch orders from the first collection
     let openHouseOrders = await openHouseSchema.find({ paid: true }).skip(skip).limit(limit);
 
-    // Calculate remaining limit
-    const remainingLimit = limit - openHouseOrders.length;
-
     // If the limit isn't filled, fetch the remaining orders from the second collection
-    let postOrders = await postOrderSchema.find({ paid: true }).skip(skip).limit(remainingLimit + limit);
-    
+    let postOrders = await postOrderSchema.find({ paid: true }).skip(skip).limit(limit);
 
     // Combine the orders
     orders.push(...openHouseOrders, ...postOrders);
@@ -673,6 +705,50 @@ const getAllOrdersApi = async (req, res) => {
   }
 };
 
+const getPostOrdersAdminApi = async (req, res) => {
+  try {
+    const user = await SuperUser.findById(req.user.userId);
+    if (!user) {
+      return res.status(401).json({ message: "unauthorized" });
+    }
+
+    if (user.role !== "superuser" && user.role !== "admin") {
+      return res.status(401).json({ message: "unauthorized" });
+    }
+
+    const page = parseInt(req.query.page) || 1; // Get page number
+    const limit = parseInt(req.query.limit) || 20; // Get limit
+    const skip = (page - 1) * limit; // How many orders to skip
+
+    // Calculate total order count (for the first page)
+    let totalOrderCount = 0;
+    if (page === 1) {
+      totalOrderCount = await postOrderSchema.countDocuments({ paid: true });
+    }
+
+    let postOrders = await postOrderSchema.find({ paid: true }).skip(skip).limit(limit);
+    // console.log("postOrders", postOrders);
+  
+
+    if (postOrders.length === 0) {
+      console.log("No orders found");
+      return res.status(404).json({ message: "No orders found" });
+    }
+
+    return res.status(200).json({
+      orders : postOrders,
+      message: "Orders found.",
+      count: totalOrderCount,
+    });
+  } catch (error) {
+    console.log("Error in getPostOrdersAdminApi", error.message);
+    return res.status(500).json({
+      message: "Error in getPostOrdersAdminApi",
+      error: error.message,
+    });
+  }
+}
+
 
 module.exports = {
   createOpenHouseOrderApi,
@@ -684,4 +760,6 @@ module.exports = {
   getOpenHouseInvoiceApi,
   completeOpenHouseOrder,
   completePostOrder,
+  getDraftOrdersApi,
+  getPostOrdersAdminApi,
 };

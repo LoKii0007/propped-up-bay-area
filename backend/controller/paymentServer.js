@@ -1,17 +1,12 @@
 const { postOrderSchema } = require("../models/postOrderSchema");
 const { openHouseSchema } = require("../models/openHouseSchema");
 const User = require("../models/user");
-const {
-  nodemailerTransport,
-  gmailTemplate,
-  gmailTemplateOrder,
-} = require("../utilities/gmail");
-const {
-  verifyOpenHouseTotal,
-  verifyPostOrderTotal,
-} = require("../utilities/verifyTotal");
+const { nodemailerTransport, gmailTemplateOrder } = require("../utilities/gmail");
+const { verifyOpenHouseTotal, verifyPostOrderTotal } = require("../utilities/verifyTotal");
 const { completeOpenHouseOrder, completePostOrder } = require("./orders");
 require("dotenv").config();
+const additionalPricesSchema = require("../models/additionalPrices");
+const SuperUser = require("../models/superUser");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const frontendUrl = process.env.FRONTEND_URL;
@@ -33,9 +28,26 @@ const stripeCustomPayment = async (req, res) => {
       return res.status(400).json({ msg: "Prices may have been updated. Please refresh the page and try again." });
     }
 
+    let customer;
+    const existingCustomers = await stripe.customers.list({
+      email: data.email,
+      limit: 1, // Limit to one result for efficiency
+    });
+
+    if (existingCustomers.data.length > 0) {
+      customer = existingCustomers.data[0]; // Use the existing customer
+    } else {
+      // Create a new customer if one doesn't exist
+      customer = await stripe.customers.create({
+        email: data.email,
+        name: data.name, // Optional: include the name
+      });
+    }
+
     // Convert to cents
     const amountInCents = Math.round(data.total * 100);
     const session = await stripe.checkout.sessions.create({
+      customer : customer.id,
       line_items: [
         {
           price_data: {
@@ -76,6 +88,64 @@ const stripeCustomPayment = async (req, res) => {
   }
 };
 
+
+//? ----------------------------------------
+//? create monthly product
+//? ----------------------------------------
+const createMonthlyProduct = async (req, res) => {
+  try {
+    const { price, id } = req.body;
+
+    const userId = req.user.userId;
+    console.log(userId);
+
+    const user = await SuperUser.findById(userId);
+    if (!user) {
+      return res.status(400).json({ msg: "User not found" });
+    }
+
+    if (user.role !== "superUser" && user.role !== "admin") {
+      return res.status(400).json({ msg: "User not authorized" });
+    }
+
+    // Input validation
+    if (!price || typeof price !== "number" || price <= 0) {
+      return res.status(400).json({ msg: "Invalid product name or price" });
+    }
+
+    // Create the product
+    const product = await stripe.products.create({
+      name: 'Post Order Monthly Subscription',
+    });
+
+    // Create the price for the product
+    const subscriptionPrice = await stripe.prices.create({
+      unit_amount: Math.round(price * 100), // Convert price to cents
+      currency : 'usd', // Default to USD if no currency provided
+      recurring: { interval: "day" }, // Set recurring interval to monthly
+      product: product.id,
+    });
+
+    const updatedProduct = await additionalPricesSchema.findByIdAndUpdate({
+      _id: id,
+    }, {
+      $set: {
+        productId: product.id,
+        priceId: subscriptionPrice.id,
+        price: price,
+      }
+    }, { new: true });
+
+    res.status(201).json({
+      msg: "Product with monthly subscription created successfully",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error creating subscription product:", error.message);
+    res.status(500).json({ msg: "Failed to create subscription product", error: error.message });
+  }
+};
+
 //? ----------------------------------------
 //? stripe subscription
 //? ----------------------------------------
@@ -92,8 +162,28 @@ const stripeSubscription = async (req, res) => {
     }
 
     const amountInCents = data.total * 100;
+    const price = await additionalPricesSchema.findOne({name: "subscription"});
+
+    // console.log(price);
+
+    let customer;
+    const existingCustomers = await stripe.customers.list({
+      email: data.email,
+      limit: 1, // Limit to one result for efficiency
+    });
+
+    if (existingCustomers.data.length > 0) {
+      customer = existingCustomers.data[0]; // Use the existing customer
+    } else {
+      // Create a new customer if one doesn't exist
+      customer = await stripe.customers.create({
+        email: data.email,
+        name: data.name, // Optional: include the name
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
       line_items: [
         {
           price_data: {
@@ -106,7 +196,7 @@ const stripeSubscription = async (req, res) => {
           quantity: 1,
         },
         {
-          price: "price_1QMSxESBgjrcPEt399r9hu9F",
+          price: price.priceId,
           quantity: 1,
         },
       ],
@@ -315,4 +405,5 @@ module.exports = {
   stripeCustomPayment,
   cancelSubscription,
   stipeSubscriptionWebhook,
+  createMonthlyProduct
 };

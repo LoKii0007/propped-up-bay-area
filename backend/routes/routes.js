@@ -1,8 +1,8 @@
 const express = require('express')
-const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook } = require('../controller/paymentServer')
+const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook, createMonthlyProduct } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails, uploadUserImage, sendReminderEmail} = require('../controller/users')
 const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword, sendOtp, resetPassword, uploadAdminImage, deleteUser } = require('../controller/auth')
-const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi } = require('../controller/orders')
+const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi, getDraftOrdersApi, getPostOrdersAdminApi } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
@@ -43,6 +43,7 @@ Routes.post('/api/orders/post-order', verifyUser, createPostOrderApi) // new pos
 Routes.get('/api/orders/open-house-order', verifyUser , getOpenHouseOrderApi) //openhouse get
 Routes.get('/api/orders/post-order',verifyUser, getPostOrderApi) // postorder get
 Routes.get('/api/invoice/open-house-order', getOpenHouseInvoiceApi) // openhouse invoice get
+Routes.get('/api/orders/draft-orders', verifyUser, getDraftOrdersApi) // get draft orders
 
 
 //? -----------------------------
@@ -52,6 +53,7 @@ Routes.get('/api/invoice/open-house-order', getOpenHouseInvoiceApi) // openhouse
 //* -----------------------------
 //* order routes
 Routes.get('/api/orders/get-all',verifyUser, getAllOrdersApi) // get all orders
+Routes.get('/api/orders/admin-post-orders',verifyUser, getPostOrdersAdminApi) // get post orders
 
 //* -----------------------------
 //* user routes
@@ -79,7 +81,6 @@ Routes.get('/api/orders/image-get', getOrderImage)  // get image
 //* pricing routes
 Routes.get('/api/pricing/get-zone-prices', getOpenHousePrices) // get openhouse pricing
 Routes.patch('/api/pricing/edit-zone-prices', verifyUser, editOpenHousePrices) // edit openhouse pricing
-// Routes.post('/api/pricing/add-zone-prices', addZonePrices) // add zone prices
 Routes.post('/api/pricing/add-additional-prices', addAdditionalPrices) // add additional prices
 Routes.get('/api/pricing/get-additional-prices', getAdditionalPrices) // get additional prices
 Routes.patch('/api/pricing/edit-additional-prices', verifyUser, editAdditionalPrices) // edit additional prices
@@ -96,6 +97,7 @@ Routes.post('/api/sheets', addDataToMultipleSheet)
 //? -----------------------------
 //? payment route
 //? -----------------------------
+Routes.patch('/api/pricing/edit-subscription-prices', verifyUser, createMonthlyProduct) // edit subscription prices
 Routes.get('/api/payment/check-status', checkPaymentStatus) // check payment status
 Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
 Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription

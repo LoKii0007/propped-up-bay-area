@@ -12,7 +12,11 @@ const schema = new mongoose.Schema({
     type: {
         type: String,
         required: true,
-        enum: ["openHouse", "postOrder"]
+        enum: ["openHouse", "postOrder", "subscription"]
+    },
+    priceId: {
+        type: String,
+        // required: true
     }
 })
 

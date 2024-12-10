@@ -57,7 +57,7 @@ function PostOrder() {
     flyerBox: postOrderPrices.find(price => price.name === "Flyer Box")?.price,
     lighting: postOrderPrices.find(price => price.name === "Lighting")?.price,
     rider: postOrderPrices.find(price => price.name === "Rider")?.price,
-    post: postOrderPrices.find(price => price.name === "Post")?.price || 15,
+    post: postOrderPrices.find(price => price.name === "subscription")?.price,
   };
 
   useEffect(() => {

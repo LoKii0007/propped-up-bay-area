@@ -22,8 +22,9 @@ function Admin() {
   const [subscribedUsers, setSubscribedUsers] = useState([]);
   const { admin, setAdmin } = useAuth();
   const page = 1;
-  const limit = 20;;
+  const limit = 10;
   const [totalOrderCount, setTotalOrderCount] = useState(0);
+  const [totalPostOrderCount, setTotalPostOrderCount] = useState(0);
 
   //? ----------------------------------
   //? loading initial users
@@ -67,8 +68,27 @@ function Admin() {
         const allOrders = res.data.orders;
         setOrders(allOrders);
         setTotalOrderCount(res.data.count);
-        const sub = allOrders.filter((order)=> order.type === 'postOrder' )
-        setSubscribedUsers(sub)
+      } else if (res.status === 404) {
+        toast(res.data.message || "no orders found");
+      } else {
+        toast.error(res.data.message || "Unauthorized");
+      }
+    } catch (error) {
+      toast.error("Server error loading orders. Please try again");
+    }
+  }
+
+  async function handlePostOrders() {
+    try {
+      const res = await axios.get(`${baseUrl}/api/orders/admin-post-orders`, {
+        params: { page, limit },
+        withCredentials: true,
+        validateStatus: (status) => status < 500,
+      });
+      if (res.status === 200) {
+        const allOrders = res.data.orders;
+        setTotalOrderCount(res.data.count);
+        setSubscribedUsers(allOrders)
       } else if (res.status === 404) {
         toast(res.data.message || "no orders found");
       } else {
@@ -85,6 +105,7 @@ function Admin() {
     if (admin) {
       handleUsers();
       handleOrders();
+      handlePostOrders();
     } else {
       const data = JSON.parse(sessionStorage.getItem("proppedUpAdmin"));
       console.log('admin',data);
@@ -175,7 +196,7 @@ function Admin() {
                   <OrderRequests
                     orders={subscribedUsers}
                     setOrders={setSubscribedUsers}
-                    totalOrderCount={totalOrderCount}
+                    totalOrderCount={totalPostOrderCount}
                   />
                 )}
                 {adminActiveView === "sales report" && <Salesreport />}

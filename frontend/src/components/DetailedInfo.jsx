@@ -71,7 +71,7 @@ function DetailedInfo({ user, orders, setOrders, setUsers }) {
   return (
     <>
       <div className="bg-white w-full h-full px-[5%] flex flex-col overflow-y-auto ">
-        <div className="px-12 mx-auto w-8/12 ">
+        <div className="px-12 mx-auto w-full xl:w-10/12 2xl:w-8/12 ">
           <div className=" relative flex items-center justify-between pb-8">
             <h2 className="text-xl font-bold">
               {user?.firstName} {user?.lastName}

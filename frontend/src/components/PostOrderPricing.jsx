@@ -16,6 +16,9 @@ const PostOrderPricing = () => {
   const [selectedZone, setSelectedZone] = useState(null);
   const [editResetPrice, setEditResetPrice] = useState(false);
   const [loading3, setLoading3] = useState(false);
+  const [subscription , setSubscription] = useState(null);
+  const [edit2, setEdit2] = useState(false);
+  const [loading4, setLoading4] = useState(false);
 
   async function handleEdit(id) {
     if (!edit) {
@@ -135,6 +138,9 @@ const PostOrderPricing = () => {
       const filteredPrices = res.data.additionalPrices.filter(
         (price) => price.type === "postOrder"
       );
+      setSubscription(
+        res.data.additionalPrices.find((price) => price.name === "subscription")
+      );
       setAdditionalPrices(filteredPrices);
     } catch (error) {
       toast.error(error.response.data.msg);
@@ -170,14 +176,41 @@ const PostOrderPricing = () => {
     }
   }
 
+  async function handleUpdateSubscription() {
+    if (!edit2) {
+      setEdit2(true);
+    } else {
+      setLoading4(true);
+
+      try {
+        const res = await axios.patch(
+          `${baseUrl}/api/pricing/edit-subscription-prices`,
+          { id: subscription._id, price: Number(subscription.price) },
+          { withCredentials: true, validateStatus: (status) => status < 500 }
+        );
+        if (res.status !== 201) {
+          toast.error(res.data.msg);
+        } else {
+          toast.success(`Subscription updated successfully`);
+          setEdit2(false);
+        }
+      } catch (error) {
+        toast.error("Server Error updating subscription");
+      } finally {
+        setLoading4(false);
+        setEdit2(false);
+      }
+    }
+  }
+
   useEffect(() => {
     getZonePrices();
     getAdditionalPrices();
   }, []);
 
   useEffect(() => {
-    console.log(additionalPrices);
-  }, [additionalPrices, zonePrices]);
+    console.log(subscription);
+  }, [additionalPrices, zonePrices, subscription]);
 
   return (
     <div className="post-order-pricing mx-[5%] h-full flex flex-col gap-8 p-12 ">
@@ -281,6 +314,41 @@ const PostOrderPricing = () => {
           loading2={loading2}
         />
       ))}
+
+      <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 items-center">
+          <h2 className="text-2xl font-bold">Subscription Fee </h2>
+        </div>
+        <div className="flex items-center gap-4 relative">
+          <div className="flex items-center gap-2 border-2 border-[#000000] rounded-md p-2">
+            $
+            <input
+              disabled={!edit2}
+              className="border-0 focus:outline-none w-full"
+              type="number"
+              placeholder="Zone Fee"
+              value={subscription?.price}
+              onChange={(e) =>
+                setSubscription((prev) => ({
+                  ...prev,
+                  price: e.target.value,
+                }))
+              }
+            />
+          </div>
+          <button
+            onClick={() => handleUpdateSubscription()}
+            disabled={loading4}
+            className="border-2 border-[#34CAA5] px-6 py-2 rounded-md"
+          >
+            {loading4
+              ? "Saving..."
+              : edit2
+              ? "Save"
+              : "Edit"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

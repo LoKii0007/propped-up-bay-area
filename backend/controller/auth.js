@@ -110,20 +110,41 @@ const login = async (req, res) => {
     if (!password && !googleId) {
       return res.status(400).json({ msg: "Please provide credentials" });
     }
-    if (password && user.connectedAccounts.includes("Email")) {
-      const isMatch = await bcrypt.compare(password, user.password); // Check password match
+
+    // Enhanced condition handling for Google and Email login
+    if (password && googleId) {
+      // If both password and googleId are provided
+      if (
+        (!user.connectedAccounts.includes("Email") ||
+          !(await bcrypt.compare(password, user.password))) &&
+        (!user.connectedAccounts.includes("Google") ||
+          user.googleId !== googleId)
+      ) {
+        return res.status(400).json({ msg: "Invalid credentials" });
+      }
+    } else if (password) {
+      // If only password is provided
+      if (!user.connectedAccounts.includes("Email")) {
+        return res.status(400).json({ msg: "Email login not connected" });
+      }
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ msg: "Invalid credentials" });
       }
-    }
-    if (googleId && user.connectedAccounts.includes("Google")) {
+    } else if (googleId) {
+      // If only googleId is provided
+      if (!user.connectedAccounts.includes("Google")) {
+        return res.status(400).json({ msg: "Google login not connected" });
+      }
       if (user.googleId !== googleId) {
         return res.status(400).json({ msg: "Invalid credentials" });
       }
     }
 
+    // Generate JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
+    // Set the auth token as a cookie
     res.cookie("authToken", token, {
       // httpOnly: true,
       secure: true, // Only set secure flag in production
@@ -131,6 +152,7 @@ const login = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
+    // Prepare user data for response
     const user2 = user.toObject();
     delete user2._id;
     delete user2.password;
@@ -141,6 +163,7 @@ const login = async (req, res) => {
     res.status(500).json({ msg: "login Server error" });
   }
 };
+
 
 //?------------------------------
 //? login by authtoken
