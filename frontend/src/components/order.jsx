@@ -1,9 +1,26 @@
 import React, { useState } from "react";
 import OpenHouseForm from "../forms/openHouseForm";
 import PostOrder from "../forms/postOrder"
+import { useGlobal } from "../context/GlobalContext";
+import { useEffect } from "react";
 
 function Order() {
   const [activeForm, setActiveForm] = useState('openHouseForm');
+  const { draft } = useGlobal();
+  const [openHouseDraft, setOpenHouseDraft] = useState({})
+  const [postOrderDraft, setPostOrderDraft] = useState({})
+
+  useEffect(() => {
+    if (draft.type === "openHouse") {
+      setActiveForm("openHouseForm");
+      setOpenHouseDraft(draft)
+      setPostOrderDraft(null)
+    } else if (draft.type === "postOrder") {
+      setActiveForm("postOrder");
+      setPostOrderDraft(draft)
+      setOpenHouseDraft(null)
+    }
+  }, [draft]);
 
   return (
     <>
@@ -27,8 +44,8 @@ function Order() {
           </button>
         </div>
         <div className="order-bottom pb-[80px] md:pb-0 ">
-          {activeForm === "openHouseForm" && <OpenHouseForm />}
-          {activeForm === "postOrder" && <PostOrder />}
+          {activeForm === "openHouseForm" && <OpenHouseForm draft={openHouseDraft} />}
+          {activeForm === "postOrder" && <PostOrder draft={postOrderDraft} />}
         </div>
       </div>
     </>

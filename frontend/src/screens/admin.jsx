@@ -87,7 +87,7 @@ function Admin() {
       });
       if (res.status === 200) {
         const allOrders = res.data.orders;
-        setTotalOrderCount(res.data.count);
+        setTotalPostOrderCount(res.data.count);
         setSubscribedUsers(allOrders)
       } else if (res.status === 404) {
         toast(res.data.message || "no orders found");

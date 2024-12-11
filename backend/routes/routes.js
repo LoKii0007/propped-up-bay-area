@@ -2,7 +2,7 @@ const express = require('express')
 const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook, createMonthlyProduct } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails, uploadUserImage, sendReminderEmail} = require('../controller/users')
 const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword, sendOtp, resetPassword, uploadAdminImage, deleteUser } = require('../controller/auth')
-const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi, getDraftOrdersApi, getPostOrdersAdminApi } = require('../controller/orders')
+const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi, getDraftOrdersApi, getPostOrdersAdminApi, deleteDraftOrderApi, updateOpenHouseOrder, updatePostOrder } = require('../controller/orders')
 const {verifyUser, checkPaymentStatus} = require('../utilities/middleware')
 const { openHouseImage, postOrderImage, updateOpenHouseImage, updatePostOrderImage, getOrderImage } = require('../controller/image')
 const Routes = express.Router()
@@ -44,6 +44,9 @@ Routes.get('/api/orders/open-house-order', verifyUser , getOpenHouseOrderApi) //
 Routes.get('/api/orders/post-order',verifyUser, getPostOrderApi) // postorder get
 Routes.get('/api/invoice/open-house-order', getOpenHouseInvoiceApi) // openhouse invoice get
 Routes.get('/api/orders/draft-orders', verifyUser, getDraftOrdersApi) // get draft orders
+Routes.delete('/api/orders/draft-order', verifyUser, deleteDraftOrderApi) // delete draft order
+Routes.patch('/api/orders/open-house-order/:orderId', verifyUser, updateOpenHouseOrder) // update openhouse order
+Routes.patch('/api/orders/post-order/:orderId', verifyUser, updatePostOrder) // update postorder
 
 
 //? -----------------------------

@@ -14,6 +14,7 @@ export function GlobalContextProvider({children}){
     const [adminActiveView, setAdminActiveView] = useState("order requests")
     const [zonePrices, setZonePrices] = useState([])
     const [additionalPrices, setAdditionalPrices] = useState([])
+    const [draft, setDraft] = useState({})
 
     async function getZonePrices() {
         try {
@@ -61,7 +62,7 @@ export function GlobalContextProvider({children}){
       }, [zonePrices, additionalPrices]);
 
     return(
-        <GlobalContext.Provider value={{adminActiveView, setAdminActiveView, setSettingsActiveView, settingsActiveView, breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl, activeView, setActiveView, totalUserCount, setTotalUserCount, zonePrices, additionalPrices}} >
+        <GlobalContext.Provider value={{draft, setDraft, adminActiveView, setAdminActiveView, setSettingsActiveView, settingsActiveView, breadCrumb, setBreadCrumb, isInfo, setIsInfo, baseUrl, activeView, setActiveView, totalUserCount, setTotalUserCount, zonePrices, additionalPrices}} >
            {children}
         </GlobalContext.Provider>
     )

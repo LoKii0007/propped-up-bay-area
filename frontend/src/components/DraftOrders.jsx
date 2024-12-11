@@ -4,21 +4,29 @@ import toast from "react-hot-toast";
 import RowHeading from "@/ui/rowHeading";
 import axios from "axios";
 import { parseDate } from "@/helpers/utilities";
+import Loader from "./ui/loader";
+import DeleteOrderModal from "@/ui/DeleteOrderModal";
 
 function DraftOrders() {
   const [activeForm, setActiveForm] = useState("openHouseForm");
   const [draftOrders, setDraftOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [openHouseOrders, setOpenHouseOrders] = useState([]);
-  const [postOrders, setPostOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([])
-  const { baseUrl, setBreadcrumb, setActiveView } = useGlobal();
+  const { baseUrl, setBreadCrumb, setActiveView, setDraft } = useGlobal();
+  const [openHouseDraftCount, setOpenHouseDraftCount] = useState(0)
+  const [postOrderDraftCount, setPostOrderDraftCount] = useState(0)
+  const [nextLoad, setNextLoad] = useState(null)
+  const [open, setOpen] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteOrder, setDeleteOrder] = useState(null)
   const [page, setPage] = useState(1);
   const limit = 20;
 
 
   async function handleOrderClick(order) {
-    console.log(order);
+    setBreadCrumb('Order')
+    setActiveView('order')
+    setDraft(order)
   }
 
   //?----------------------------
@@ -31,11 +39,14 @@ function DraftOrders() {
           page,
           limit
         },
-        withCredentials: true
+        withCredentials: true,
+        validateStatus: (status) => status < 500
       });
       if (response.status !== 200) {
         console.log("No orders found");
       } else {
+        setOpenHouseDraftCount(response.data.openHouseCount)
+        setPostOrderDraftCount(response.data.postOrderCount)
         setDraftOrders(response.data.orders);
         setFilteredOrders(response.data.orders.filter((order) => order.type === activeForm));
       }
@@ -44,6 +55,62 @@ function DraftOrders() {
       toast.error("Server error fetching draft orders");
     } finally {
       setLoading(false);
+    }
+  }
+
+  //?----------------------------
+  //? ----Load more orders
+  async function handleNextOrder() {
+    try {
+      setNextLoad(true)
+      const response = await axios.get(`${baseUrl}/api/orders/draft-order`, {
+        params : {
+          page: page + 1,
+          limit
+        },
+        withCredentials: true,
+        validateStatus: (status) => status < 500
+      });
+      if (response.status !== 200) {
+        console.log("No orders found");
+      } else {
+        setPage((prev) => prev + 1)
+        const updatedOrder = [...draftOrders, response.data.order];
+        setDraftOrders(updatedOrder);
+      }
+    } catch (error) {
+      console.log("Error in handleNextOrder", error.message);
+    } finally {
+      setNextLoad(false)
+    }
+  }
+
+  //?----------------------------
+  //? ----Delete order
+
+  function handleDeleteBtn(order) {
+    setOpen(true)
+    setDeleteOrder(order)
+  }
+
+  async function handleDelete(order) {
+    try {
+      setDeleteLoading(true)
+      const response = await axios.delete(`${baseUrl}/api/orders/draft-order`, {
+        data: { orderId: deleteOrder._id, type: deleteOrder.type },
+        withCredentials: true,
+        validateStatus: (status) => status < 500
+      });
+      if (response.status !== 200) {
+        toast.error("Error deleting order");
+      } else {
+        toast.success("Order deleted successfully");
+        setDraftOrders(draftOrders.filter((draft) => draft._id !== order._id));
+      }
+    } catch (error) {
+      console.log("Error in handleDelete", error.message);
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -57,10 +124,10 @@ function DraftOrders() {
     } else {
       setFilteredOrders(draftOrders.filter((order) => order.type === "postOrder"));
     }
-  }, [activeForm]);
+  }, [activeForm, draftOrders]);
 
   useEffect(() => {
-  }, [filteredOrders]);
+  }, [filteredOrders, deleteOrder]);
 
   return (
     <>
@@ -91,20 +158,20 @@ function DraftOrders() {
           <div className="flex items-center w-full">
             <div className=" text-[#718096] grid grid-cols-2 md:grid-cols-4 gap-2 px-5 w-[80%] items-center ">
               <RowHeading
-                data={openHouseOrders}
-                setFilteredData={setOpenHouseOrders}
+                data={filteredOrders}
+                setFilteredData={setFilteredOrders}
                 filterValue={"createdAt"}
                 text="Date"
               />
               <RowHeading
-                data={openHouseOrders}
-                setFilteredData={setOpenHouseOrders}
+                data={filteredOrders}
+                setFilteredData={setFilteredOrders}
                 filterValue={"email"}
                 text="Email"
               />
               <RowHeading
-                data={openHouseOrders}
-                setFilteredData={setOpenHouseOrders}
+                data={filteredOrders}
+                setFilteredData={setFilteredOrders}
                 filterValue={`${activeForm === 'openHouseForm' ? 'firstEventAddress.streetAddress' : 'billingAddress.streetAddress'}`}
                 text="Address"
               />
@@ -124,16 +191,33 @@ function DraftOrders() {
                       </div>
                       <div className="overflow-hidden"></div>
                     </button>
-                    <button>Delete</button>
+                    <button onClick={() => handleDeleteBtn(order)}>Delete</button>
                   </div>
                 ))}
               </>
             ) : (
               <div>No open house orders</div>
             )}
+
+            <div className="flex items-center justify-center ">
+
+            {
+              activeForm === "openHouseForm" && openHouseDraftCount > filteredOrders?.length && (
+                <button className="flex items-center justify-center px-5 py-2 rounded-md bg-[#638856] text-white" disabled={nextLoad} onClick={handleNextOrder}>{nextLoad ? <Loader/> : "Load More"}</button>
+              )
+            }
+
+            {
+              activeForm === "postOrder" && postOrderDraftCount > filteredOrders?.length && (
+                <button className="flex items-center justify-center px-5 py-2 rounded-md bg-[#638856] text-white" disabled={nextLoad} onClick={handleNextOrder}>{nextLoad ? <Loader/> : "Load More"}</button>
+              )
+            }
+            </div>
           </div>
         </div>
       </div>
+
+      <DeleteOrderModal open={open} setOpen={setOpen} handleDelete={handleDelete} loading={deleteLoading} />
     </>
   );
 }

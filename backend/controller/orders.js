@@ -12,7 +12,7 @@ const { addToGoogleSheet } = require("../utilities/sheetautomation");
 const orderCounterSchema = require("../models/orderCounterSchema");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-//? ---------------------------
+
 //? -------create openHouseOrderApi
 //? ---------------------------
 const createOpenHouseOrderApi = async (req, res) => {
@@ -37,7 +37,10 @@ const createOpenHouseOrderApi = async (req, res) => {
       total,
     } = req.body;
 
-    //TODO Validate total
+    if(!firstName || !lastName || !email || !phone || !requestedDate || !firstEventStartTime || !firstEventEndTime || !firstEventAddress || !requiredZone || !total || !type){
+      return res.status(400).json({ msg: "Missing required fields" });
+    }
+
     if (!total || typeof total !== "number" || total <= 0) {
       return res.status(400).json({ msg: "Invalid total amount" });
     }
@@ -90,7 +93,7 @@ const createOpenHouseOrderApi = async (req, res) => {
       total,
     });
 
-    return res.status(201).json({ order, msg: "Order placed successfully" });
+    return res.status(200).json({ order, msg: "Order placed successfully" });
   } catch (error) {
     console.error("Order creation error:", error.message);
     res.status(500).json({ msg: "Error placing order", error: error.message });
@@ -211,6 +214,29 @@ const completeOpenHouseOrder = async (orderId, session) => {
   }
 };
 
+
+//? -------updateOpenHouseOrder-----
+//? ---------------------------
+const updateOpenHouseOrder = async (req, res) => {
+  try {
+
+    const {orderId} = req.params;
+    if(!orderId){
+      return res.status(400).json({ msg: "Missing orderId" });
+    }
+
+    const order = await openHouseSchema.findByIdAndUpdate(orderId, req.body, { new: true });
+    if (!order) {
+      return res.status(404).json({ msg: "Order not found" });
+    }
+
+    return res.status(200).json({ order, msg: "Order updated successfully" });
+
+  } catch (error) {
+    console.error("Error in updateOpenHouseOrder", error.message);
+    return res.status(500).json({ msg: "Error in updateOpenHouseOrder", error: error.message });
+  }
+}
 
 //? ------------------------------------------
 //? -------- createPostOrderApi -------------
@@ -427,6 +453,27 @@ const completePostOrder = async (orderId, session) => {
   }
 };
 
+
+const updatePostOrder = async (req, res) => {
+  try {
+    const {orderId} = req.params;
+
+    if(!orderId){
+      return res.status(400).json({ msg: "Missing orderId" });
+    }
+
+    const order = await postOrderSchema.findByIdAndUpdate(orderId, req.body, { new: true });
+    if (!order) {
+      return res.status(404).json({ msg: "Order not found" });
+    }
+
+    return res.status(200).json({ order, msg: "Order updated successfully" });
+  } catch (error) {
+    console.error("Error in updatePostOrder", error.message);
+    return res.status(500).json({ msg: "Error in updatePostOrder", error: error.message });
+  }
+} 
+
 //? ---------------------------
 //? -------get openHouseOrderApi
 //? ---------------------------
@@ -535,21 +582,67 @@ const getDraftOrdersApi = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    let openHouseCount = 0;
+    let postOrderCount = 0;
+    if (page === 1) {
+      openHouseCount = await openHouseSchema.countDocuments({ userId, paid: false });
+      postOrderCount = await postOrderSchema.countDocuments({ userId, paid: false });
+    }
     let orders = [];
 
     const openHouseOrders = await openHouseSchema.find({ userId, paid: false }).skip(skip).limit(limit);
-
-    const remainingLimit = limit - openHouseOrders.length;
-    const postOrders = await postOrderSchema.find({ userId, paid: false }).skip(skip).limit(remainingLimit + limit);
+    const postOrders = await postOrderSchema.find({ userId, paid: false }).skip(skip).limit(limit);
 
     orders.push(...openHouseOrders, ...postOrders);
 
-    return res.status(200).json({ orders, msg: "Orders found" });
+    return res.status(200).json({ orders, msg: "Orders found", openHouseCount, postOrderCount });
   } catch (error) {
     console.log("Error in getDraftOrdersApi", error.message);
     return res.status(500).json({ msg: "Error in getDraftOrdersApi", error: error.message });
   }
 };
+
+
+//? ---------------------------
+//? -------deleteDraftOrderApi-----
+//? ---------------------------
+const deleteDraftOrderApi = async (req, res) => {
+  try {
+    const { orderId, type } = req.body;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ msg: "User not authorized" });
+    }
+
+    if (!orderId || !type) {
+      return res.status(400).json({ msg: "Missing required fields: orderId or type" });
+    }
+
+    let schema;
+    if (type === "openHouse") {
+      schema = openHouseSchema;
+    } else if (type === "postOrder") {
+      schema = postOrderSchema;
+    } else {
+      return res.status(400).json({ msg: "Invalid type specified" });
+    }
+
+    // Find and verify ownership before deletion
+    const document = await schema.findOne({ _id: orderId, userId });
+    if (!document) {
+      return res.status(404).json({ msg: "Order not found or not authorized to delete" });
+    }
+
+    await schema.findByIdAndDelete(orderId);
+    return res.status(200).json({ msg: "Order deleted successfully" });
+
+  } catch (error) {
+    console.error("Error in deleteDraftOrderApi:", error.message);
+    return res.status(500).json({ msg: "Error in deleteDraftOrderApi", error: error.message });
+  }
+};
+
 
 //*--------------------------------
 //*----------admin api
@@ -762,4 +855,7 @@ module.exports = {
   completePostOrder,
   getDraftOrdersApi,
   getPostOrdersAdminApi,
+  deleteDraftOrderApi,
+  updateOpenHouseOrder,
+  updatePostOrder,
 };

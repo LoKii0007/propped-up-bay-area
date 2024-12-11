@@ -3,52 +3,9 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useGlobal } from "../context/GlobalContext";
 import DatePickerDemo from "@/components/ui/DatePicker";
+import { isSameWeek } from "@/helpers/utilities";
 
-function PostOrder() {
-  const initialState = {
-    type: "postOrder",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    requestedDate: "",
-    listingAddress: {
-      streetAddress: "",
-      streetAddress2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-    },
-    billingAddress: {
-      streetAddress: "",
-      streetAddress2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-    },
-    requiredZone: {
-      name: "",
-      text: "",
-      price: 0,
-    },
-    additionalInstructions: "",
-    total: 0,
-    postColor: "",
-    flyerBox: false,
-    lighting: false,
-    numberOfPosts: 1,
-    riders: {
-      comingSoon: 0,
-      pending: 0,
-      openSatSun: 0,
-      openSat: 0,
-      openSun: 0,
-      doNotDisturb: 0,
-    },
-  };
-
-  const [formData, setFormData] = useState(initialState);
-  const [loading, setLoading] = useState(false);
+function PostOrder({draft}) {
   const { baseUrl, additionalPrices: postOrderPrices, zonePrices } = useGlobal();
 
   const zones = zonePrices.filter(zone => zone.type === "postOrder");
@@ -59,6 +16,53 @@ function PostOrder() {
     rider: postOrderPrices.find(price => price.name === "Rider")?.price,
     post: postOrderPrices.find(price => price.name === "subscription")?.price,
   };
+  const initialState = {
+    type: "postOrder",
+    firstName: draft?.firstName || "",
+    lastName: draft?.lastName || "",
+    email: draft?.email || "",
+    phone: draft?.phone || "",
+    // requestedDate: draft?.requestedDate && new Date(draft.requestedDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) 
+    // ? draft.requestedDate 
+    // : "",
+    requestedDate: "",
+    listingAddress: {
+      streetAddress: draft?.listingAddress?.streetAddress || "",
+      streetAddress2: draft?.listingAddress?.streetAddress2 || "",
+      city: draft?.listingAddress?.city || "",
+      state: draft?.listingAddress?.state || "",
+      postalCode: draft?.listingAddress?.postalCode || "",
+    },
+    billingAddress: {
+      streetAddress: draft?.billingAddress?.streetAddress || "",
+      streetAddress2: draft?.billingAddress?.streetAddress2 || "",
+      city: draft?.billingAddress?.city || "",
+      state: draft?.billingAddress?.state || "",
+      postalCode: draft?.billingAddress?.postalCode || "",
+    },
+    requiredZone: {
+      name:draft?.requiredZone?.name || "",
+      text: draft?.requiredZone?.text || "",
+      price: zones.find(zone => zone.name === draft?.requiredZone?.name)?.price || 0,
+    },
+    additionalInstructions: draft?.additionalInstructions || "",
+    total: 0,
+    postColor: draft?.postColor || "",
+    flyerBox: draft?.flyerBox || false,
+    lighting: draft?.lighting || false,
+    numberOfPosts: draft?.numberOfPosts || 1,
+    riders: {
+      comingSoon: draft?.riders?.comingSoon || 0,
+      pending: draft?.riders?.pending || 0,
+      openSatSun: draft?.riders?.openSatSun || 0,
+      openSat: draft?.riders?.openSat || 0,
+      openSun: draft?.riders?.openSun || 0,
+      doNotDisturb: draft?.riders?.doNotDisturb || 0,
+    },
+  };
+
+  const [formData, setFormData] = useState(initialState);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
   }, [ additionalPrices, zones]);
@@ -160,6 +164,7 @@ function PostOrder() {
   //?  ---------------------------------
   async function handleSubmit(e) {
     e.preventDefault();
+    console.log(draft);
     setLoading(true);
     if(!formData.requestedDate) {
       toast.error("Please select a date for the event");
@@ -167,15 +172,17 @@ function PostOrder() {
       return;
     }
     try {
-      
-      // step1: creating order
-      const res = await axios.post(
-        `${baseUrl}/api/orders/post-order`,
-        formData,
-        { withCredentials: true, validateStatus : (status) => status < 500 }
-      );
+      // step1: creating or updating order
+      const url = `${baseUrl}/api/orders/post-order`;
 
-      if (res.status !== 201) {
+      const config = {
+        withCredentials: true,
+        validateStatus: (status) => status < 500,
+      };
+
+      const res = draft? await axios.patch(`${url}/${draft._id}`, formData, config) : await axios.post(url, formData, config);
+
+      if (res.status !== 200) {
         setLoading(false);
         toast.error(res.data.msg || "Error creating order");
         return;
@@ -204,7 +211,7 @@ function PostOrder() {
 
   useEffect(() => {
     console.log(formData);
-  }, [formData]);
+  }, [formData, draft]);
 
   return (
     <>

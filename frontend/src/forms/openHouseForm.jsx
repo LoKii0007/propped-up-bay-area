@@ -4,64 +4,81 @@ import toast from "react-hot-toast";
 import { useGlobal } from "../context/GlobalContext";
 import TimePicker from "@/ui/TimePicker";
 import DatePicker from "@/components/ui/DatePicker";
+import { isSameWeek } from "@/helpers/utilities";
 
-const OpenHouseForm = () => {
+const OpenHouseForm = ({ draft }) => {
+  const {
+    baseUrl,
+    zonePrices,
+    additionalPrices: openHousePrices,
+  } = useGlobal();
+
+  const additionalPrices = {
+    signReset: openHousePrices.find(
+      (price) => price.name === "Sign Reset per sign"
+    )?.price,
+    AddressPrint: openHousePrices.find(
+      (price) => price.name === "Address Print"
+    )?.price,
+    TwilightHour: openHousePrices.find(
+      (price) => price.name === "Twilight Tour"
+    )?.price,
+    RushFee: openHousePrices.find((price) => price.name === "Rush Fee")?.price,
+  };
+
+  const zones = zonePrices.filter((zone) => zone.type === "openHouse");
   const initialState = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
+    firstName: draft?.firstName || "",
+    lastName: draft?.lastName || "",
+    email: draft?.email || "",
+    phone: draft?.phone || "",
+    // requestedDate: draft?.requestedDate && new Date(draft.requestedDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)
+    // ? draft.requestedDate
+    // : "",
     requestedDate: "",
-    firstEventStartTime: "",
-    firstEventEndTime: "",
+    firstEventStartTime: draft?.firstEventStartTime || "",
+    firstEventEndTime: draft?.firstEventEndTime || "",
     firstEventAddress: {
-      streetAddress: "",
-      streetAddress2: "",
-      city: "",
-      state: "",
-      postalCode: "",
+      streetAddress: draft?.firstEventAddress?.streetAddress || "",
+      streetAddress2: draft?.firstEventAddress?.streetAddress2 || "",
+      city: draft?.firstEventAddress?.city || "",
+      state: draft?.firstEventAddress?.state || "",
+      postalCode: draft?.firstEventAddress?.postalCode || "",
     },
     requiredZone: {
-      name: "",
-      text: "",
-      price: 0,
-      resetPrice: 0,
+      name: draft?.requiredZone?.name || "",
+      text: draft?.requiredZone?.text || "",
+      price:
+        zones.find((zone) => zone.name === draft?.requiredZone?.name)?.price ||
+        0,
+      resetPrice:
+        zones.find((zone) => zone.name === draft?.requiredZone?.name)
+          ?.resetPrice || 0,
     },
-    pickSign: false,
-    additionalSignQuantity: 0,
-    twilightTourSlot: "",
-    printAddressSign: false,
+    pickSign: draft?.pickSign || false,
+    additionalSignQuantity: draft?.additionalSignQuantity || 0,
+    twilightTourSlot: draft?.twilightTourSlot || "",
+    printAddressSign: draft?.printAddressSign || false,
     printAddress: {
-      streetAddress: "",
-      streetAddress2: "",
-      city: "",
-      state: "",
-      postalCode: "",
+      streetAddress: draft?.printAddress?.streetAddress || "",
+      streetAddress2: draft?.printAddress?.streetAddress2 || "",
+      city: draft?.printAddress?.city || "",
+      state: draft?.printAddress?.state || "",
+      postalCode: draft?.printAddress?.postalCode || "",
     },
-    additionalInstructions: "",
-    total: 0,
+    additionalInstructions: draft?.additionalInstructions || "",
+    total: draft?.total || 0,
   };
 
   const [formData, setFormData] = useState(initialState);
   const [rushFee, setRushFee] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().getHours());
   const [loading, setLoading] = useState(false);
-  const { baseUrl, zonePrices, additionalPrices : openHousePrices } = useGlobal();
-
-  const additionalPrices = {
-    signReset: openHousePrices.find(price => price.name === "Sign Reset per sign")?.price,
-    AddressPrint: openHousePrices.find(price => price.name === "Address Print")?.price,
-    TwilightHour: openHousePrices.find(price => price.name === "Twilight Tour")?.price,
-    RushFee: openHousePrices.find(price => price.name === "Rush Fee")?.price,
-  };
-
-  const zones = zonePrices.filter(zone => zone.type === "openHouse");
 
   useEffect(() => {
     console.log(additionalPrices);
     console.log(zones);
   }, [additionalPrices, zones]);
-
 
   // ----------------------------------
   // handling inputs
@@ -81,7 +98,6 @@ const OpenHouseForm = () => {
       });
     }
   };
-  
 
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
@@ -126,55 +142,41 @@ const OpenHouseForm = () => {
     const eventDate = new Date(selectedDate);
     console.log("eventDate : ", eventDate);
     const isToday = currentDate.toDateString() === eventDate.toDateString();
-  
+
     let applyRushFee = false;
-  
-    // Helper function to check if the event is within the same week as today
-    const isSameWeek = (date) => {
-      const startOfWeek = new Date(currentDate);
-      // Adjust to Monday (1) instead of Sunday (0)
-      const day = currentDate.getDay();
-      const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1);
-      startOfWeek.setDate(diff);
-      startOfWeek.setHours(0, 0, 0, 0);
-  
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
-  
-      return date >= startOfWeek && date <= endOfWeek;
-    };
-  
+
     // Helper function to convert Sunday (0) to 7 for easier comparison
-    const adjustedDay = (day) => day === 0 ? 7 : day;
-  
+    const adjustedDay = (day) => (day === 0 ? 7 : day);
+
     if (isSameWeek(eventDate)) {
       // Convert days for comparison (Sunday becomes 7)
       const currentAdjustedDay = adjustedDay(currentDate.getDay());
       const eventAdjustedDay = adjustedDay(eventDate.getDay());
-  
+
       // ordering on friday after 4pm for friday, saturday, sunday
       if (currentAdjustedDay === 5 && currentTime >= 16) {
-        if (eventAdjustedDay >= 5) { // Friday (5), Saturday (6), or Sunday (7)
+        if (eventAdjustedDay >= 5) {
+          // Friday (5), Saturday (6), or Sunday (7)
           applyRushFee = true;
         }
       }
-  
+
       // ordering on saturday at any time for saturday, sunday
       if (currentAdjustedDay === 6) {
-        if (eventAdjustedDay >= 6) { // Saturday (6) or Sunday (7)
+        if (eventAdjustedDay >= 6) {
+          // Saturday (6) or Sunday (7)
           applyRushFee = true;
         }
       }
-  
+
       // ordering on sunday at any time for sunday
       if (currentAdjustedDay === 7 && isToday) {
         applyRushFee = true;
       }
     }
-  
+
     console.log("week : ", isSameWeek(eventDate));
-  
+
     setRushFee(applyRushFee ? additionalPrices.RushFee : 0);
   };
 
@@ -203,9 +205,7 @@ const OpenHouseForm = () => {
     if (formData.pickSign) newTotal += formData.requiredZone.resetPrice;
     if (formData.additionalSignQuantity > 0)
       newTotal += additionalPrices.signReset * formData.additionalSignQuantity;
-    if (formData.printAddressSign)
-      newTotal +=
-        additionalPrices.AddressPrint
+    if (formData.printAddressSign) newTotal += additionalPrices.AddressPrint;
     if (
       formData.twilightTourSlot === "slot1" ||
       formData.twilightTourSlot === "slot2"
@@ -236,22 +236,25 @@ const OpenHouseForm = () => {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    if(!formData.requestedDate) {
+    if (!formData.requestedDate) {
       toast.error("Please select a date for the event");
       setLoading(false);
       return;
     }
     const data = { ...formData, type: "openHouse" };
+
     try {
-
-      // step1: creating order
-      const res = await axios.post(
-        `${baseUrl}/api/orders/open-house-order`,
-        data,
-        { withCredentials: true, validateStatus : (status) => status < 500 }
-      );
-
-      if (res.status !== 201) {
+      // Step 1: Creating or updating order
+      const url = `${baseUrl}/api/orders/open-house-order`;
+    
+      const config = {
+        withCredentials: true,
+        validateStatus: (status) => status < 500,
+      };
+    
+      const res = draft? await axios.patch(`${url}/${draft._id}`, data, config) : await axios.post(url, data, config);
+    
+      if (res.status !== 200) {
         setLoading(false);
         toast.error(res.data.msg || "Error creating order");
         return;
@@ -283,7 +286,7 @@ const OpenHouseForm = () => {
   //?  ---------------------------------
   useEffect(() => {
     console.log(formData);
-  }, [formData]);
+  }, [formData, draft]);
 
   return (
     <>
@@ -363,7 +366,9 @@ const OpenHouseForm = () => {
           </label>
           <div className="pb-1">
             <DatePicker
-              date={formData.requestedDate ? new Date(formData.requestedDate) : null}
+              date={
+                formData.requestedDate ? new Date(formData.requestedDate) : null
+              }
               selectedDate={handleInputChange}
             />
           </div>
@@ -380,7 +385,6 @@ const OpenHouseForm = () => {
 
         {/* Time of First Event and End Time Section */}
         <TimePicker formData={formData} setFormData={setFormData} />
-        
 
         {/* Event Address Section */}
         <div className="flex flex-col">
@@ -497,7 +501,8 @@ const OpenHouseForm = () => {
         {/* Additional Sign Quantity Section */}
         <div className="flex flex-col">
           <label className="font-medium text-sm">
-            No. of Additional Sign Quantity (${additionalPrices.signReset} per sign)
+            No. of Additional Sign Quantity (${additionalPrices.signReset} per
+            sign)
           </label>
           <input
             type="number"
@@ -532,9 +537,9 @@ const OpenHouseForm = () => {
         {/* Twilight Tours Section */}
         <div className="flex flex-col gap-1">
           <label className="font-medium text-sm">
-            Twilight Tours - ${additionalPrices.TwilightHour} (This is to be added to the regular price of
-            open house signs any time there’s a broker tour){" "}
-            <span className="text-red-500">*</span>
+            Twilight Tours - ${additionalPrices.TwilightHour} (This is to be
+            added to the regular price of open house signs any time there’s a
+            broker tour) <span className="text-red-500">*</span>
           </label>
           <div className="flex items-center">
             <input
