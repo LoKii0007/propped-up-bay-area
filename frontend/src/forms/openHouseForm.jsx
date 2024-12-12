@@ -198,10 +198,10 @@ const OpenHouseForm = ({ draft }) => {
   //  ---------------------------------
   function handleTotal() {
     let newTotal = formData.requiredZone.price + rushFee;
-    if (formData.pickSign) newTotal += formData.requiredZone.resetPrice;
+    if (formData.pickSign) newTotal += Number(formData.requiredZone.resetPrice);
     if (formData.additionalSignQuantity > 0)
-      newTotal += additionalPrices.signReset * formData.additionalSignQuantity;
-    if (formData.printAddressSign) newTotal += additionalPrices.AddressPrint;
+      newTotal += Number(additionalPrices.signReset) * Number(formData.additionalSignQuantity);
+    if (formData.printAddressSign) newTotal += Number(additionalPrices.AddressPrint);
     if (
       formData.twilightTourSlot === "slot1" ||
       formData.twilightTourSlot === "slot2"
