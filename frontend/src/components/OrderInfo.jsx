@@ -223,7 +223,7 @@ function OrderInfo({
                     </p>
                     <p className="text-md grid grid-cols-2">
                       <span className="">Print Address:</span>{" "}
-                      {`{order.printAddress.streetAddress}, ${order.printAddress.city}, ${order.printAddress.state} ${order.printAddress.postalCode}`}
+                      {`${order.printAddress.streetAddress}, ${order.printAddress.city}, ${order.printAddress.state} ${order.printAddress.postalCode}`}
                     </p>
                   </>
                 )}
