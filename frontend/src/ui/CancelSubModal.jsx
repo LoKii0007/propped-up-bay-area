@@ -11,7 +11,7 @@ export default function CancelSubModal({ open, sessionId,setOrders , setPostOrde
   async function handleCancelOrder() {
     setLoading(true);
     try {
-      const res = await axios.patch(`${baseUrl}/api/orders/post-order/cancel-subscription`, {orderId, sessionId} , {withCredentials : true , validateStatus : (status) => status < 500 })
+      const res = await axios.patch(`${baseUrl}/api/orders/cancel-subscription`, {orderId, sessionId} , {withCredentials : true , validateStatus : (status) => status < 500 })
       if(res.status === 200){
         setPostOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))
         setOrders((prev)=> prev.map(o => o._id === orderId ? {...o, subActive : false}: o ))

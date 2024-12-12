@@ -105,6 +105,6 @@ Routes.patch('/api/pricing/edit-subscription-prices', verifyUser, createMonthlyP
 Routes.get('/api/payment/check-status', checkPaymentStatus) // check payment status
 Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
 Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
-Routes.patch('/api/orders/post-order/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
+Routes.patch('/api/orders/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
 module.exports = Routes

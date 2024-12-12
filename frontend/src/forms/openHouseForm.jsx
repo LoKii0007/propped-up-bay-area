@@ -376,12 +376,12 @@ const OpenHouseForm = ({ draft }) => {
             />
           </div>
           <span className="text-xs text-gray-500">
-            $25 Rush fee gets applied for same day orders and orders on Friday
-            after 4 pm
+            { `$ ${additionalPrices.RushFee} Rush fee gets applied for same day orders and orders on Friday
+            after 4 pm `}
           </span>
           {rushFee > 0 && (
             <span className="text-xs text-red-500 mt-1">
-              Rush fee of ${rushFee} has been applied.
+              {`Rush fee of $ ${additionalPrices.RushFee} has been applied.`}
             </span>
           )}
         </div>

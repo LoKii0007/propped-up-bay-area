@@ -348,7 +348,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                         <div className="overflow-hidden">$ {order.total}</div>
                       </div>
                       <div className="w-1/6">
-                        <button
+                        <div
                           onClick={() => {
                             handleUpdateOrderStatus(index);
                           }}
@@ -366,7 +366,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                             setCompleteOrder={setCompleteOrder}
                             status={order.status}
                           />
-                        </button>
+                        </div>
                       </div>
                     </div>
                   ))

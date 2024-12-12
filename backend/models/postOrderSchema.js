@@ -56,7 +56,7 @@ const formSchema = new Schema({
   },
   status : {
     type:String,
-    enum : ['pending', 'completed', 'installed'],
+    enum : ['pending', 'completed', 'installed', 'removed'],
     default : 'pending'
   },
   subActive : {

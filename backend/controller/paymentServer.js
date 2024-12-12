@@ -232,6 +232,7 @@ const cancelSubscription = async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    console.log(sessionId, orderId)
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.subscription) {
