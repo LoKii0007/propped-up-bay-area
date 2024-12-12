@@ -5,25 +5,29 @@ import { useGlobal } from "@/context/GlobalContext";
 import PriceInput from "./PriceInput";
 
 const PostOrderPricing = () => {
-  const [edit, setEdit] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [additionalPrices, setAdditionalPrices] = useState([]);
-  const [loading2, setLoading2] = useState(false);
-  const [editAdditionalPrices, setEditAdditionalPrices] = useState(false);
-  const [selectedAdditionalPrice, setSelectedAdditionalPrice] = useState(null);
   const { baseUrl } = useGlobal();
   const [zonePrices, setZonePrices] = useState([]);
+  const [additionalPrices, setAdditionalPrices] = useState([]);
+
+  //? zone handlers
+  const [edit, setEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
-  const [editResetPrice, setEditResetPrice] = useState(false);
-  const [loading3, setLoading3] = useState(false);
-  const [subscription , setSubscription] = useState(null);
+
+  //? additional prices handlers
+  const [loading2, setLoading2] = useState(false);
+  const [editAdditionalPrices, setEditAdditionalPrices] = useState(null);
+
+  //? subscription price handlers
+  const [subscription, setSubscription] = useState(null);
   const [edit2, setEdit2] = useState(false);
   const [loading4, setLoading4] = useState(false);
 
   async function handleEdit(id) {
-    if (!edit) {
+    if (!edit || selectedZone !== id) {
       setEdit(true);
       setSelectedZone(id);
+      setEditResetPrice(false);
     } else {
       setLoading(true);
       try {
@@ -59,49 +63,6 @@ const PostOrderPricing = () => {
         setEdit(false);
       } finally {
         setLoading(false);
-      }
-    }
-  }
-
-  async function handleEditResetPrice(id) {
-    if (!editResetPrice) {
-      setEditResetPrice(true);
-      setSelectedZone(id);
-    } else {
-      setLoading3(true);
-      try {
-        const zone = zonePrices.find((zone) => zone._id === id);
-        const res = await axios.patch(
-          `${baseUrl}/api/pricing/edit-zone-prices`,
-          {
-            id,
-            price: Number(zone.price),
-            resetPrice: Number(zone.resetPrice),
-          },
-          { withCredentials: true, validateStatus: (status) => status < 500 }
-        );
-        if (res.status !== 200) {
-          toast.error(res.data.msg);
-        } else {
-          toast.success("Zone prices updated successfully");
-          setEditResetPrice(false);
-          setZonePrices((prev) =>
-            prev.map((zone) =>
-              zone._id === id
-                ? {
-                    ...zone,
-                    price: res.data.price,
-                    resetPrice: res.data.resetPrice,
-                  }
-                : zone
-            )
-          );
-        }
-      } catch (error) {
-        toast.error(error.response.data.msg);
-        setEditResetPrice(false);
-      } finally {
-        setLoading3(false);
       }
     }
   }
@@ -148,9 +109,8 @@ const PostOrderPricing = () => {
   }
 
   async function updateAdditionalPrices(id, name) {
-    if (!editAdditionalPrices) {
-      setEditAdditionalPrices(true);
-      setSelectedAdditionalPrice(id);
+    if (editAdditionalPrices !== id) {
+      setEditAdditionalPrices(id);
     } else {
       setLoading2(true);
       const additionalPrice = additionalPrices.find(
@@ -166,7 +126,7 @@ const PostOrderPricing = () => {
           toast.error(res.data.msg);
         } else {
           toast.success(`${name} updated successfully`);
-          setEditAdditionalPrices(false);
+          setEditAdditionalPrices(null);
         }
       } catch (error) {
         toast.error("Server Error updating additional prices");
@@ -225,7 +185,7 @@ const PostOrderPricing = () => {
                 <div className="flex items-center gap-2 w-full border-2 border-[#000000] rounded-md p-2">
                   $
                   <input
-                    disabled={!edit && selectedZone !== zone._id}
+                    disabled={!edit || selectedZone !== zone._id}
                     className="border-0 focus:outline-none w-full"
                     type="number"
                     placeholder="Zone Fee"
@@ -244,7 +204,13 @@ const PostOrderPricing = () => {
                 <button
                   onClick={() => handleEdit(zone._id)}
                   disabled={loading}
-                  className="border-2 border-[#34CAA5] px-6 py-2 rounded-md"
+                  className={` ${
+                    loading && selectedZone === zone._id
+                      ? "bg-[#34CAA5] text-white"
+                      : edit && selectedZone === zone._id
+                      ? "bg-[#34CAA5] text-white"
+                      : ""
+                  } border-2 border-[#34CAA5] px-6 py-2 rounded-md`}
                 >
                   {loading && selectedZone === zone._id
                     ? "Saving..."
@@ -257,45 +223,7 @@ const PostOrderPricing = () => {
                 className="text-xs max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap "
                 htmlFor="zone1"
               >
-                {zone.text}
-              </label>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-4 relative">
-                <div className="flex items-center gap-2 w-full border-2 border-[#000000] rounded-md p-2">
-                  ${" "}
-                  <input
-                    disabled={!editResetPrice || selectedZone !== zone._id}
-                    className="border-0 focus:outline-none w-full"
-                    type="number"
-                    placeholder="Reset Price"
-                    value={zone.resetPrice}
-                    onChange={(e) =>
-                      setZonePrices((prev) =>
-                        prev.map((zone, i) =>
-                          i === index
-                            ? { ...zone, resetPrice: e.target.value }
-                            : zone
-                        )
-                      )
-                    }
-                  />
-                </div>
-                <button
-                  onClick={() => handleEditResetPrice(zone._id)}
-                  disabled={loading3}
-                  className="border-2 border-[#34CAA5] px-6 py-2 rounded-md"
-                >
-                  {loading3 && selectedZone === zone._id
-                    ? "Saving..."
-                    : editResetPrice && selectedZone === zone._id
-                    ? "Save"
-                    : "Edit"}
-                </button>
-              </div>
-              <label className="text-xs" htmlFor="zone1">
-                Reset Price
+                {zone.text.slice(0, zone.text.indexOf("-"))}
               </label>
             </div>
           </div>
@@ -308,7 +236,6 @@ const PostOrderPricing = () => {
           price={price}
           updateAdditionalPrices={updateAdditionalPrices}
           editAdditionalPrices={editAdditionalPrices}
-          selectedAdditionalPrice={selectedAdditionalPrice}
           setAdditionalPrices={setAdditionalPrices}
           additionalPrices={additionalPrices}
           loading2={loading2}
@@ -339,13 +266,13 @@ const PostOrderPricing = () => {
           <button
             onClick={() => handleUpdateSubscription()}
             disabled={loading4}
-            className="border-2 border-[#34CAA5] px-6 py-2 rounded-md"
+            className={` ${
+              loading4 || edit2
+                ? "bg-[#34CAA5] text-white"
+                : ""
+            } border-2 border-[#34CAA5] px-6 py-2 rounded-md`}
           >
-            {loading4
-              ? "Saving..."
-              : edit2
-              ? "Save"
-              : "Edit"}
+            {loading4 ? "Saving..." : edit2 ? "Save" : "Edit"}
           </button>
         </div>
       </div>

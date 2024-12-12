@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 
-const PriceInput = ({ editAdditionalPrices, loading2, selectedAdditionalPrice, updateAdditionalPrices, price, setAdditionalPrices, additionalPrices }) => {
+const PriceInput = ({ editAdditionalPrices, loading2, updateAdditionalPrices, price, setAdditionalPrices }) => {
   
     useEffect(() => {
         console.log(price)
-    }, [selectedAdditionalPrice])
+    }, [editAdditionalPrices])
   
     return (
     <>
@@ -14,7 +14,7 @@ const PriceInput = ({ editAdditionalPrices, loading2, selectedAdditionalPrice, u
           <div className="flex items-center gap-2 border-2 border-[#000000] rounded-md p-2">
             ${" "}
             <input
-              disabled={!editAdditionalPrices || selectedAdditionalPrice !== price._id}
+              disabled={editAdditionalPrices !== price._id}
               className="border-0 focus:outline-none w-full"
               type="number"
               placeholder={price.name}
@@ -25,9 +25,9 @@ const PriceInput = ({ editAdditionalPrices, loading2, selectedAdditionalPrice, u
           <button
             onClick={() => updateAdditionalPrices(price._id, price.name)}
             disabled={loading2}
-            className="border-2 border-[#34CAA5] px-6 py-2 rounded-md"
+            className={` ${loading2 && editAdditionalPrices === price._id ? "bg-[#34CAA5] text-white" : editAdditionalPrices === price._id ? "bg-[#34CAA5] text-white" : ""} border-2 border-[#34CAA5] px-6 py-2 rounded-md`}
           >
-            { loading2 && selectedAdditionalPrice === price._id ? "Saving..." : editAdditionalPrices && selectedAdditionalPrice === price._id ? "Save" : "Edit"}
+            { loading2 && editAdditionalPrices === price._id ? "Saving..." : editAdditionalPrices && editAdditionalPrices === price._id ? "Save" : "Edit"}
           </button>
         </div>
       </div>

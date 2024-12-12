@@ -225,7 +225,8 @@ const updateOpenHouseOrder = async (req, res) => {
       return res.status(400).json({ msg: "Missing orderId" });
     }
 
-    const order = await openHouseSchema.findByIdAndUpdate(orderId, req.body, { new: true });
+    const updateItems = {...req.body, createdAt: new Date()}
+    const order = await openHouseSchema.findByIdAndUpdate(orderId, updateItems, { new: true });
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
     }
@@ -316,7 +317,7 @@ const createPostOrderApi = async (req, res) => {
     const savedForm = await newForm.save();
 
     res
-      .status(201)
+      .status(200)
       .json({ order: savedForm, msg: "Order placed successfully" });  
   } catch (error) {
     console.error("Error creating post order:", error.message);
@@ -453,7 +454,9 @@ const completePostOrder = async (orderId, session) => {
   }
 };
 
-
+//? ------------------------------------------
+//? -------- updatePostOrder -------------
+//? ------------------------------------------
 const updatePostOrder = async (req, res) => {
   try {
     const {orderId} = req.params;
@@ -462,7 +465,8 @@ const updatePostOrder = async (req, res) => {
       return res.status(400).json({ msg: "Missing orderId" });
     }
 
-    const order = await postOrderSchema.findByIdAndUpdate(orderId, req.body, { new: true });
+    const updateItems = {...req.body, createdAt: new Date()}
+    const order = await postOrderSchema.findByIdAndUpdate(orderId, updateItems, { new: true });
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
     }

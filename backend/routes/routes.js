@@ -9,7 +9,7 @@ const Routes = express.Router()
 const multer = require('multer');
 const { generateAuthUrl, addDataToMultipleSheet, getTokens } = require('../utilities/sheetautomation')
 const upload = multer({ storage: multer.memoryStorage() }); 
-const { getOpenHousePrices, editOpenHousePrices, addAdditionalPrices, getAdditionalPrices, editAdditionalPrices } = require('../controller/prices')
+const { getOpenHousePrices, editOpenHousePrices, addAdditionalPrices, getAdditionalPrices, editAdditionalPrices, addZonePrices } = require('../controller/prices')
 
 
 //? -----------------------------
@@ -87,6 +87,7 @@ Routes.patch('/api/pricing/edit-zone-prices', verifyUser, editOpenHousePrices) /
 Routes.post('/api/pricing/add-additional-prices', addAdditionalPrices) // add additional prices
 Routes.get('/api/pricing/get-additional-prices', getAdditionalPrices) // get additional prices
 Routes.patch('/api/pricing/edit-additional-prices', verifyUser, editAdditionalPrices) // edit additional prices
+Routes.post('/api/pricing/add-zone-prices', verifyUser, addZonePrices) // add zone prices
 
 //* -----------------------------
 //* google sheets routes

@@ -4,6 +4,7 @@ import { useGlobal } from "../context/GlobalContext"
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ setActiveView, activeView }) => {
+  const { setDraft } = useGlobal();
   const menu = [
     {
       name: "Dashboard",
@@ -39,6 +40,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
     let view = data.toLowerCase()
     setActiveView(view)
     if(breadCrumb !== view) setBreadCrumb(data)
+    setDraft(null)
     if(isInfo) setIsInfo(false)
   }
 

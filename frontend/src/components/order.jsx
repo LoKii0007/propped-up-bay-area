@@ -11,11 +11,11 @@ function Order() {
   const [postOrderDraft, setPostOrderDraft] = useState({})
 
   useEffect(() => {
-    if (draft.type === "openHouse") {
+    if (draft?.type === "openHouse") {
       setActiveForm("openHouseForm");
       setOpenHouseDraft(draft)
       setPostOrderDraft(null)
-    } else if (draft.type === "postOrder") {
+    } else if (draft?.type === "postOrder") {
       setActiveForm("postOrder");
       setPostOrderDraft(draft)
       setOpenHouseDraft(null)

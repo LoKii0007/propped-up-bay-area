@@ -252,7 +252,7 @@ const OpenHouseForm = ({ draft }) => {
         validateStatus: (status) => status < 500,
       };
     
-      const res = draft? await axios.patch(`${url}/${draft._id}`, data, config) : await axios.post(url, data, config);
+      const res = Object.keys(draft).length > 0 ? await axios.patch(`${url}/${draft._id}`, data, config) : await axios.post(url, data, config);
     
       if (res.status !== 200) {
         setLoading(false);

@@ -173,6 +173,7 @@ function PostOrder({draft}) {
     }
     try {
       // step1: creating or updating order
+      console.log(draft)
       const url = `${baseUrl}/api/orders/post-order`;
 
       const config = {
@@ -180,7 +181,7 @@ function PostOrder({draft}) {
         validateStatus: (status) => status < 500,
       };
 
-      const res = draft? await axios.patch(`${url}/${draft._id}`, formData, config) : await axios.post(url, formData, config);
+      const res = Object.keys(draft).length >0 ? await axios.patch(`${url}/${draft._id}`, formData, config) : await axios.post(url, formData, config);
 
       if (res.status !== 200) {
         setLoading(false);

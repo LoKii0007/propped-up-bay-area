@@ -22,6 +22,10 @@ const schema = new mongoose.Schema({
     required: true,
     enum: ["openHouse", "postOrder"],
   },
+  index :{
+    type : Number,
+    required : true
+  }
 });
 
 const zonePricesSchema = mongoose.model("ZonePrices", schema);

@@ -120,4 +120,5 @@ module.exports = {
   addAdditionalPrices,
   getAdditionalPrices,
   editAdditionalPrices,
+  addZonePrices
 };
