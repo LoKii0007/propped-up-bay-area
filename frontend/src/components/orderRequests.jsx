@@ -288,7 +288,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
 
           <div className="req-bottom w-full h-full flex flex-col gap-6 justify-between">
             <div className=" flex flex-col">
-              <div className="order-top text-[#718096] grid grid-cols-6 px-5 gap-2">
+              <div className="order-top text-[#718096] grid grid-cols-5 px-5 gap-2">
                 <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
@@ -319,12 +319,12 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                   filterValue={"total"}
                   text="Amount"
                 />
-                <RowHeading
+                {/* <RowHeading
                   data={filteredOrders}
                   setFilteredData={setFilteredOrders}
                   filterValue={"status"}
                   text="Status"
-                />
+                /> */}
               </div>
               {filteredOrders.length > 0 ? (
                 filteredOrders
@@ -333,7 +333,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                     <div key={index} className="flex w-full px-5 ps-0 gap-2 ">
                       <div
                         onClick={() => handleUserClick(index)}
-                        className="cursor-pointer grid grid-cols-5 w-5/6 py-5 gap-2 ps-5 custom-transition hover:shadow-md rounded-md hover:bg-green-100"
+                        className="cursor-pointer grid grid-cols-5 w-full py-5 gap-2 ps-5 custom-transition hover:shadow-md rounded-md hover:bg-green-100"
                       >
                         <div className="overflow-hidden">{order.orderNo}</div>
                         <div className="overflow-hidden">
@@ -347,18 +347,17 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                         </div>
                         <div className="overflow-hidden">$ {order.total}</div>
                       </div>
-                      <div className="w-1/6">
+                      {/* <div className="w-1/6">
                         <div
                           onClick={() => {
                             handleUpdateOrderStatus(index);
                           }}
-                          className={`text-left font-semibold capitalize hover:bg-gray-100 w-full px-2 rounded-md
+                          className={`text-left font-semibold capitalize w-full px-2 rounded-md
                             ${order.status === "pending" && "text-yellow-500"}
                             ${order.status === "installed" && "text-blue-500"}
                             ${order.status === "completed" && "text-green-500"}
                           }`}
                         >
-                          {/* {order.status} */}
                           <ChangeStatusDropdown
                             order={completeOrder}
                             setOrders={setOrders}
@@ -367,7 +366,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                             status={order.status}
                           />
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   ))
               ) : (
