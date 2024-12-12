@@ -311,11 +311,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
       if (session.mode === "payment") {
         try {
           const orderId = session.metadata.orderId;
-          const result = completeOpenHouseOrder(orderId , session);
+          const result = await completeOpenHouseOrder(orderId , session);
           if (result.success) {
             res.status(200).json({ msg: result.msg });
           } else {
-            res.status(400).json({ msg: result.msg });
+            res.status(400).json({ msg: result.msg || 'something went wring in completeopenhouse' });
           }
         } catch (error) {
           console.error("error in open house webhook", error.message);
@@ -334,11 +334,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
           }
 
           if (order.paid === false) {
-            const result = completePostOrder(order._id, session);
+            const result = await completePostOrder(order._id, session);
             if (result.success) {
               return res.status(200).json({ msg: result.msg });
             } else {
-              return res.status(400).json({ msg: result.msg });
+              return res.status(400).json({ msg: result.msg|| 'something went wring in completeopenhouse' });
             }
           }
 

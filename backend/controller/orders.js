@@ -168,7 +168,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
     try {
       console.log('googlesheets : ',googleSheetdata)
 
-      addToGoogleSheet({
+      await addToGoogleSheet({
         data: googleSheetdata,
         targetSheet: "openHouseOrders",
       });
@@ -418,7 +418,7 @@ const completePostOrder = async (orderId, session) => {
 
     try {
       console.log('googlesheets : ',googleSheetdata)
-      addToGoogleSheet({
+      await addToGoogleSheet({
         data: googleSheetdata,
         targetSheet: "postHouseOrders",
       });

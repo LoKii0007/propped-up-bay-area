@@ -124,6 +124,8 @@ const addDataToMultipleSheet = async(req, res)=>{
 // Step 3: Use the user's OAuth2 client to add data to their Google Sheet
 async function addToGoogleSheet({ data, targetSheet }) {
   // Fetch users from the database
+
+  console.log(data?.length, targetSheet)
   const users = await GoogleSheetUsers.find();
   if (!users || users.length === 0) {
     console.error("No users found");
