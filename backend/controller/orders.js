@@ -37,9 +37,9 @@ const createOpenHouseOrderApi = async (req, res) => {
       total,
     } = req.body;
 
-    if(!firstName || !lastName || !email || !phone || !requestedDate || !firstEventStartTime || !firstEventEndTime || !firstEventAddress || !requiredZone || !total || !type){
-      return res.status(400).json({ msg: "Missing required fields" });
-    }
+    // if(!firstName || !lastName || !email || !phone || !requestedDate || !firstEventStartTime || !firstEventEndTime || !firstEventAddress || !requiredZone || !total || !type){
+    //   return res.status(400).json({ msg: "Missing required fields" });
+    // }
 
     if (!total || typeof total !== "number" || total <= 0) {
       return res.status(400).json({ msg: "Invalid total amount" });
