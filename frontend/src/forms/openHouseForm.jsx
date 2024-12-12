@@ -206,7 +206,7 @@ const OpenHouseForm = ({ draft }) => {
       formData.twilightTourSlot === "slot1" ||
       formData.twilightTourSlot === "slot2"
     )
-      newTotal += additionalPrices.TwilightHour;
+      newTotal += Number(additionalPrices.TwilightHour);
     console.log("newtotal", newTotal);
     return newTotal;
   }

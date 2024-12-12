@@ -156,12 +156,12 @@ const completeOpenHouseOrder = async (orderId, session) => {
         .filter(Boolean)
         .join(", "), // Combined printAddress as a single block
 
-      order.requiredZone?.name,
-      order?.pickSign,
-      order?.additionalSignQuantity,
-      order?.twilightTourSlot,
-      order?.printAddressSign,
-      order?.additionalInstructions,
+      order?.requiredZone?.name || "",
+      order?.pickSign || "",
+      order?.additionalSignQuantity || "",
+      order?.twilightTourSlot || "",
+      order?.printAddressSign?.streetAddress || "",
+      order?.additionalInstructions || "",
       order.total,
     ];
 
@@ -188,12 +188,12 @@ const completeOpenHouseOrder = async (orderId, session) => {
       limit: 1, // Retrieve only the latest invoice
     });
 
-    let invoiceUrl;
-    if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
-      invoiceUrl = invoices.data[0].hosted_invoice_url;
-    } else {
-      invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
-    }
+    let invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+    // if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
+    //   invoiceUrl = invoices.data[0].hosted_invoice_url;
+    // } else {
+    //   invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+    // }
 
     const userEmail = await User.findById(order.userId);
 
@@ -399,21 +399,21 @@ const completePostOrder = async (orderId, session) => {
       order.requestedDate,
       listingAddressBlock, // Single string for listing address
       billingAddressBlock, // Single string for billing address
-      requiredZone.name,
-      order.requiredZone.text || "",
-      order.requiredZone.price,
+      order?.requiredZone.name,
+      order?.requiredZone.text || "",
+      order?.requiredZone.price,
       order?.additionalInstructions || "",
       order.total,
       order.postColor || "",
-      order?.flyerBox,
-      order?.lighting,
-      order?.numberOfPosts,
-      order?.riders.comingSoon,
-      order?.riders.pending,
-      order?.riders.openSatSun,
-      order?.riders.openSat,
-      order?.riders.openSun,
-      order?.riders.doNotDisturb,
+      order?.flyerBox || "",
+      order?.lighting || "",
+      order?.numberOfPosts || "",
+      order?.riders.comingSoon || "",
+      order?.riders.pending || "",
+      order?.riders.openSatSun || "",
+      order?.riders.openSat || "",
+      order?.riders.openSun || "",
+      order?.riders.doNotDisturb || "",
     ];
 
     try {
@@ -432,19 +432,19 @@ const completePostOrder = async (orderId, session) => {
       limit: 1, // Retrieve only the latest invoice
     });
 
-    let invoiceUrl;
-    if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
-      invoiceUrl = invoices.data[0].hosted_invoice_url;
-    } else {
-      invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
-    }
+    let invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+    // if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
+    //   invoiceUrl = invoices.data[0].hosted_invoice_url;
+    // } else {
+    //   invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
+    // }
 
-    const user = await User.findById(order.userId);
+    // const user = await User.findById(order.userId);
 
     // Send email with Nodemailer
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
-      to: [order.email, user.email],
+      to: [order.email, updatedUser.email],
       subject: "Propped up order confirmed",
       html: gmailTemplateOrder(order.firstName, "post order", invoiceUrl),
     };
