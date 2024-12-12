@@ -27,6 +27,8 @@ const OpenHouseForm = ({ draft }) => {
   };
 
   const zones = zonePrices.filter((zone) => zone.type === "openHouse");
+  console.log(zones)
+
   const initialState = {
     firstName: draft?.firstName || "",
     lastName: draft?.lastName || "",
@@ -285,7 +287,7 @@ const OpenHouseForm = ({ draft }) => {
   //? updating render
   //?  ---------------------------------
   useEffect(() => {
-    console.log(formData);
+    // console.log(formData);
   }, [formData, draft]);
 
   return (

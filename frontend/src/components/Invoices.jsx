@@ -343,7 +343,7 @@ function Invoices() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => handleSearch(e)}
-                  placeholder="Search by name or invoice no"
+                  placeholder="Search by name or invoice number"
                 />
               </div>
             </div>

@@ -14,7 +14,7 @@ export function GlobalContextProvider({children}){
     const [adminActiveView, setAdminActiveView] = useState("order requests")
     const [zonePrices, setZonePrices] = useState([])
     const [additionalPrices, setAdditionalPrices] = useState([])
-    const [draft, setDraft] = useState(null)
+    const [draft, setDraft] = useState({})
 
     async function getZonePrices() {
         try {
@@ -25,8 +25,8 @@ export function GlobalContextProvider({children}){
           if (res.status !== 200) {
             toast.error('Failed to fetch zone prices. please try again later');
           } else {
-            console.log(res.data);
-            setZonePrices(res.data.zonePrices);
+            // console.log(res.data);
+            setZonePrices(res.data.zonePrices.sort((a,b)=> a.index - b.index));
           }
         } catch (error) {
           toast.error('Failed to fetch zone prices. please try again later');

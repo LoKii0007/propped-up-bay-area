@@ -79,7 +79,7 @@ const PostOrderPricing = () => {
         console.log(res.data);
         const filteredPrices = res.data.zonePrices.filter(
           (price) => price.type === "postOrder"
-        );
+        ).sort((a,b)=> a.index - b.index);
         setZonePrices(filteredPrices);
       }
     } catch (error) {

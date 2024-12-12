@@ -1,15 +1,15 @@
-import { californiaCities } from "@/data/staticData";
+import { CALIFORNIA_STATES } from "@/data/staticData";
 import { useState, useRef, useEffect } from "react";
 
 export const SearchableSelect = ({ value, onChange, name, required, editing }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredOptions, setFilteredOptions] = useState(californiaCities);
+    const [filteredOptions, setFilteredOptions] = useState(CALIFORNIA_STATES);
     const dropdownRef = useRef(null);
   
     // Filter options based on search term
     useEffect(() => {
-      const filtered = californiaCities.filter((option) =>
+      const filtered = CALIFORNIA_STATES.filter((option) =>
         option.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredOptions(filtered);

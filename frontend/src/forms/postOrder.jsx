@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useGlobal } from "../context/GlobalContext";
 import DatePickerDemo from "@/components/ui/DatePicker";
-import { isSameWeek } from "@/helpers/utilities";
 
 function PostOrder({draft}) {
   const { baseUrl, additionalPrices: postOrderPrices, zonePrices } = useGlobal();
@@ -211,7 +210,7 @@ function PostOrder({draft}) {
   }
 
   useEffect(() => {
-    console.log(formData);
+    // console.log(formData);
   }, [formData, draft]);
 
   return (

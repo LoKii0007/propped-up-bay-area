@@ -37,7 +37,7 @@ const OpenhousePricing = () => {
         console.log(res.data);
         const filteredPrices = res.data.zonePrices.filter(
           (price) => price.type === "openHouse"
-        );
+        ).sort((a,b)=> a.index - b.index);
         setZonePrices(filteredPrices);
       }
     } catch (error) {

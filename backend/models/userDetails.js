@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { CALIFORNIA_CITIES } = require("../data/pricingData");
+const { CALIFORNIA_STATES } = require("../data/pricingData");
 
 const signUpDetailsSchema = new mongoose.Schema({
   userId: {
@@ -26,7 +26,7 @@ const signUpDetailsSchema = new mongoose.Schema({
   state: {
     type: String,
     required: true,
-    enum: CALIFORNIA_CITIES,
+    enum: CALIFORNIA_STATES,
   },
   zipCode: {
     type: String,
