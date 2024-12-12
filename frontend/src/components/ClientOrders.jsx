@@ -191,32 +191,37 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
     try {
       const container = document.createElement("div");
       container.style.display = "none";
+      container.style.position = "absolute"; // Ensure full rendering
+      container.style.left = "-9999px"; // Move off-screen
       document.body.appendChild(container);
-
-      // Render the appropriate component based on the invoice type
+  
+      // Render with explicit style passing
       let element;
       if (data.type === "openHouse") {
-        element = <OpenHouseInvoice data={data} />;
+        element = <OpenHouseInvoice data={data} style={{ width: '100%', maxWidth: '800px' }} />;
       } else if (data.type === "postOrder") {
-        element = <PostOrderInvoice data={data} />;
+        element = <PostOrderInvoice data={data} style={{ width: '100%', maxWidth: '800px' }} />;
       } else {
         toast.error("Download failed. Please try again");
         return;
       }
-
-      // Render the invoice component
+  
       ReactDOM.render(element, container);
-
+  
       const invoiceElement = container.firstChild;
       const filename = `${data.type}_invoice.pdf`;
-
+  
       const options = {
         margin: 1,
         filename,
-        html2canvas: { scale: 2 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, // Help with external resources
+          logging: true  // Enables console logging for debugging
+        },
         jsPDF: { format: "a4" },
       };
-
+  
       // Generate and download PDF
       html2pdf()
         .from(invoiceElement)
@@ -225,7 +230,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
         .then(() => {
           toast.success(`Downloaded ${filename}`);
           ReactDOM.unmountComponentAtNode(container);
-          document.body.removeChild(container); // Clean up
+          document.body.removeChild(container);
         })
         .catch((error) => {
           console.error("PDF Generation Error:", error);
