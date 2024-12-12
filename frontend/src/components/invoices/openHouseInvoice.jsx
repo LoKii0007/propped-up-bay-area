@@ -6,7 +6,7 @@ const OpenHouseInvoice = ({ data }) => {
     <>
       <div
         id="openHouse"
-        className="max-w-[790px] mx-auto bg-[#fff] border border-[#c8c8cb] min-w-[700px] "
+        className="max-w-[790px] mx-auto bg-[#fff] border border-[#c8c8cb] min-w-[400px] "
       >
         <div className="bg-[#166534] text-[#fff] flex py-4 px-10 justify-between">
           <h1 className="text-2xl font-bold">INVOICE</h1>
@@ -34,7 +34,7 @@ const OpenHouseInvoice = ({ data }) => {
           </h3>
           <div className="border-t border-[#c8c8cb] my-4"></div>
 
-          <div className="flex justify-between gap-4">
+          <div className="flex flex-col md:flex-row justify-between gap-4">
             <div>
               <h4 className="font-bold">
                 {data.firstName} {data.lastName}
