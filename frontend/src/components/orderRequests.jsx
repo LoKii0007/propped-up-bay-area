@@ -270,7 +270,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by anyhthing..."
+                  placeholder="Search by anything..."
                 />
               </div>
             </div>

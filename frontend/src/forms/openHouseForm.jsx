@@ -148,7 +148,7 @@ const OpenHouseForm = ({ draft }) => {
     // Helper function to convert Sunday (0) to 7 for easier comparison
     const adjustedDay = (day) => (day === 0 ? 7 : day);
 
-    if (isSameWeek(eventDate)) {
+    if (isSameWeek({eventDate, currentDate})) {
       // Convert days for comparison (Sunday becomes 7)
       const currentAdjustedDay = adjustedDay(currentDate.getDay());
       const eventAdjustedDay = adjustedDay(eventDate.getDay());

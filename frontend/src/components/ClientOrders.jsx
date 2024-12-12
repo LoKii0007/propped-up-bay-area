@@ -264,7 +264,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                     type="text"
                     value={searchTerm}
                     onChange={handleSearch}
-                    placeholder="Search by anyhthing..."
+                    placeholder="Search by anything..."
                   />
                 </div>
                 <button className='text-black font-semibold flex items-center md:hidden px-5 py-2 ' onClick={() => setOpen(true)}>

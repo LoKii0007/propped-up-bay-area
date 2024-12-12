@@ -7,15 +7,9 @@ import { useAuth } from "../context/AuthContext";
 import { Switch } from "@/components/ui/switch";
 import ResetPassword from "./ResetPass";
 import { SearchableSelect } from "@/ui/SearchableSelect";
+import { colors } from "../helpers/utilities";
 
 const getRandomColor = (letter) => {
-  const colors = [
-    { range: "A-E", color: "bg-red-500" },
-    { range: "F-J", color: "bg-blue-500" },
-    { range: "K-O", color: "bg-green-500" },
-    { range: "P-T", color: "bg-yellow-500" },
-    { range: "U-Z", color: "bg-purple-500" },
-  ];
 
   // Convert letter to uppercase to handle case-insensitivity
   const uppercaseLetter = letter.toUpperCase();
