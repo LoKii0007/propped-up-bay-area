@@ -6,7 +6,7 @@ const OpenHouseInvoice = ({ data }) => {
     <>
       <div
         id="openHouse"
-        className="max-w-[790px] mx-auto bg-[#fff] border border-[#c8c8cb]"
+        className="max-w-[790px] mx-auto bg-[#fff] border border-[#c8c8cb] min-w-[700px] "
       >
         <div className="bg-[#166534] text-[#fff] flex py-4 px-10 justify-between">
           <h1 className="text-2xl font-bold">INVOICE</h1>
