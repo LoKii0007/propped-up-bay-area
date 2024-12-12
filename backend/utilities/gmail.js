@@ -32,7 +32,6 @@ const gmailTemplatePostOrder  = (firstName, link) => `
   <br>
   Your post-order request has been successfully confirmed. We’re excited to assist you!
   <br>
-  View the invoice
   <br>
   For any questions or further assistance, don’t hesitate to reach out to us at info@proppedupbayarea.com.
   <br>
