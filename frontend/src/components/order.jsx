@@ -10,6 +10,9 @@ function Order() {
   const [openHouseDraft, setOpenHouseDraft] = useState({})
   const [postOrderDraft, setPostOrderDraft] = useState({})
 
+
+  //?-----------------------------------
+  //? handiing draft changes
   useEffect(() => {
     if (draft?.type === "openHouse") {
       setActiveForm("openHouseForm");
@@ -21,6 +24,12 @@ function Order() {
       setOpenHouseDraft(null)
     }
   }, [draft]);
+
+  //?-----------------------------------
+  //? required rendering on changes
+  useEffect(()=>{
+    // console.log('openHouseDraft',openHouseDraft)
+  }, [openHouseDraft, postOrderDraft])
 
   return (
     <>

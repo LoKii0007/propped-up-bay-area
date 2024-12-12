@@ -115,6 +115,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     // update paid
     await order.updateOne({ paid: true });
+    console.log('update 1')
 
     const counter = await orderCounterSchema.findOne();
 
@@ -123,6 +124,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     // update orderNo
     await order.updateOne({ orderNo });
+    console.log('update 2')
 
     // Increment the count for the next order
     await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } });
@@ -155,15 +157,17 @@ const completeOpenHouseOrder = async (orderId, session) => {
         .join(", "), // Combined printAddress as a single block
 
       order.requiredZone?.name,
-      order.pickSign,
-      order.additionalSignQuantity,
-      order.twilightTourSlot,
-      order.printAddressSign,
-      order.additionalInstructions,
+      order?.pickSign,
+      order?.additionalSignQuantity,
+      order?.twilightTourSlot,
+      order?.printAddressSign,
+      order?.additionalInstructions,
       order.total,
     ];
 
     try {
+      console.log('googlesheets : ',googleSheetdata)
+
       addToGoogleSheet({
         data: googleSheetdata,
         targetSheet: "openHouseOrders",
@@ -176,6 +180,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
     await User.findByIdAndUpdate(order.userId, {
       $inc: { totalOrders: 1, totalSpent: order.total },
     });
+    console.log('update 3')
 
     //getting invoice url
     const invoices = await stripe.invoices.list({
@@ -341,8 +346,9 @@ const completePostOrder = async (orderId, session) => {
     }   
 
     // update paid
-    await order.updateOne({ paid: true });
-    await order.updateOne({ sessionId: session.id });
+    await order.updateOne({ paid: true }, {new : true});
+    await order.updateOne({ sessionId: session.id }), {new : true};
+    console.log('update 1')
 
     const counter = await orderCounterSchema.findOne();
 
@@ -351,9 +357,17 @@ const completePostOrder = async (orderId, session) => {
 
     // update orderNo
     await order.updateOne({ orderNo });
+    console.log('update 2')
 
     // Increment the count for the next order
-    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } });
+    await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } }, {new : true});
+
+    // Increment totalOrders by 1 and totalSpent by total using $inc
+    const updatedUser = await User.findByIdAndUpdate(order.userId, {
+      $inc: { totalOrders: 1, totalSpent: order.total },
+      isSubscribed: true
+    }, {new : true});
+    console.log('updated user :', updatedUser)
 
     // adding data to google sheets
     const listingAddressBlock = [
@@ -388,21 +402,22 @@ const completePostOrder = async (orderId, session) => {
       requiredZone.name,
       order.requiredZone.text || "",
       order.requiredZone.price,
-      order.additionalInstructions || "",
+      order?.additionalInstructions || "",
       order.total,
       order.postColor || "",
-      order.flyerBox,
-      order.lighting,
-      order.numberOfPosts,
-      order.riders.comingSoon,
-      order.riders.pending,
-      order.riders.openSatSun,
-      order.riders.openSat,
-      order.riders.openSun,
-      order.riders.doNotDisturb,
+      order?.flyerBox,
+      order?.lighting,
+      order?.numberOfPosts,
+      order?.riders.comingSoon,
+      order?.riders.pending,
+      order?.riders.openSatSun,
+      order?.riders.openSat,
+      order?.riders.openSun,
+      order?.riders.doNotDisturb,
     ];
 
     try {
+      console.log('googlesheets : ',googleSheetdata)
       addToGoogleSheet({
         data: googleSheetdata,
         targetSheet: "postHouseOrders",
@@ -410,12 +425,6 @@ const completePostOrder = async (orderId, session) => {
     } catch (error) {
       console.log("Post house order google sheet api error : ", error.message);
     }
-
-    // Increment totalOrders by 1 and totalSpent by total using $inc
-    await User.findByIdAndUpdate(order.userId, {
-      $inc: { totalOrders: 1, totalSpent: order.total },
-      isSubscribed: true
-    });
 
     //getting invoice url
     const invoices = await stripe.invoices.list({

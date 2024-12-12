@@ -15,6 +15,7 @@ function PostOrder({draft}) {
     rider: postOrderPrices.find(price => price.name === "Rider")?.price,
     post: postOrderPrices.find(price => price.name === "subscription")?.price,
   };
+
   const initialState = {
     type: "postOrder",
     firstName: draft?.firstName || "",
@@ -62,9 +63,6 @@ function PostOrder({draft}) {
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-  }, [ additionalPrices, zones]);
 
   //? ----------------------------------
   //? handling inputs
@@ -210,8 +208,15 @@ function PostOrder({draft}) {
   }
 
   useEffect(() => {
-    // console.log(formData);
-  }, [formData, draft]);
+    // console.log('draft', draft);
+  }, [formData, additionalPrices, zones]);
+
+  useEffect(() => {
+    // console.log('draft', draft);
+    // console.log('state', initialState);
+
+    setFormData(initialState)
+  }, [draft]);
 
   return (
     <>

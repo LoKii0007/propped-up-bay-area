@@ -27,9 +27,8 @@ const OpenHouseForm = ({ draft }) => {
   };
 
   const zones = zonePrices.filter((zone) => zone.type === "openHouse");
-  console.log(zones)
 
-  const initialState = {
+  let initialState = {
     firstName: draft?.firstName || "",
     lastName: draft?.lastName || "",
     email: draft?.email || "",
@@ -76,11 +75,6 @@ const OpenHouseForm = ({ draft }) => {
   const [rushFee, setRushFee] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().getHours());
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    console.log(additionalPrices);
-    console.log(zones);
-  }, [additionalPrices, zones]);
 
   // ----------------------------------
   // handling inputs
@@ -287,8 +281,15 @@ const OpenHouseForm = ({ draft }) => {
   //? updating render
   //?  ---------------------------------
   useEffect(() => {
-    // console.log(formData);
-  }, [formData, draft]);
+    // console.log('draft', draft);
+  }, [formData, additionalPrices, zones]);
+
+  useEffect(() => {
+    // console.log('draft', draft);
+    // console.log('state', initialState);
+
+    setFormData(initialState)
+  }, [draft]);
 
   return (
     <>
