@@ -5,7 +5,7 @@ import LinkEmail from "../auth/LinkEmail";
 
 const ConnectedAccounts = () => {
   const { currentUser } = useAuth();
-  console.log(currentUser)
+  // console.log(currentUser)
 
   return (
     <div className="connected md:p-6 px-3 py-4 rounded-2xl client-form flex flex-col gap-6">
@@ -13,23 +13,23 @@ const ConnectedAccounts = () => {
       <div className="flex flex-col gap-4">
 
         {/* Email Account */}
-        <div className="flex items-center w-full ">
-          <div className="font-medium w-full sm:w-2/12 ">Email</div>
-          <div className="sm:w-5/12">
+        <div className="flex items-center w-full flex-wrap ">
+          <div className="font-medium w-full sm:w-2/12 mb-3 md:mb-0 ">Email</div>
+          <div className="w-1/2 sm:w-5/12">
             {currentUser?.connectedAccounts?.includes("Email") ? (
               <span>{currentUser.email}</span>
             ) : (
               <span className="text-gray-500">Not connected</span>
             )}
           </div>
-          <div className="sm:w-5/12">
+          <div className="w-1/2 sm:w-5/12">
             {!currentUser?.connectedAccounts?.includes("Email") && <LinkEmail />}
           </div>
         </div>
 
         {/* Google Account */}
-        <div className="flex items-center w-full">
-          <div className="font-medium w-full sm:w-2/12 ">Google</div>
+        <div className="flex items-center flex-wrap w-full">
+          <div className="font-medium w-full sm:w-2/12 mb-3 md:mb-0 ">Google</div>
           <div className="sm:w-5/12">
             {currentUser?.connectedAccounts?.includes("Google") ? (
               <span>Connected</span>

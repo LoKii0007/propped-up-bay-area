@@ -225,7 +225,12 @@ function Invoices() {
     const filtered = orders.filter((order) =>
       Object.entries(order).some(([key, value]) => {
         if (typeof value === "string") {
-          return value.toLowerCase().includes(searchTerm.toLowerCase());
+          if(key === 'orderNo') {
+            const search = 'PRB' + value;
+            return search.toLowerCase().includes(searchTerm.toLowerCase());
+          }else{
+            return value.toLowerCase().includes(searchTerm.toLowerCase());
+          }
         } else if (typeof value === "number") {
           return value.toString().includes(searchTerm);
         }

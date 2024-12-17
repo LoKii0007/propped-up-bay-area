@@ -130,3 +130,14 @@ export const CALIFORNIA_STATES = [
   'Wisconsin',
   'Wyoming'
 ];
+
+export const ADMIN_MENU = {
+    DASHBOARD : "dashboard",
+    CLIENTS : "clients",
+    ORDER_REQUESTS : "order requests",
+    RENEWALS : "renewals",
+    EDIT_PRICING : "edit pricing",
+    INVOICES : "invoices",
+    SETTINGS : "settings",
+    SALES_REPORT : "sales report"
+  }

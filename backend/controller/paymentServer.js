@@ -1,8 +1,14 @@
 const { postOrderSchema } = require("../models/postOrderSchema");
 const { openHouseSchema } = require("../models/openHouseSchema");
 const User = require("../models/user");
-const { nodemailerTransport, gmailTemplateOrder } = require("../utilities/gmail");
-const { verifyOpenHouseTotal, verifyPostOrderTotal } = require("../utilities/verifyTotal");
+const {
+  nodemailerTransport,
+  gmailTemplateOrder,
+} = require("../utilities/gmail");
+const {
+  verifyOpenHouseTotal,
+  verifyPostOrderTotal,
+} = require("../utilities/verifyTotal");
 const { completeOpenHouseOrder, completePostOrder } = require("./orders");
 require("dotenv").config();
 const additionalPricesSchema = require("../models/additionalPrices");
@@ -25,7 +31,11 @@ const stripeCustomPayment = async (req, res) => {
     }
 
     if (!verifyOpenHouseTotal(data)) {
-      return res.status(400).json({ msg: "Prices may have been updated. Please refresh the page and try again." });
+      return res
+        .status(400)
+        .json({
+          msg: "Prices may have been updated. Please refresh the page and try again.",
+        });
     }
 
     let customer;
@@ -47,7 +57,7 @@ const stripeCustomPayment = async (req, res) => {
     // Convert to cents
     const amountInCents = Math.round(data.total * 100);
     const session = await stripe.checkout.sessions.create({
-      customer : customer.id,
+      customer: customer.id,
       line_items: [
         {
           price_data: {
@@ -88,7 +98,6 @@ const stripeCustomPayment = async (req, res) => {
   }
 };
 
-
 //? ----------------------------------------
 //? create monthly product
 //? ----------------------------------------
@@ -115,26 +124,30 @@ const createMonthlyProduct = async (req, res) => {
 
     // Create the product
     const product = await stripe.products.create({
-      name: 'Post Order Monthly Subscription',
+      name: "Post Order Monthly Subscription",
     });
 
     // Create the price for the product
     const subscriptionPrice = await stripe.prices.create({
       unit_amount: Math.round(price * 100), // Convert price to cents
-      currency : 'usd', // Default to USD if no currency provided
+      currency: "usd", // Default to USD if no currency provided
       recurring: { interval: "day" }, // Set recurring interval to monthly
       product: product.id,
     });
 
-    const updatedProduct = await additionalPricesSchema.findByIdAndUpdate({
-      _id: id,
-    }, {
-      $set: {
-        productId: product.id,
-        priceId: subscriptionPrice.id,
-        price: price,
-      }
-    }, { new: true });
+    const updatedProduct = await additionalPricesSchema.findByIdAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          productId: product.id,
+          priceId: subscriptionPrice.id,
+          price: price,
+        },
+      },
+      { new: true }
+    );
 
     res.status(201).json({
       msg: "Product with monthly subscription created successfully",
@@ -142,7 +155,12 @@ const createMonthlyProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating subscription product:", error.message);
-    res.status(500).json({ msg: "Failed to create subscription product", error: error.message });
+    res
+      .status(500)
+      .json({
+        msg: "Failed to create subscription product",
+        error: error.message,
+      });
   }
 };
 
@@ -158,11 +176,17 @@ const stripeSubscription = async (req, res) => {
     }
 
     if (!verifyPostOrderTotal(data)) {
-      return res.status(400).json({ msg: "Prices may have been updated. Please refresh the page and try again." });
+      return res
+        .status(400)
+        .json({
+          msg: "Prices may have been updated. Please refresh the page and try again.",
+        });
     }
 
     const amountInCents = data.total * 100;
-    const price = await additionalPricesSchema.findOne({name: "subscription"});
+    const price = await additionalPricesSchema.findOne({
+      name: "subscription",
+    });
 
     // console.log(price);
 
@@ -203,9 +227,12 @@ const stripeSubscription = async (req, res) => {
       metadata: {
         orderId: data._id,
       },
-      // subscription_data: {
-      //   trial_period_days: 30, // Add 30-day free trial to the subscription
-      // },
+      subscription_data: {
+        // trial_period_days: 30, // Add 30-day free trial to the subscription,
+        metadata: {
+          orderId: data._id, // Attach orderId to the subscription
+        },
+      },
       mode: "subscription",
       success_url: `${frontendUrl}/order/postOrder/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendUrl}/order/postOrder/payment?canceled=true`,
@@ -232,7 +259,7 @@ const cancelSubscription = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    console.log(sessionId, orderId)
+    console.log(sessionId, orderId);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.subscription) {
@@ -290,9 +317,9 @@ const cancelSubscription = async (req, res) => {
 //? ----------------------------------------
 const stipeSubscriptionWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
-
   let event;
 
+  // Construct the event from the signature
   try {
     event = stripe.webhooks.constructEvent(
       req.body.toString("utf8"),
@@ -304,100 +331,120 @@ const stipeSubscriptionWebhook = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // Helper function: sanitize and fetch order
+  const getOrder = async (orderId) => {
+    const sanitizedId = orderId
+      .toString()
+      .replace(/^["']|["']$/g, "")
+      .trim();
+    return await postOrderSchema.findById(sanitizedId);
+  };
+
   // Handle the event
-  switch (event.type) {
-    case "checkout.session.completed":
-      const session = event.data.object;
+  try {
+    switch (event.type) {
+      /** Event: Checkout Session Completed */
+      case "checkout.session.completed": {
+        const session = event.data.object;
 
-      if (session.mode === "payment") {
-        try {
-          const orderId = session.metadata.orderId;
-          const result = await completeOpenHouseOrder(orderId , session);
-          if (result.success) {
-            res.status(200).json({ msg: result.msg });
-          } else {
-            res.status(400).json({ msg: result.msg || 'something went wring in completeopenhouse' });
+        if (session.mode === "payment") {
+          try {
+            const orderId = session.metadata.orderId;
+            const result = await completeOpenHouseOrder(orderId, session);
+            if (result.success) {
+              return res.status(200).json({ msg: result.msg });
+            } else {
+              return res
+                .status(400)
+                .json({
+                  msg:
+                    result.msg || "Something went wrong in completeOpenHouse",
+                });
+            }
+          } catch (error) {
+            console.error("Error in open house webhook:", error.message);
+            return res.status(500).send("Error processing open house order.");
           }
-        } catch (error) {
-          console.error("error in open house webhook", error.message);
         }
-      }
 
-      if (session.mode === "subscription") {
-        try {
-
-          const sanitizedId = session.metadata.orderId.toString().replace(/^["']|["']$/g, '').trim()
-          const order = await postOrderSchema.findById(sanitizedId);
+        if (session.mode === "subscription") {
+          const order = await getOrder(session.metadata.orderId);
 
           if (!order) {
-            console.log("No order found ", sanitizedId);
+            console.log("No order found:", session.metadata.orderId);
             return res.status(404).send("Order not found.");
           }
 
-          if (order.paid === false) {
+          if (!order.paid) {
             const result = await completePostOrder(order._id, session);
             if (result.success) {
               return res.status(200).json({ msg: result.msg });
             } else {
-              return res.status(400).json({ msg: result.msg|| 'something went wring in completeopenhouse' });
+              return res
+                .status(400)
+                .json({
+                  msg:
+                    result.msg || "Something went wrong in completePostOrder",
+                });
             }
           }
+        }
+        break;
+      }
 
-          // Retrieve the user's email (from Stripe)
-          const customerDetails = session.customer_details;
-          const stripeEmail = customerDetails.email;
+      /** Event: Invoice Payment Succeeded */
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object;
 
-          // Find the user in the database by userId from the order
-          const user = await User.findById(order.userId);
-          if (!user) {
-            console.log("User not found for userId:", order.userId);
-            return res.status(404).send("User not found.");
-          }
+        const order = await getOrder(invoice.metadata.orderId);
 
-          // Send the invoice email to both the user email and Stripe email
+        if (!order || order.paid) {
+          console.log(
+            "Order already marked as paid or not found:",
+            invoice.metadata.orderId
+          );
+          return res.status(404).send("Order not found.");
+        }
 
-          const invoices = await stripe.invoices.list({
-            customer: session.customer,
-            limit: 1, // Retrieve only the latest invoice
-          });
+        // Retrieve the customer's email details
+        const stripeEmail = invoice.customer_details.email;
 
-          let invoiceUrl;
-          if (invoices.data.length > 0 && invoices.data[0].hosted_invoice_url) {
-            invoiceUrl = invoices.data[0].hosted_invoice_url;
-          } else {
-            invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
-          }
+        // Find the user
+        const user = await User.findById(order.userId);
+        if (!user) {
+          console.log("User not found for userId:", order.userId);
+          return res.status(404).send("User not found.");
+        }
 
-          const mailOptions = {
-            from: process.env.SENDER_EMAIL,
-            to: [stripeEmail, user.email, order.email], // Send to all emails
-            subject: "Propped Up Order Confirmed",
-            html: gmailTemplateOrder(order.firstName, "post order", invoiceUrl),
-          };
+        const invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
 
-          // Increment the user's total orders and spent amount
-          // await User.findByIdAndUpdate(order.userId, {
-          //   $inc: { totalOrders: 1, totalSpent: order.total },
-          // });
+        const mailOptions = {
+          from: process.env.SENDER_EMAIL,
+          to: [stripeEmail, user.email, order.email], // Send to all emails
+          subject: "Propped Up Order Confirmed",
+          html: gmailTemplateOrder(order.firstName, "post order", invoiceUrl),
+        };
 
-          // Send the email
-          try {
-            await nodemailerTransport.sendMail(mailOptions);
-            return res.status(200).json({ msg: "Order processed successfully." });
-          } catch (error) {
-            console.error("Error sending email:", error.message);
-            return res.status(500).json({ msg: "Error sending email" });
-          }
+        // Send the email
+        try {
+          await nodemailerTransport.sendMail(mailOptions);
+          return res.status(200).json({ msg: "Order processed successfully." });
         } catch (error) {
-          console.error("Error handling checkout session completed:",error.message);
-          res.status(500).send("Internal Server Error");
+          console.error("Error sending email:", error.message);
+          return res
+            .status(500)
+            .json({ msg: "Order processed, but email failed to send." });
         }
       }
-      break;
 
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-      res.status(200).json({ msg: "Event received" });
+      /** Default: Unhandled Event Type */
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+        return res.status(200).json({ msg: "Event received." });
+    }
+  } catch (error) {
+    console.error("Error handling webhook:", error.message);
+    return res.status(500).json({ msg: "Internal Server Error." });
   }
 };
 
@@ -406,5 +453,5 @@ module.exports = {
   stripeCustomPayment,
   cancelSubscription,
   stipeSubscriptionWebhook,
-  createMonthlyProduct
+  createMonthlyProduct,
 };

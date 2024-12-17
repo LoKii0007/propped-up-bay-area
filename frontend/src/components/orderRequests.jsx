@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { parseDate } from "../helpers/utilities";
 import axios from "axios";
 import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
+import StatusDropdown from "./StatusDropdown";
 
 function OrderRequests({ orders, setOrders, totalOrderCount }) {
   // const [orders, setOrders] = useState([]);
@@ -69,7 +70,6 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
 
   //? ----------------------------------
   //? loading next orders
-  //? ---------------------------------
   async function handleNextOrders() {
     setnextLoading(true);
     try {
@@ -99,6 +99,9 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
     }
   }
 
+
+  //? ----------------------------------
+  //? loading next post orders
   async function handleNextPostOrders() {
     setnextLoading(true);
     try {
@@ -127,9 +130,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
     }
   }
 
-  useEffect(() => {
-    // handleOrders();
-    console.log("orders1", orders);
+  useEffect(() => {;
     setFilteredOrders(orders);
   }, [orders]);
 
@@ -236,15 +237,6 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
     breadcrumb,
   ]);
 
-  //? --------------------
-  //? updating order status
-  function handleUpdateOrderStatus(index) {
-    const slectedOrder = filteredOrders[index];
-    if (slectedOrder) {
-      setCompleteOrder(filteredOrders[index]);
-    }
-  }
-
   return (
     <>
       {!isInfo ? (
@@ -288,43 +280,47 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
 
           <div className="req-bottom w-full h-full flex flex-col gap-6 justify-between">
             <div className=" flex flex-col">
-              <div className="order-top text-[#718096] grid grid-cols-5 px-5 gap-2">
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"_id"}
-                  text="OrderId"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={`firstName lastName`}
-                  text="Name"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"createdAt"}
-                  text="Order Date"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"requestedDate"}
-                  text="Req. Date"
-                />
-                <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"total"}
-                  text="Amount"
-                />
-                {/* <RowHeading
-                  data={filteredOrders}
-                  setFilteredData={setFilteredOrders}
-                  filterValue={"status"}
-                  text="Status"
-                /> */}
+              <div className="order-top text-[#718096] flex w-full px-5 gap-2">
+                <div className="grid grid-cols-5 gap-2 w-5/6 " >
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"_id"}
+                    text="OrderId"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={`firstName lastName`}
+                    text="Name"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"createdAt"}
+                    text="Order Date"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"requestedDate"}
+                    text="Req. Date"
+                  />
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"total"}
+                    text="Amount"
+                  />
+                </div>
+                <div className="w-1/6">
+                  <RowHeading
+                    data={filteredOrders}
+                    setFilteredData={setFilteredOrders}
+                    filterValue={"status"}
+                    text="Status"
+                  />
+                </div>
               </div>
               {filteredOrders.length > 0 ? (
                 filteredOrders
@@ -333,10 +329,10 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                     <div key={index} className="flex w-full px-5 ps-0 gap-2 ">
                       <div
                         onClick={() => handleUserClick(index)}
-                        className="cursor-pointer grid grid-cols-5 w-full py-5 gap-2 ps-5 custom-transition hover:shadow-md rounded-md hover:bg-green-100"
+                        className="cursor-pointer grid grid-cols-5 w-5/6 py-5 gap-2 ps-5 custom-transition hover:shadow-md rounded-md hover:bg-green-100"
                       >
-                        <div className="overflow-hidden">{order.orderNo}</div>
-                        <div className="overflow-hidden">
+                        <div className="overflow-hidden text-ellipsis text-nowrap ">{order.orderNo}</div>
+                        <div className="overflow-hidden text-nowrap text-ellipsis">
                           {order.firstName} {order.lastName}
                         </div>
                         <div className="overflow-hidden">
@@ -347,26 +343,20 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                         </div>
                         <div className="overflow-hidden">$ {order.total}</div>
                       </div>
-                      {/* <div className="w-1/6">
-                        <div
-                          onClick={() => {
-                            handleUpdateOrderStatus(index);
-                          }}
-                          className={`text-left font-semibold capitalize w-full px-2 rounded-md
-                            ${order.status === "pending" && "text-yellow-500"}
-                            ${order.status === "installed" && "text-blue-500"}
-                            ${order.status === "completed" && "text-green-500"}
-                          }`}
-                        >
-                          <ChangeStatusDropdown
-                            order={completeOrder}
+                      <div
+                        className={`text-left font-semibold capitalize w-1/6 flex items-center rounded-md
+                          ${order.status === "pending" && "text-yellow-500"}
+                          ${order.status === "installed" && "text-blue-500"}
+                          ${order.status === "completed" && "text-green-500"}
+                        }`} >
+                          <StatusDropdown
+                            order={order}
                             setOrders={setOrders}
                             setFilteredOrders={setFilteredOrders}
                             setCompleteOrder={setCompleteOrder}
                             status={order.status}
                           />
-                        </div>
-                      </div> */}
+                      </div>
                     </div>
                   ))
               ) : (

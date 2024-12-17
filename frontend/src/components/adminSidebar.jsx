@@ -17,7 +17,7 @@ const AdminSidebar = ({ setActiveView, activeView }) => {
       svg: '/svg/clients.svg'
     },
     {
-      name: "Subscriptions",
+      name: "Renewals",
       svg: '/svg/subscriptions.svg'
     },
     {

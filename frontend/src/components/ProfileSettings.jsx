@@ -100,6 +100,27 @@ const ProfileSettings = () => {
     }
   };
 
+  const handleRemoveImg = async () => {
+    try {
+      const res = await axios.patch(
+        `${baseUrl}/auth/admin/profile/update`,
+        { profilePic, firstName, lastName, email, phone, image : true },
+        { withCredentials: true, validateStatus: (status) => status < 500 }
+      );
+
+      if(res.status === 200){
+        toast.success("Image removed successfully!");
+        setAdmin(res.data.user);
+        setImgUrl(null);
+        sessionStorage.setItem( "proppedUpAdmin", JSON.stringify(res.data?.user));
+      } else {
+        toast.error("Failed to remove image. Please try again.");
+      }
+    } catch (error) {
+      toast.error("Server error, Failed to remove image. Please try again.");
+    }
+  }
+
   useEffect(() => {}, [admin, imgUrl]);
 
   return (
@@ -140,17 +161,27 @@ const ProfileSettings = () => {
             </div>
 
             {/* Update Image Button */}
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center gap-3 items-center">
               <button
                 type="button"
                 onClick={() => handleImageUpdate(profilePic)}
                 className={`px-4 py-2 rounded-md text-white ${
                   loading ? "bg-gray-400" : "bg-teal-500 hover:bg-teal-600"
                 } focus:outline-none focus:ring-2 focus:ring-teal-400`}
-                disabled={loading}
+                disabled={imgLoading || !imgUrl }
               >
                 {imgLoading ? "Updating..." : "Update Image"}
               </button>
+
+               {
+                imgUrl && (
+                  <button onClick={handleRemoveImg} className={`px-4 py-2 rounded-md text-white ${
+                    loading ? "bg-gray-400" : "bg-red-500 hover:bg-red-600"
+                  } focus:outline-none`} >
+                  Remove image
+                </button>
+                )
+               }
             </div>
           </div>
         </div>

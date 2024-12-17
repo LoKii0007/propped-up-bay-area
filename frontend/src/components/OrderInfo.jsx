@@ -38,7 +38,8 @@ function OrderInfo({
       formData.append("orderId", order._id); // Assuming order ID is available
 
       const res = await axios.post(
-        `${baseUrl}/api/${order.type === "openHouse" ? "open-house" : "post-order"
+        `${baseUrl}/api/${
+          order.type === "openHouse" ? "open-house" : "post-order"
         }/image-upload`,
         formData,
         {
@@ -77,7 +78,8 @@ function OrderInfo({
       formData.append("orderId", order._id); // Assuming order ID is available
 
       const res = await axios.patch(
-        `${baseUrl}/api/${order.type === "openHouse" ? "open-house" : "post-order"
+        `${baseUrl}/api/${
+          order.type === "openHouse" ? "open-house" : "post-order"
         }/image-update`,
         formData,
         {
@@ -129,15 +131,24 @@ function OrderInfo({
     getImage();
   }, []);
 
-  useEffect(() => {}, [order, setOrders, setPostOrders, imageUrl, currentUser, breadCrumb]);
-
-  
+  useEffect(() => {}, [
+    order,
+    setOrders,
+    setPostOrders,
+    imageUrl,
+    currentUser,
+    breadCrumb,
+  ]);
 
   return (
     <>
       <div className="bg-white w-full h-full px-[5%] order-info-container flex flex-col overflow-y-auto ">
         <div className="flex justify-end w-full relative update-btn-container ">
-          <div className={`flex space-x-4 absolute update-btn right-2 bg-white ${breadCrumb !== "Customer info" ? 'top-0' : 'top-4' } z-20 `}>
+          <div
+            className={`flex space-x-4 absolute update-btn right-2 bg-white ${
+              breadCrumb !== "Customer info" ? "top-0" : "top-4"
+            } z-20 `}
+          >
             {["admin", "superuser"].includes(admin?.role) && (
               <ChangeStatusDropdown
                 order={order}
@@ -147,8 +158,7 @@ function OrderInfo({
               />
             )}
 
-            {
-              !admin &&
+            {!admin &&
               order?.type === "postOrder" &&
               order?.subActive === true && (
                 <>
@@ -163,8 +173,18 @@ function OrderInfo({
           </div>
         </div>
 
-        <div className={`md:mx-auto order-info overflow-x-hidden flex flex-col gap-6 ${breadCrumb !== "Customer info" ? "md:px-[5%] py-6 " : "mt-5"}`}>
-          <h2 className={` ${breadCrumb === "Customer info" ? "text-left text-xl" : "text-center text-2xl "} w-full font-semibold uppercase `}>
+        <div
+          className={`md:mx-auto order-info overflow-x-hidden flex flex-col gap-6 ${
+            breadCrumb !== "Customer info" ? "md:px-[5%] py-6 " : "mt-5"
+          }`}
+        >
+          <h2
+            className={` ${
+              breadCrumb === "Customer info"
+                ? "text-left text-xl"
+                : "text-center text-2xl "
+            } w-full font-semibold uppercase `}
+          >
             {order.type} Details
           </h2>
           <div className="flex flex-col gap-x-10 gap-y-3">
@@ -180,8 +200,13 @@ function OrderInfo({
 
             {order.type === "openHouse" && (
               <>
-                <p className="text-md grid grid-cols-2">
-                  <span>Status:</span> {order.status}
+                <p
+                  className={`text-md grid grid-cols-2 font-semibold capitalize
+                    ${order.status === "pending" &&"text-yellow-500"}
+                    ${order.status === "installed" && "text-blue-500"}
+                    ${order.status === "completed" && "text-green-500"}`}
+                >
+                  <span className="text-black" >Status:</span> {order.status}
                 </p>
                 <p className="text-md grid grid-cols-2">
                   <span className="">Phone Number:</span> {order.phone}
@@ -241,11 +266,18 @@ function OrderInfo({
 
             {order.type === "postOrder" && (
               <>
+                <p className={`text-md grid grid-cols-2 font-semibold capitalize
+                    ${order.status === "pending" &&"text-yellow-500"}
+                    ${order.status === "installed" && "text-blue-500"}
+                    ${order.status === "completed" && "text-green-500"}`}
+                >
+                  <span className="text-black">Status:</span> {order.status}
+                </p>
                 <p className="text-md grid grid-cols-2">
                   <span>Phone Number:</span> {order.phone}
                 </p>
                 <p className="text-md grid grid-cols-2 font-semibold ">
-                  <span>Subscription :</span>{" "}
+                  <span>Renewal :</span>{" "}
                   {order.subActive ? (
                     <span className="text-green-800">Active</span>
                   ) : (
@@ -289,10 +321,6 @@ function OrderInfo({
                   </p>
                 )}
 
-                <p className="text-md grid grid-cols-2">
-                  <span>Status:</span> {order.status}
-                </p>
-
                 <div className="text-md grid grid-cols-2">
                   <span>Riders:</span>
                   <div>
@@ -318,7 +346,6 @@ function OrderInfo({
                 </p>
               </>
             )}
-
           </div>
           {(admin?.role === "admin" || admin?.role === "superuser") && (
             <>
@@ -360,7 +387,6 @@ function OrderInfo({
                     </>
                   )}
                 </div>
-
               ) : (
                 <>
                   <div className="text-center">Loading...</div>
@@ -386,7 +412,6 @@ function OrderInfo({
               )}
             </>
           )}
-
         </div>
       </div>
 
@@ -399,7 +424,6 @@ function OrderInfo({
         open={modalOpen}
         setOpen={setModalOpen}
       />
-
     </>
   );
 }

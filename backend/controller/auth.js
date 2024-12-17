@@ -598,7 +598,7 @@ const uploadAdminImage = async (req, res) => {
 const updateAdminDetails = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { firstName, lastName, email, phone } = req.body;
+    const { firstName, lastName, email, phone, image } = req.body;
 
     // Find the admin user by ID
     const user = await SuperUser.findById(userId).select(
@@ -614,6 +614,7 @@ const updateAdminDetails = async (req, res) => {
     if (lastName) user.lastName = lastName;
     if (email) user.email = email;
     if (phone) user.phone = phone;
+    if (image) user.img = '';
 
     await user.save(); // Save updated user details to the database
 

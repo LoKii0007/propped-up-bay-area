@@ -9,9 +9,10 @@ import ResetPassword from "./ResetPass";
 import { SearchableSelect } from "@/ui/SearchableSelect";
 import { colors } from "../helpers/utilities";
 import SignOutModal from "@/ui/signOutModal";
+import { Pencil, Trash } from "lucide-react";
+import Loader from "./ui/loader";
 
 const getRandomColor = (letter) => {
-
   // Convert letter to uppercase to handle case-insensitivity
   const uppercaseLetter = letter.toUpperCase();
 
@@ -58,7 +59,10 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   const [img, setImg] = useState(null);
   const [imgUrl, setImgUrl] = useState(user?.img || null);
   const [selectedFileName, setSelectedFileName] = useState("");
-  const [modalOpen, setModalOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editImage, setEditImage] = useState(false);
+  const [imgLoading, setImgLoading] = useState(false);
+  const [removeImage, setRemoveImage] = useState(false);
 
   //?--------------------------
   //? Handle form input change
@@ -71,18 +75,17 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
   };
 
   //?--------------------------
-  //? Handle update profile (save and disable form)
+  //? Handle update image
   //?--------------------------
-  const handleUpdateProfile = async (e) => {
+  const handleUpdateImage = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setImgLoading(true);
 
     try {
-      // Step 1: Upload the image if it exists
       let uploadedImgUrl = img; // Retain existing image URL
       if (img && typeof img !== "string") {
         const formData = new FormData();
-        formData.append("file", img); // Append the image file
+        formData.append("file", img);
 
         const uploadRes = await axios.post(
           `${baseUrl}/api/update/user-image`,
@@ -96,18 +99,37 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
         );
 
         if (uploadRes.status === 200) {
-          uploadedImgUrl = uploadRes.data.url;
-          setImgUrl(uploadRes.data.url);
+          uploadedImgUrl = uploadRes.data.user.img;
+          setCurrentUser(uploadRes.data.user);
+          sessionStorage.setItem("proppedUpUser", JSON.stringify(uploadRes.data.user));
+          setImgUrl(uploadedImgUrl);
         } else {
-          toast.error("Image upload failed. Please try again.");
-          return;
+          toast.error(
+            uploadRes.data.msg || "Image upload failed. Please try again."
+          );
         }
       }
+    } catch (error) {
+      console.error("Profile update failed", error.message);
+      toast.error("Server error. Please try again.");
+    } finally {
+      setEditImage(false);
+      setImgLoading(false);
+      setImg(null);
+    }
+  };
 
-      // Step 2: Update user profile with form data and uploaded image URL
+  //?--------------------------
+  //? Handle update profile (save and disable form)
+  //?--------------------------
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Update user profile with form data
       const data = {
         ...formData,
-        img: uploadedImgUrl, // Include the image URL
         receiveEmailNotifications: emailNotifications,
         receiveTextNotifications: textNotifications,
       };
@@ -123,6 +145,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
 
       if (res.status === 200) {
         setCurrentUser(res.data.user);
+        sessionStorage.setItem("proppedUpUser", JSON.stringify(res.data.user))
         toast.success("Profile updated successfully.");
       } else {
         toast.error(res.data.msg || "Profile update failed. Please try again.");
@@ -133,6 +156,45 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     } finally {
       setIsEditing(false);
       setLoading(false);
+    }
+  };
+
+  //?--------------------------
+  //? Handle remove image
+  const handleRemoveImage = async (e) => {
+    e.preventDefault();
+    setRemoveImage(true);
+    try {
+      // Update user profile with form data
+      const data = {
+        ...formData,
+        receiveEmailNotifications: emailNotifications,
+        receiveTextNotifications: textNotifications,
+        img: null,
+      };
+
+      const res = await axios.patch(
+        `${baseUrl}/api/update/user-details`,
+        data,
+        {
+          withCredentials: true,
+          validateStatus: (status) => status < 500,
+        }
+      );
+
+      if (res.status === 200) {
+        setCurrentUser(res.data.user);
+        sessionStorage.setItem("proppedUpUser", JSON.stringify(res.data.user))
+        setImgUrl(null);
+        toast.success("Profile image removed.");
+      } else {
+        toast.error(res.data.msg || "Profile update failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Profile update failed", error.message);
+      toast.error("Server error. Please try again.");
+    } finally {
+      setRemoveImage(false)
     }
   };
 
@@ -195,8 +257,14 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
     user,
     forget,
     img,
-    imgUrl
+    imgUrl,
   ]);
+
+  function handleImageEdit(){
+    setEditImage((prev) => !prev)
+    setImg(null)
+    setSelectedFileName(null)
+  }
 
   useEffect(() => {
     setFormData(initialState);
@@ -204,7 +272,8 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
 
   return (
     <div className="bg-white client-profile rounded-lg md:p-12 p-2 flex flex-col gap-12 mx-auto">
-      <div className="flex items-center space-x-4 user-logo">
+      {/* -------------------------profile image ------------------- */}
+      <div className="flex items-center space-x-4 user-logo relative flex-wrap ">
         {imgUrl ? (
           <img
             className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-green-700 object-cover "
@@ -221,50 +290,81 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
           </div>
         )}
 
-        {isEditing && (
-          <label
-            htmlFor="fileInput"
-            className="cursor-pointer flex flex-col items-center justify-center "
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-paperclip"
+        <button
+          onClick={() => handleImageEdit()}
+          className="absolute left-2 md:left-7 top-0 rounded-full bg-white overflow-hidden p-1 "
+        >
+          <Pencil size={20} strokeWidth={2.5} />
+        </button>
+
+        {editImage && (
+          <>
+            <label
+              htmlFor="fileInput"
+              className="cursor-pointer flex flex-col items-center justify-center "
             >
-              <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-            </svg>
-            {/* {imgUrl ? "Update Image" : "Upload Image"} */}
-            <input
-              id="fileInput"
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            {selectedFileName && (
-              <p className="mt-2 text-sm text-gray-500">
-                <span className="font-semibold">
-                  {selectedFileName.length > 10
-                    ? `${selectedFileName.slice(
-                        0,
-                        5
-                      )}...${selectedFileName.slice(
-                        selectedFileName.lastIndexOf(".")
-                      )}`
-                    : selectedFileName}
-                </span>
-              </p>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-paperclip"
+              >
+                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+              {/* {imgUrl ? "Update Image" : "Upload Image"} */}
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+
+              {selectedFileName && (
+                <p className="mt-2 text-sm text-gray-500">
+                  <span className="font-semibold">
+                    {selectedFileName.length > 10
+                      ? `${selectedFileName.slice(
+                          0,
+                          5
+                        )}...${selectedFileName.slice(
+                          selectedFileName.lastIndexOf(".")
+                        )}`
+                      : selectedFileName}
+                  </span>
+                </p>
+              )}
+            </label>
+
+            {img && (
+              <button
+                disabled={imgLoading}
+                onClick={(e) => handleUpdateImage(e)}
+                className="text-white bg-green-700 px-4 py-2 rounded-md"
+              >
+                {imgLoading ? <Loader /> : "Update"}
+              </button>
             )}
-          </label>
+
+            {imgUrl && (
+              <button
+                onClick={(e) => handleRemoveImage(e)}
+                disabled={removeImage}
+                className="hover:bg-red-200 transition-all p-2 rounded-md hover:text-white"
+              >
+                {removeImage ? <Loader/> :  <Trash color="red" size={20} strokeWidth={1.75} /> }
+              </button>
+            )}
+          </>
         )}
-        <div>
+
+        <div className="hidden mt-2 md:block" >
           <h2 className="text-lg font-semibold text-gray-800">
             {formData.email}
           </h2>
@@ -273,7 +373,9 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
 
       {!loadingDetails ? (
         <form className=" md:p-6 px-2 py-4 rounded-2xl client-form flex flex-col md:gap-6 gap-4 ">
-          <div className="font-semibold text-lg px-2 ">Edit profile details</div>
+          <div className="font-semibold text-lg px-2 ">
+            Edit profile details
+          </div>
 
           <div className="grid grid-cols-2 md:gap-6 gap-3 edit-profile-fields">
             <div className="mt-1 p-2 block w-full border rounded-md border-[#E5E7EB]">
@@ -418,7 +520,7 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
                 disabled={loading}
                 className="border-green-800 font-semibold border text-green-800 px-4 py-2 rounded-md hover:border-green-900"
               >
-                Save Changes
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             ) : (
               <button
@@ -527,20 +629,41 @@ const EditProfileForm = ({ userDetails, user, loadingDetails }) => {
 
       <ConnectedAccounts />
 
-      <div className="md:hidden flex justify-center items-center w-full " >
-      <button onClick={() => setModalOpen(true) } className={` border-green-800 border text-green-800 font-medium text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-3 px-7`}>
-            <div className={` stroke-none icon`}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-right" viewBox="0 0 16 16">
-                <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z" />
-                <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z" />
-              </svg>
-            </div>
-            Sign out
-          </button>
+      <div className="md:hidden flex justify-center items-center w-full ">
+        <button
+          onClick={() => setModalOpen(true)}
+          className={` border-green-800 border text-green-800 font-medium text-[15.78px] rounded-[14px] flex gap-[14px] items-center py-3 px-7`}
+        >
+          <div className={` stroke-none icon`}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="bi bi-box-arrow-right"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"
+              />
+              <path
+                fillRule="evenodd"
+                d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"
+              />
+            </svg>
+          </div>
+          Sign out
+        </button>
       </div>
 
       {/* -------------------modal-------------------  */}
-      <SignOutModal setOpen={setModalOpen} open={modalOpen} text={'You want to sign out?'} btnText={'Sign out'} />
+      <SignOutModal
+        setOpen={setModalOpen}
+        open={modalOpen}
+        text={"You want to sign out?"}
+        btnText={"Sign out"}
+      />
     </div>
   );
 };

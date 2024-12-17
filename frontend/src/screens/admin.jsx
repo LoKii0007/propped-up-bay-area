@@ -13,6 +13,7 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import PricingList from "@/components/PricingList";
+import { ADMIN_MENU } from "@/data/staticData";
 
 function Admin() {
   const navigate = useNavigate();
@@ -175,8 +176,8 @@ function Admin() {
             </div>
             <div className="p-7 bg-white h-[87vh]">
               <div className="active-bottom h-full overflow-y-auto">
-                {adminActiveView === "dashboard" && <Salesreport />}
-                {adminActiveView === "clients" && (
+                {adminActiveView === ADMIN_MENU.DASHBOARD && <Salesreport />}
+                {adminActiveView === ADMIN_MENU.CLIENTS && (
                   <ClientDetails
                     users={users}
                     setUsers={setUsers}
@@ -185,24 +186,24 @@ function Admin() {
                     setOrders={setOrders}
                   />
                 )}
-                {adminActiveView === "order requests" && (
+                {adminActiveView === ADMIN_MENU.ORDER_REQUESTS && (
                   <OrderRequests
                     orders={orders}
                     setOrders={setOrders}
                     totalOrderCount={totalOrderCount}
                   />
                 )}
-                {adminActiveView === "subscriptions" && (
+                {adminActiveView === ADMIN_MENU.RENEWALS && (
                   <OrderRequests
                     orders={subscribedUsers}
                     setOrders={setSubscribedUsers}
                     totalOrderCount={totalPostOrderCount}
                   />
                 )}
-                {adminActiveView === "sales report" && <Salesreport />}
-                {adminActiveView === "edit pricing" && <PricingList />}
-                {adminActiveView === "invoices" && <Invoices />}
-                {adminActiveView === "settings" && <AdminSettings />}
+                {adminActiveView === ADMIN_MENU.SALES_REPORT && <Salesreport />}
+                {adminActiveView === ADMIN_MENU.EDIT_PRICING && <PricingList />}
+                {adminActiveView === ADMIN_MENU.INVOICES && <Invoices />}
+                {adminActiveView === ADMIN_MENU.SETTINGS && <AdminSettings />}
               </div>
             </div>
           </div>

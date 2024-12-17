@@ -10,6 +10,7 @@ const {
 } = require("../utilities/gmail");
 const { addToGoogleSheet } = require("../utilities/sheetautomation");
 const orderCounterSchema = require("../models/orderCounterSchema");
+const { formatDate } = require("../utilities/helper");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 
@@ -135,7 +136,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
       order.lastName,
       order.email,
       order.phone,
-      order.requestedDate,
+      String(formatDate(String(order.requestedDate))),
       order.firstEventStartTime,
       order.firstEventEndTime,
       [
@@ -348,7 +349,6 @@ const completePostOrder = async (orderId, session) => {
     // update paid
     await order.updateOne({ paid: true }, {new : true});
     await order.updateOne({ sessionId: session.id }), {new : true};
-    console.log('update 1')
 
     const counter = await orderCounterSchema.findOne();
 
@@ -357,7 +357,6 @@ const completePostOrder = async (orderId, session) => {
 
     // update orderNo
     await order.updateOne({ orderNo });
-    console.log('update 2')
 
     // Increment the count for the next order
     await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } }, {new : true});
@@ -367,7 +366,6 @@ const completePostOrder = async (orderId, session) => {
       $inc: { totalOrders: 1, totalSpent: order.total },
       isSubscribed: true
     }, {new : true});
-    console.log('updated user :', updatedUser)
 
     // adding data to google sheets
     const listingAddressBlock = [
@@ -396,7 +394,7 @@ const completePostOrder = async (orderId, session) => {
       order.lastName,
       order.email,
       order.phone,
-      order.requestedDate,
+      String(formatDate(String(order.requestedDate))),
       listingAddressBlock, // Single string for listing address
       billingAddressBlock, // Single string for billing address
       order?.requiredZone.name,
@@ -417,8 +415,7 @@ const completePostOrder = async (orderId, session) => {
     ];
 
     try {
-      console.log('googlesheets : ',googleSheetdata)
-      await addToGoogleSheet({
+      const sheetRes = await addToGoogleSheet({
         data: googleSheetdata,
         targetSheet: "postHouseOrders",
       });

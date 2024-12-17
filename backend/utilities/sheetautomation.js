@@ -104,7 +104,7 @@ const getTokens = async (req, res) => {
 // test api
 const addDataToMultipleSheet = async(req, res)=>{
   try {
-    console.log(req.body)
+    // console.log(req.body)
     const {data} = req.body
     
     try {
@@ -125,7 +125,6 @@ const addDataToMultipleSheet = async(req, res)=>{
 async function addToGoogleSheet({ data, targetSheet }) {
   // Fetch users from the database
 
-  console.log(data?.length, targetSheet)
   const users = await GoogleSheetUsers.find();
   if (!users || users.length === 0) {
     console.error("No users found");
@@ -174,9 +173,11 @@ async function addToGoogleSheet({ data, targetSheet }) {
         },
       });
 
-      console.log(`Data added to ${targetSheet} (Spreadsheet ID: ${spreadsheetId})`);
+      console.log(`Data added to ${targetSheet} spreadsheet (Spreadsheet ID: ${spreadsheetId})`);
+
+      return response
     } catch (error) {
-      console.error(`Error adding data to ${targetSheet}:`, error.message);
+      console.error(`Error adding data to ${targetSheet} spreadsheet :`, error.message);
     }
   }
 }

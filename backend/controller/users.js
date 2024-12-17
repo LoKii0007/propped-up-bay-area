@@ -125,16 +125,19 @@ const uploadUserImage = async (req, res) => {
             .status(500)
             .json({ msg: "Cloudinary upload failed", error: error.message });
         }
+
+        const user = await User.findByIdAndUpdate(req.user.userId, {img : result.secure_url}, {new: true});
+
         res
           .status(200)
-          .json({ msg: "Image uploaded successfully", url: result.secure_url });
+          .json({ msg: "Image uploaded successfully", user });
       }
     );
 
     streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (error) {
     console.error("Error in uploadUserImage API: ", error.message);
-    res.status(500).json({ msg: "Image upload failed", error: error.message });
+    res.status(500).json({ msg: "Image upload failed", msg: error.message });
   }
 };
 

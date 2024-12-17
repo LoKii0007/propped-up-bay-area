@@ -30,8 +30,8 @@ function PostRemoval({ postOrders, setPostOrders, setOrders }) {
     <>
       {!isInfo ? (
         <div className="post-removal h-full bg-white gap-3 flex flex-col space-y-6 overflow-y-auto ">
-          <div className="removal-head w-full text-xl font-semibold text-center">
-            Manage Your subscriptions
+          <div className="removal-head w-full text-xl font-semibold text-center capitalize ">
+            Manage your renewals 
           </div>
           <div className="removal-body flex flex-col justify-center w-full ">
             <div className="grid grid-cols-3 md:grid-cols-6 text-[#718096] py-3 px-5 md:p-5 gap-2 w-full">

@@ -46,17 +46,17 @@ function PostOrderInvoice({ data }) {
                         <h4 className="font-semibold">Lighting</h4>
                         <p>{data.lighting ? "Included" : "Not Included"}</p>
                     </div>
+                    {/* <div className="mb-4">
+                        <p className="font-semibold">Renewal Date: <span>{}</span></p>
+                    </div> */}
                     <div className="mb-4">
-                        <p className="font-semibold">Renewal Date: <span>May 30, 2024</span></p> {/* Assuming a placeholder or actual renewal date */}
-                    </div>
-                    <div className="mb-4">
-                        <h4 className="font-semibold">Status</h4>
+                        <h4 className="font-semibold">Riders</h4>
                         <ul className="list-disc pl-5">
-                            <li>Coming soon: {data.riders?.comingSoon || 0}</li>
-                            <li>Pending: {data.riders?.pending || 0}</li>
-                            <li>Open Saturday & Sunday: {data.riders?.openSatSun || 0}</li>
-                            <li>Do not disturb: {data.riders?.doNotDisturb || 0}</li>
-                            <li>Pool: {data.riders?.pool || 0}</li>
+                            <li className='font-semibold'>Coming soon: {data.riders?.comingSoon || 0}</li>
+                            <li className='font-semibold'>Pending: {data.riders?.pending || 0}</li>
+                            <li className='font-semibold'>Open Saturday & Sunday: {data.riders?.openSatSun || 0}</li>
+                            <li className='font-semibold'>Do not disturb: {data.riders?.doNotDisturb || 0}</li>
+                            <li className='font-semibold'>Pool: {data.riders?.pool || 0}</li>
                         </ul>
                     </div>
                     <div className="border-t border-[#d1d5db] my-4"></div>

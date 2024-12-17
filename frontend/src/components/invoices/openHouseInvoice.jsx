@@ -23,7 +23,6 @@ const OpenHouseInvoice = ({ data }) => {
             <div>
               <p className="font-bold pb-3">Propped Up Sign Services</p>
               <p>1234 Main St, Bay Area, CA 12345</p>{" "}
-              {/* companyAddress placeholder */}
               <p>info@proppedupbayarea.com</p>
               <p>510.661.3100</p>
             </div>
@@ -39,15 +38,16 @@ const OpenHouseInvoice = ({ data }) => {
               <h4 className="font-bold">
                 {data.firstName} {data.lastName}
               </h4>
-              <p>Date of First Event: {parseDate(data.requestedDate)}</p>
               <p>
-                Zone: {data.requiredZone.name} - {data.requiredZone.text}
+              <span className="font-semibold" >Date of First Event : </span>{parseDate(data.requestedDate)}</p>
+              <p>
+                <span className="font-semibold" >Zone:</span> {data.requiredZone.text}
               </p>
               <p>
-                Time of First Event: {data.firstEventStartTime} -{" "}
+              <span className="font-semibold" >Time of First Event : </span>{data.firstEventStartTime} -{" "}
                 {data.firstEventEndTime}
               </p>
-              <p>Event Address (First Event):</p>
+              <p className="font-semibold" >Event Address (First Event) :</p>
               <p>
                 {data.firstEventAddress.streetAddress}{" "}
                 {data.firstEventAddress.streetAddress2}
