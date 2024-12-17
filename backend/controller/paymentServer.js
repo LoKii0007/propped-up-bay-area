@@ -354,78 +354,105 @@ const stipeSubscriptionWebhook = async (req, res) => {
           }
         }
 
-        if (session.mode === "subscription") {
-          const order = await getOrder(session.metadata.orderId);
+        break;
+      }
+
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object;
+
+        try {
+          // Extract the Subscription ID from the invoice
+          const subscriptionId = invoice.subscription;
+
+          if (!subscriptionId) {
+            console.error("No subscription ID found on invoice");
+            return res.status(400).send("No subscription ID found on invoice.");
+          }
+
+          // Fetch the session linked to the subscription
+          const sessions = await stripe.checkout.sessions.list({
+            subscription: subscriptionId,
+            limit: 1, // Limit to 1 result
+          });
+
+          const session = sessions.data[0];
+
+          if (!session) {
+            console.error(
+              "No checkout session found for subscription:",
+              subscriptionId
+            );
+            return res.status(404).send("No related session found.");
+          }
+
+          // Now you have the session linked to this invoice
+          console.log("Associated Session Found:", session.id);
+
+          // Safely retrieve orderId metadata from session
+          const orderId = session.metadata?.orderId;
+
+          if (!orderId) {
+            console.error("Order ID missing in session metadata.");
+            return res.status(400).send("Order ID missing in session metadata.");
+          }
+
+          // Fetch the order
+          const order = await getOrder(orderId);
 
           if (!order) {
-            console.log("No order found:", session.metadata.orderId);
+            console.error("Order not found:", orderId);
             return res.status(404).send("Order not found.");
           }
 
+          // Process the order as before
           if (!order.paid) {
             const result = await completePostOrder(order._id, session);
             if (result.success) {
               return res.status(200).json({ msg: result.msg });
             } else {
-              return res.status(400).json({
-                msg: result.msg || "Something went wrong in completePostOrder",
-              });
+              return res.status(400).json({msg: result.msg || "Something went wrong in completePostOrder"});
             }
           }
-        }
-        break;
-      }
 
-      /** Event: Invoice Payment Succeeded */
-      case "invoice.payment_succeeded": {
-        const invoice = event.data.object;
-        console.log("here2", invoice);
-        const orderId = invoice.lines.data[1].metadata.orderId;
-        console.log("here3", orderId);
-        const order = await getOrder(orderId);
+          const stripeEmail = invoice.customer_details?.email || null;
+          const recipients = [stripeEmail, order.email].filter(Boolean);
 
-        console.log("Order:", order);
+          if (recipients.length === 0) {
+            console.error("No valid email recipients found.");
+            return res.status(400).send("No valid email recipients found.");
+          }
 
-        if (!order || !order.paid) {
-          console.log(
-            "Order already marked as paid or not found:",
-            invoice.metadata.orderId
-          );
-          return res.status(404).send("Order not found.");
-        }
+          // Increment user totalOrders and totalSpent
+          const user = await User.findByIdAndUpdate(order.userId, {
+            $inc: { totalOrders: 1, totalSpent: order.total },
+          });
 
-        // Retrieve the customer's email details
-        const stripeEmail = invoice.customer_details.email;
+          if (!user) {
+            console.error("User not found for userId:", order.userId);
+            return res.status(404).send("User not found.");
+          }
 
-        // Increment totalOrders by 1 and totalSpent by total using $inc
-        //TODO : add month count
-        const user = await User.findByIdAndUpdate(order.userId, {
-          $inc: { totalOrders: 1, totalSpent: order.total },
-        });
+          const invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
 
-        if (!user) {
-          console.log("User not found for userId:", order.userId);
-          return res.status(404).send("User not found.");
-        }
+          const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: recipients,
+            subject: "Propped Up Order Confirmed",
+            html: gmailTemplateOrder(order.firstName, "post order", invoiceUrl),
+          };
 
-        const invoiceUrl = `https://propped-up-bay-area.vercel.app/download/invoice/${order._id}`;
-
-        const mailOptions = {
-          from: process.env.SENDER_EMAIL,
-          to: [stripeEmail, user.email, order.email], // Send to all emails
-          subject: "Propped Up Order Confirmed",
-          html: gmailTemplateOrder(order.firstName, "post order", invoiceUrl),
-        };
-
-        // Send the email
-        try {
-          await nodemailerTransport.sendMail(mailOptions);
-          return res.status(200).json({ msg: "Order processed successfully." });
+          // Send confirmation email
+          try {
+            await nodemailerTransport.sendMail(mailOptions);
+            console.log(`Order email sent to: ${recipients.join(", ")}`);
+            return res.status(200).json({ msg: "Order processed successfully." });
+          } catch (error) {
+            console.error("Error sending email:", error.message);
+            return res.status(500).json({ msg: "Order processed, but email failed to send." });
+          }
         } catch (error) {
-          console.error("Error sending email:", error.message);
-          return res
-            .status(500)
-            .json({ msg: "Order processed, but email failed to send." });
+          console.error("Error fetching session for invoice:", error.message);
+          return res.status(500).send("Error processing session for invoice.");
         }
       }
 
