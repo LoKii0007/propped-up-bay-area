@@ -398,7 +398,9 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
         const order = await getOrder(invoice.metadata.orderId);
 
-        if (!order || order.paid) {
+        console.log("Order:", order);
+
+        if (!order || !order.paid) {
           console.log(
             "Order already marked as paid or not found:",
             invoice.metadata.orderId

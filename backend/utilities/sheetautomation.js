@@ -125,6 +125,7 @@ const addDataToMultipleSheet = async(req, res)=>{
 async function addToGoogleSheet({ data, targetSheet }) {
   // Fetch users from the database
 
+  console.log('data', data)
   const users = await GoogleSheetUsers.find();
   if (!users || users.length === 0) {
     console.error("No users found");
