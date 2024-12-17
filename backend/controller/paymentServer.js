@@ -322,7 +322,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
   // Construct the event from the signature
   try {
     event = stripe.webhooks.constructEvent(
-      req.body.toString("utf8"),
+      req.body,
       sig,
       endpointSecret
     );
@@ -394,8 +394,9 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
       /** Event: Invoice Payment Succeeded */
       case "invoice.payment_succeeded": {
+        console.log('here1')
         const invoice = event.data.object;
-
+        console.log('here2', invoice.metadata.orderId)
         const order = await getOrder(invoice.metadata.orderId);
 
         console.log("Order:", order);

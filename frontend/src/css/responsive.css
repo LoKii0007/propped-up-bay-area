@@ -1,9 +1,13 @@
 @media screen and (max-width:780px){
 
-    .google div div div{
+    .google div div{
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
+    }
+
+    .google div div div{
+        display: none !important;
     }
 
     /* --------------------- login -------------------  */

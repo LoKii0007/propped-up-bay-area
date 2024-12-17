@@ -50,7 +50,7 @@ function Register() {
 
   return (
     <>
-      <div className="min-h-screen register flex items-center justify-center bg-[#4c9a2a10]">
+      <div className="min-h-screen register flex items-center justify-center">
 
       <ProppedUpLogo />
 

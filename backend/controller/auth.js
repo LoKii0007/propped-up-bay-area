@@ -386,12 +386,12 @@ const sendOtp = async (req, res) => {
 //? ---------reset pass-------------
 const resetPassword = async (req, res) => {
   try {
-    const { otp, newPassword } = req.body;
-    const userId = req.user.userId; // Extracted from req.user as requested
+    const { otp, newPassword, email } = req.body;
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({email});
     if (!user) return res.status(404).json({ msg: "User not found" });
 
+    console.log(user)
     if (!user.connectedAccounts.includes("Email")) {
       return res.status(404).json({ msg: "Not connected by email" });
     }

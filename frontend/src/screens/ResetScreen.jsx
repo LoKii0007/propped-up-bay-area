@@ -8,7 +8,7 @@ const ResetScreen = () => {
   return (
     <>
       <div className="reset w-screen h-screen flex justify-center ">
-          <div className='mx-[20%] mt-[7%] w-full ' >
+          <div className=' mx-4 md:mx-[20%] mt-[7%] w-full ' >
              <ResetPassword setForget={setFlag} />
           </div>
       </div>

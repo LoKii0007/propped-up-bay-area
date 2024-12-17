@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useGlobal } from "@/context/GlobalContext";
-import { useLocation } from "react-router-dom";
+import { useLocation , useNavigate} from "react-router-dom";
 import Loader from "./ui/loader";
 
 const ResetPassword = ({ setForget }) => {
@@ -17,6 +17,7 @@ const ResetPassword = ({ setForget }) => {
   const location = useLocation()
   const [timer, setTimer] = useState(300); // 5 minutes = 300 seconds
   const timerRef = useRef(null)
+  const navigate = useNavigate()
 
   //?-----------------------------
   //? send otp
@@ -59,11 +60,18 @@ const ResetPassword = ({ setForget }) => {
     try {
       setLoading(true);
       const payload = { ...data, email };
-      await axios.post(`${baseUrl}/auth/reset-pass`, payload, {
-        withCredentials: true,
+      const res = await axios.post(`${baseUrl}/auth/reset-pass`, payload, {
+        withCredentials: true, validateStatus: (status) => status < 500
       });
-      toast.success("Password reset successfully");
-      setForget(false);
+      if(res.status === 200) {
+        toast.success("Password reset successfully");
+        if(location.pathname === "/user/reset-pass") {
+          navigate("/login")
+        }
+        setForget(false)
+      }else{
+        toast.error(res.data.msg || "Error resetting password");
+      }
     } catch (error) {
       toast.error(error.response.data.message || "Error resetting password");
     } finally {
@@ -94,6 +102,7 @@ const ResetPassword = ({ setForget }) => {
             <input
               type="email"
               {...register("email", { required: true })}
+              required
               placeholder="Enter your email"
               className="focus:outline-none pt-2 border-b sm:mx-8 w-full md:w-1/3 focus:border-b focus:border-green-800"
             />
@@ -120,7 +129,9 @@ const ResetPassword = ({ setForget }) => {
               <label className="text-xs">OTP</label>
               <input
                 type="text"
-                {...register("otp", { required: true })}
+                {...register("otp", { required: true, maxLength: 6 })}
+                required
+                maxLength={6}
                 placeholder="Enter OTP"
                 className="w-full focus:outline-none border-b border-white focus:border-b focus:border-green-700"
               />
@@ -131,6 +142,7 @@ const ResetPassword = ({ setForget }) => {
               <div className="relative mt-1">
                 <input
                   type={showNewPassword ? "text" : "password"}
+                  required
                   {...register("newPassword", { required: true })}
                   placeholder="Enter new password"
                   className="w-full focus:outline-none border-b border-white focus:border-b focus:border-green-700"

@@ -58,7 +58,7 @@ function Login() {
 
   return (
     <>
-      <div className="min-h-screen register flex items-center justify-center bg-[#4c9a2a10]">
+      <div className="min-h-screen register flex items-center justify-center">
       <ProppedUpLogo />
         <div className="flex register-wrapper bg-white shadow-lg rounded-[20px] lg:w-[70%] w-[90%] justify-center items-center">
           <div className="login-client signup-client lg:px-[10%] px-[5%] w-full flex justify-center items-center py-10 gap-8">
