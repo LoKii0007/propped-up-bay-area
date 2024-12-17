@@ -116,7 +116,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     // update paid
     await order.updateOne({ paid: true });
-    console.log('update 1')
+    // console.log('update 1')
 
     const counter = await orderCounterSchema.findOne();
 
@@ -125,7 +125,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
 
     // update orderNo
     await order.updateOne({ orderNo });
-    console.log('update 2')
+    // console.log('update 2')
 
     // Increment the count for the next order
     await orderCounterSchema.findOneAndUpdate({}, { $inc: { count: 1 } });
@@ -167,7 +167,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
     ];
 
     try {
-      console.log('googlesheets : ',googleSheetdata)
+      // console.log('googlesheets : ',googleSheetdata)
 
       await addToGoogleSheet({
         data: googleSheetdata,
@@ -181,7 +181,7 @@ const completeOpenHouseOrder = async (orderId, session) => {
     await User.findByIdAndUpdate(order.userId, {
       $inc: { totalOrders: 1, totalSpent: order.total },
     });
-    console.log('update 3')
+    // console.log('update 3')
 
     //getting invoice url
     const invoices = await stripe.invoices.list({

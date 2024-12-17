@@ -3,6 +3,7 @@ const GoogleSheetUsers = require("../models/GoogleSheet");
 const SuperUser = require("../models/superUser");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const { convertArrayToStrings } = require("./helper");
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_OAUTH_CLIENT_ID,
@@ -124,8 +125,9 @@ const addDataToMultipleSheet = async(req, res)=>{
 // Step 3: Use the user's OAuth2 client to add data to their Google Sheet
 async function addToGoogleSheet({ data, targetSheet }) {
   // Fetch users from the database
+  const sanitizedData = convertArrayToStrings(data);
+  console.log("data (after sanitizing):", sanitizedData)
 
-  console.log('data', data)
   const users = await GoogleSheetUsers.find();
   if (!users || users.length === 0) {
     console.error("No users found");
@@ -170,7 +172,7 @@ async function addToGoogleSheet({ data, targetSheet }) {
         range: "Sheet1!A1", // Adjust range as needed
         valueInputOption: "RAW",
         resource: {
-          values: [data], // Data to be added
+          values: [sanitizedData], // Data to be added
         },
       });
 

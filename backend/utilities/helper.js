@@ -10,4 +10,17 @@ function formatDate(dateStr) {
     return `${day}-${month}-${year}`;
 }
 
-module.exports ={ formatDate};
+function convertArrayToStrings(arr) {
+    return arr.map(item => {
+      if (typeof item === "string") {
+        return item; // Already a string
+      }
+      if (item === null || item === undefined) {
+        return ""; // Handle null or undefined
+      }
+      return item.toString(); // Convert anything else to string
+    });
+  }
+  
+
+module.exports ={ formatDate, convertArrayToStrings };

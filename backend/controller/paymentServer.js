@@ -31,11 +31,9 @@ const stripeCustomPayment = async (req, res) => {
     }
 
     if (!verifyOpenHouseTotal(data)) {
-      return res
-        .status(400)
-        .json({
-          msg: "Prices may have been updated. Please refresh the page and try again.",
-        });
+      return res.status(400).json({
+        msg: "Prices may have been updated. Please refresh the page and try again.",
+      });
     }
 
     let customer;
@@ -155,12 +153,10 @@ const createMonthlyProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating subscription product:", error.message);
-    res
-      .status(500)
-      .json({
-        msg: "Failed to create subscription product",
-        error: error.message,
-      });
+    res.status(500).json({
+      msg: "Failed to create subscription product",
+      error: error.message,
+    });
   }
 };
 
@@ -176,11 +172,9 @@ const stripeSubscription = async (req, res) => {
     }
 
     if (!verifyPostOrderTotal(data)) {
-      return res
-        .status(400)
-        .json({
-          msg: "Prices may have been updated. Please refresh the page and try again.",
-        });
+      return res.status(400).json({
+        msg: "Prices may have been updated. Please refresh the page and try again.",
+      });
     }
 
     const amountInCents = data.total * 100;
@@ -321,11 +315,7 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
   // Construct the event from the signature
   try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      endpointSecret
-    );
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
     console.error("Webhook event construction error: ", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -354,12 +344,9 @@ const stipeSubscriptionWebhook = async (req, res) => {
             if (result.success) {
               return res.status(200).json({ msg: result.msg });
             } else {
-              return res
-                .status(400)
-                .json({
-                  msg:
-                    result.msg || "Something went wrong in completeOpenHouse",
-                });
+              return res.status(400).json({
+                msg: result.msg || "Something went wrong in completeOpenHouse",
+              });
             }
           } catch (error) {
             console.error("Error in open house webhook:", error.message);
@@ -380,12 +367,9 @@ const stipeSubscriptionWebhook = async (req, res) => {
             if (result.success) {
               return res.status(200).json({ msg: result.msg });
             } else {
-              return res
-                .status(400)
-                .json({
-                  msg:
-                    result.msg || "Something went wrong in completePostOrder",
-                });
+              return res.status(400).json({
+                msg: result.msg || "Something went wrong in completePostOrder",
+              });
             }
           }
         }
@@ -394,10 +378,11 @@ const stipeSubscriptionWebhook = async (req, res) => {
 
       /** Event: Invoice Payment Succeeded */
       case "invoice.payment_succeeded": {
-        console.log('here1')
         const invoice = event.data.object;
-        console.log('here2', invoice.metadata.orderId)
-        const order = await getOrder(invoice.metadata.orderId);
+        console.log("here2", invoice);
+        const orderId = invoice.lines.data[1].metadata.orderId;
+        console.log("here3", orderId);
+        const order = await getOrder(orderId);
 
         console.log("Order:", order);
 
@@ -412,8 +397,12 @@ const stipeSubscriptionWebhook = async (req, res) => {
         // Retrieve the customer's email details
         const stripeEmail = invoice.customer_details.email;
 
-        // Find the user
-        const user = await User.findById(order.userId);
+        // Increment totalOrders by 1 and totalSpent by total using $inc
+        //TODO : add month count
+        const user = await User.findByIdAndUpdate(order.userId, {
+          $inc: { totalOrders: 1, totalSpent: order.total },
+        });
+
         if (!user) {
           console.log("User not found for userId:", order.userId);
           return res.status(404).send("User not found.");
