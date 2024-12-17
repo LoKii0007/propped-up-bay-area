@@ -22,7 +22,7 @@ Routes.patch('/auth/update/password', verifyUser, updatePassword ) // updating p
 Routes.post('/auth/update/connected-accounts', verifyUser, authUpdate ) // updating pass
 Routes.get('/auth/logout', verifyUser, signOutApi)  //signout
 Routes.post('/auth/send-otp', sendOtp)  //send otp
-Routes.post('/auth/reset-pass',verifyUser, resetPassword)  // reset pass
+Routes.post('/auth/reset-pass', resetPassword)  // reset pass
 
 
 //? -----------------------------
