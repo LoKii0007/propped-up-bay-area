@@ -553,24 +553,33 @@ const getPostOrderApi = async (req, res) => {
 const getOpenHouseInvoiceApi = async (req, res) => {
   try {
     const { orderId } = req.query;
+
     if (!orderId) {
-      return res.status(404).json({ msg: "No order found" });
+      return res.status(400).json({ msg: "Order ID is required" }); // 400 for Bad Request
     }
 
-    const order = await openHouseSchema.findById(orderId);
-    if (!order) {
-      console.log("No order found");
-      return res.status(404).json({ msg: "No order found" });
+    // Query for both orders concurrently
+    const [openHouseOrder, postOrder] = await Promise.all([
+      openHouseSchema.findById(orderId),
+      postOrderSchema.findById(orderId),
+    ]);
+
+    if (openHouseOrder) {
+      return res.status(200).json({ invoice: openHouseOrder });
+    } else if (postOrder) {
+      return res.status(200).json({ invoice: postOrder });
     }
 
-    return res.status(200).json({ invoice: order });
+    // If no order is found
+    console.log(`No order found for ID: ${orderId}`);
+    return res.status(404).json({ msg: "No order found" });
+
   } catch (error) {
-    console.log("Error in getOpenHouseInvoiceApi", error.message);
-    return res
-      .status(500)
-      .json({ msg: "Error in getOpenHouseInvoiceApi", error: error.message });
+    console.error("Error in getOpenHouseInvoiceApi:", error.message);
+    return res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
+
 
 
 //? ---------------------------
