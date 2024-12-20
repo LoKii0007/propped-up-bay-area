@@ -72,7 +72,7 @@ function PostOrder({ draft }) {
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [loading2, setLoading2] = useState(false);
 
   //? ----------------------------------
@@ -235,7 +235,7 @@ function PostOrder({ draft }) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSubmit(e, "card");
+          setOpen(true);
         }}
         className="open-house-form h-full m-5 gap-3 px-12 flex flex-col space-y-6 bg-white"
       >
@@ -656,8 +656,8 @@ function PostOrder({ draft }) {
       <PaymentModal
         loading={loading}
         loading2={loading2}
-        open={modalOpen}
-        setOpen={setModalOpen}
+        open={open}
+        setOpen={setOpen}
         handleSubmit={handleSubmit}
       />
     </>
