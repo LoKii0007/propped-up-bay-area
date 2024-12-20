@@ -267,7 +267,7 @@ const createPostOrderApi = async (req, res) => {
       lighting,
       numberOfPosts,
       riders,
-      subsriptionFee
+      subscriptionFee
     } = req.body;
 
     if (!total || typeof total !== "number" || total <= 0) {
@@ -319,7 +319,7 @@ const createPostOrderApi = async (req, res) => {
       lighting,
       numberOfPosts,
       riders,
-      subsriptionFee
+      subscriptionFee
     });
 
     const savedForm = await newForm.save();
