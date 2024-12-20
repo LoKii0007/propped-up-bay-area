@@ -3,27 +3,34 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useGlobal } from "../context/GlobalContext";
 import DatePickerDemo from "@/components/ui/DatePicker";
+import PaymentModal from "@/components/ui/PaymentModal";
 
-function PostOrder({draft}) {
-  const { baseUrl, additionalPrices: postOrderPrices, zonePrices } = useGlobal();
+function PostOrder({ draft }) {
+  const {
+    baseUrl,
+    additionalPrices: postOrderPrices,
+    zonePrices,
+  } = useGlobal();
 
-  const zones = zonePrices.filter(zone => zone.type === "postOrder");
+  const zones = zonePrices.filter((zone) => zone.type === "postOrder");
 
   const additionalPrices = {
-    flyerBox: postOrderPrices.find(price => price.name === "Flyer Box")?.price,
-    lighting: postOrderPrices.find(price => price.name === "Lighting")?.price,
-    rider: postOrderPrices.find(price => price.name === "Rider")?.price,
-    post: postOrderPrices.find(price => price.name === "subscription")?.price,
+    flyerBox: postOrderPrices.find((price) => price.name === "Flyer Box")
+      ?.price,
+    lighting: postOrderPrices.find((price) => price.name === "Lighting")?.price,
+    rider: postOrderPrices.find((price) => price.name === "Rider")?.price,
+    post: postOrderPrices.find((price) => price.name === "subscription")?.price,
   };
 
   const initialState = {
     type: "postOrder",
+    subscriptionFee: additionalPrices.post,
     firstName: draft?.firstName || "",
     lastName: draft?.lastName || "",
     email: draft?.email || "",
     phone: draft?.phone || "",
-    // requestedDate: draft?.requestedDate && new Date(draft.requestedDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) 
-    // ? draft.requestedDate 
+    // requestedDate: draft?.requestedDate && new Date(draft.requestedDate).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)
+    // ? draft.requestedDate
     // : "",
     requestedDate: "",
     listingAddress: {
@@ -41,9 +48,11 @@ function PostOrder({draft}) {
       postalCode: draft?.billingAddress?.postalCode || "",
     },
     requiredZone: {
-      name:draft?.requiredZone?.name || "",
+      name: draft?.requiredZone?.name || "",
       text: draft?.requiredZone?.text || "",
-      price: zones.find(zone => zone.name === draft?.requiredZone?.name)?.price || 0,
+      price:
+        zones.find((zone) => zone.name === draft?.requiredZone?.name)?.price ||
+        0,
     },
     additionalInstructions: draft?.additionalInstructions || "",
     total: 0,
@@ -63,6 +72,8 @@ function PostOrder({draft}) {
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading2, setLoading2] = useState(false);
 
   //? ----------------------------------
   //? handling inputs
@@ -159,18 +170,20 @@ function PostOrder({draft}) {
   //? ----------------------------------
   //? form submission
   //?  ---------------------------------
-  async function handleSubmit(e) {
+  async function handleSubmit(e, type) {
     e.preventDefault();
-    console.log(draft);
-    setLoading(true);
-    if(!formData.requestedDate) {
+    if(type === 'card') {
+      setLoading(true);
+    }else {
+      setLoading2(true)
+    }
+    if (!formData.requestedDate) {
       toast.error("Please select a date for the event");
       setLoading(false);
       return;
     }
     try {
       // step1: creating or updating order
-      console.log(draft)
       const url = `${baseUrl}/api/orders/post-order`;
 
       const config = {
@@ -178,7 +191,10 @@ function PostOrder({draft}) {
         validateStatus: (status) => status < 500,
       };
 
-      const res = Object.keys(draft).length >0 ? await axios.patch(`${url}/${draft._id}`, formData, config) : await axios.post(url, formData, config);
+      const res =
+        Object.keys(draft).length > 0
+          ? await axios.patch(`${url}/${draft._id}`, formData, config)
+          : await axios.post(url, formData, config);
 
       if (res.status !== 200) {
         setLoading(false);
@@ -188,7 +204,7 @@ function PostOrder({draft}) {
 
       // step2: creating subscription schedule
       const payment = await axios.post(
-        `${baseUrl}/api/orders/post-order/subscription-schedule`,
+        `${baseUrl}/api/orders/post-order/subscription-schedule/${type}`,
         { data: res.data.order },
         { withCredentials: true, validateStatus: (status) => status < 500 }
       );
@@ -204,24 +220,23 @@ function PostOrder({draft}) {
     } catch (error) {
       toast.error("Server error. Please try again later.");
       setLoading(false);
+      setLoading2(false)
     }
   }
 
-  useEffect(() => {
-    // console.log('draft', draft);
-  }, [formData, additionalPrices, zones]);
+  useEffect(() => {}, [formData, additionalPrices, zones]);
 
   useEffect(() => {
-    // console.log('draft', draft);
-    // console.log('state', initialState);
-
-    setFormData(initialState)
+    setFormData(initialState);
   }, [draft]);
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(e, "card");
+        }}
         className="open-house-form h-full m-5 gap-3 px-12 flex flex-col space-y-6 bg-white"
       >
         {/* Name Section */}
@@ -415,8 +430,8 @@ function PostOrder({draft}) {
                 (zone) => zone.name === formData.requiredZone.name
               ) !== -1
                 ? zones.findIndex(
-                  (zone) => zone.name === formData.requiredZone.name
-                )
+                    (zone) => zone.name === formData.requiredZone.name
+                  )
                 : ""
             }
             onChange={handleZoneChange}
@@ -498,7 +513,8 @@ function PostOrder({draft}) {
             onChange={handleInputChange}
           />
           <label className="font-medium text-sm">
-            Yes I would like to add a flyer box for ${additionalPrices.flyerBox} additional
+            Yes I would like to add a flyer box for ${additionalPrices.flyerBox}{" "}
+            additional
           </label>
         </div>
 
@@ -511,7 +527,8 @@ function PostOrder({draft}) {
             onChange={handleInputChange}
           />
           <label className="font-medium text-sm">
-            Yes I would like to add lighting for ${additionalPrices.lighting} additional
+            Yes I would like to add lighting for ${additionalPrices.lighting}{" "}
+            additional
           </label>
         </div>
 
@@ -559,7 +576,8 @@ function PostOrder({draft}) {
         <div className="flex flex-col">
           <label className="font-medium text-sm">Riders</label>
           <p className="mb-2">
-            Each rider costs ${additionalPrices.rider}. Enter the required number.
+            Each rider costs ${additionalPrices.rider}. Enter the required
+            number.
           </p>
           <hr />
           <div className=" flex flex-col gap-2 w-max pt-4">
@@ -610,7 +628,10 @@ function PostOrder({draft}) {
               {formData.total}
             </div>
           </div>
-          <p>USD for the first month then, ${additionalPrices.post} for each month</p>
+          <p>
+            USD for the first month then, ${additionalPrices.post} for each
+            month
+          </p>
         </div>
 
         {/* Total Section */}
@@ -623,14 +644,22 @@ function PostOrder({draft}) {
 
           {/* Submit Button */}
           <button
-            disabled={loading}
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full "
           >
-            {loading ? "submitting..." : "Submit"}
+            Select Payment Method
           </button>
         </div>
       </form>
+
+      {/* -----------------payment modal -------------- */}
+      <PaymentModal
+        loading={loading}
+        loading2={loading2}
+        open={modalOpen}
+        setOpen={setModalOpen}
+        handleSubmit={handleSubmit}
+      />
     </>
   );
 }

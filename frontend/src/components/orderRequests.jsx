@@ -10,6 +10,7 @@ import { parseDate } from "../helpers/utilities";
 import axios from "axios";
 import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
 import StatusDropdown from "./StatusDropdown";
+import FilterModal from "@/ui/FilterModal";
 
 function OrderRequests({ orders, setOrders, totalOrderCount }) {
   // const [orders, setOrders] = useState([]);
@@ -21,10 +22,13 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
   const [completeOrder, setCompleteOrder] = useState({});
   const [loading, setLoading] = useState(false);
   const [nextLoading, setnextLoading] = useState(false);
-  const [orderPage, setOrderPage] = useState(2);
+  const [orderPage, setOrderPage] = useState(1);
   const limit = 10;
   // const [totalOrderCount, setTotalOrderCount] = useState(0)
   // orders, setOrders, totalOrderCount
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [open, setOpen] = useState(false)
 
   //? ------------------------
   //? pagination
@@ -99,7 +103,6 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
     }
   }
 
-
   //? ----------------------------------
   //? loading next post orders
   async function handleNextPostOrders() {
@@ -130,7 +133,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
     }
   }
 
-  useEffect(() => {;
+  useEffect(() => {
     setFilteredOrders(orders);
   }, [orders]);
 
@@ -226,6 +229,39 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
     }
   }
 
+  //? -------------------------
+  //? filter - date range
+  //?--------------------------
+  function handleDateFilter() {
+    if (!startDate || !endDate) {
+      toast("Please select date range !");
+      return;
+    }
+
+    console.log("date : ", parseDate(startDate));
+    const filtered = orders.filter((order) => {
+      const orderDate = parseDate(order.requestedDate);
+      return (
+        orderDate >= parseDate(startDate) && orderDate <= parseDate(endDate)
+      );
+    });
+
+    setFilteredOrders(filtered);
+    resetPagination(filtered);
+  }
+
+    //? -------------------------
+  //? filter - clear
+  //?--------------------------
+  function handleClearFilter() {
+    setOrderStatus("all");
+    setOrderType("all");
+    setStartDate("");
+    setEndDate("");
+    setFilteredOrders(orders);
+    resetPagination(orders); // pagination reset
+  }
+
   //? --------------------
   //? upadting render
   //?---------------------
@@ -241,7 +277,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
     <>
       {!isInfo ? (
         <div className="order-req flex flex-col h-full overflow-y-auto ">
-          <div className="req-top mt-4 w-full flex gap-6 font-medium mb-6 items-center">
+          <div className="req-top mt-4 px-4 w-full flex gap-6 font-medium mb-6 items-center justify-between ">
             <div className="filter-left w-1/3">
               <div className="search rounded-md bg-[#f5f5f5] flex items-center px-3">
                 <div className="search-icon ">
@@ -266,7 +302,8 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                 />
               </div>
             </div>
-            <div className="filter-right mx-auto grid grid-cols-2 items-center gap-5 w-2/3">
+
+            {/* <div className="filter-right flex w-2/3">
               <OrderTypeDropdown
                 filterType={orderType}
                 handleOrderType={handleOrderType}
@@ -275,17 +312,40 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                 filterType={orderStatus}
                 handleOrderType={handleOrderStatus}
               />
-            </div>
+            </div> */}
+
+            <button
+                className="text-black font-semibold flex items-center border border-black rounded-md px-5 md:px-8 py-2 "
+                onClick={() => setOpen(true)}
+              >
+                {/* <img src="/svg/filter.svg" alt="filter" /> */}
+                Filters
+              </button>
+
+              {/* --------------------filter modal-------------  */}
+              <FilterModal
+                open={open}
+                setOpen={setOpen}
+                setStartDate={setStartDate}
+                setEndDate={setEndDate}
+                startDate={startDate}
+                endDate={endDate}
+                handleClearFilter={handleClearFilter}
+                handleOrderStatus={handleOrderStatus}
+                orderStatus={orderStatus}
+                orderType={orderType}
+                handleOrderType={handleOrderType}
+              />
           </div>
 
           <div className="req-bottom w-full h-full flex flex-col gap-6 justify-between">
             <div className=" flex flex-col">
               <div className="order-top text-[#718096] flex w-full px-5 gap-2">
-                <div className="grid grid-cols-5 gap-2 w-5/6 " >
+                <div className="grid grid-cols-5 gap-2 w-5/6 ">
                   <RowHeading
                     data={filteredOrders}
                     setFilteredData={setFilteredOrders}
-                    filterValue={"_id"}
+                    filterValue={"orderNo"}
                     text="OrderId"
                   />
                   <RowHeading
@@ -331,7 +391,9 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                         onClick={() => handleUserClick(index)}
                         className="cursor-pointer grid grid-cols-5 w-5/6 py-5 gap-2 ps-5 custom-transition hover:shadow-md rounded-md hover:bg-green-100"
                       >
-                        <div className="overflow-hidden text-ellipsis text-nowrap ">{order.orderNo}</div>
+                        <div className="overflow-hidden text-ellipsis text-nowrap ">
+                          {order.orderNo}
+                        </div>
                         <div className="overflow-hidden text-nowrap text-ellipsis">
                           {order.firstName} {order.lastName}
                         </div>
@@ -348,14 +410,15 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                           ${order.status === "pending" && "text-yellow-500"}
                           ${order.status === "installed" && "text-blue-500"}
                           ${order.status === "completed" && "text-green-500"}
-                        }`} >
-                          <StatusDropdown
-                            order={order}
-                            setOrders={setOrders}
-                            setFilteredOrders={setFilteredOrders}
-                            setCompleteOrder={setCompleteOrder}
-                            status={order.status}
-                          />
+                        }`}
+                      >
+                        <StatusDropdown
+                          order={order}
+                          setOrders={setOrders}
+                          setFilteredOrders={setFilteredOrders}
+                          setCompleteOrder={setCompleteOrder}
+                          status={order.status}
+                        />
                       </div>
                     </div>
                   ))
@@ -364,6 +427,8 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                   {loading ? "loading..." : "You don't have any orders yet."}
                 </div>
               )}
+
+              {/* ---------------load more button -------------- */}
               {orders.length < totalOrderCount &&
                 currentPage === totalPages && (
                   <div className="flex justify-center">
@@ -381,7 +446,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                         onClick={() => handleNextPostOrders()}
                         className="bg-yellow-500 py-2 px-4 rounded-md my-3 "
                       >
-                        {nextLoading ? "loading..." : "Load more"}
+                        {nextLoading ? "Loading..." : "Load more"}
                       </button>
                     )}
                   </div>

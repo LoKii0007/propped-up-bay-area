@@ -18,7 +18,12 @@ function RowHeading({ text, setFilteredData, data, filterValue }) {
                 // Combine firstName and lastName for sorting
                 valA = (a.firstName + ' ' + a.lastName).toLowerCase();
                 valB = (b.firstName + ' ' + b.lastName).toLowerCase();
-            } else {
+            }
+            else if (filterValue === "orderNo") {
+                valA = parseInt(a[filterValue].slice(2));
+                valB = parseInt(b[filterValue].slice(2));
+            }
+            else {
                 valA = a[filterValue];
                 valB = b[filterValue];
             }

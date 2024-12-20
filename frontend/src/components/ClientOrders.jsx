@@ -300,7 +300,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
 
                   <button
                     onClick={handleDateFilter}
-                    className="font-semibold rounded-md py-2 hover:bg-gray-50"
+                    className="font-semibold rounded-md py-2 hover:bg-gray-50 overflow-hidden "
                   >
                     Filter
                   </button>
@@ -308,7 +308,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
 
                 <button
                   onClick={handleClearFilter}
-                  className=" font-semibold rounded-md py-2 px-6 hover:bg-gray-50"
+                  className=" font-semibold rounded-md py-2 px-6 hover:bg-gray-50 overflow-hidden "
                 >
                   Clear
                 </button>

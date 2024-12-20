@@ -69,7 +69,14 @@ const formSchema = new Schema({
   },
   sessionId : {
     type : String,
-    // required : true
+  },
+  subscriptionFee : {
+    type : Number,
+    required : true
+  },
+  subCount :{
+    type : Number,
+    default : 0
   },
   createdAt: {
     type: Date,

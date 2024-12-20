@@ -6,7 +6,6 @@ const gmailTemplateOrder = (firstName, type, link) => `
   <br>
   Thank you for placing an order with Proppedup Bay Area! Your ${type} support request has been successfully received.
   <br>
-  View the invoice
   <br>
   If you have any questions or need to make changes, please contact us at info@proppedupbayarea.com.
   <br>

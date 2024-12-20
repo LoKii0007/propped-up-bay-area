@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 function Pagination({
   startPage,
@@ -40,6 +40,10 @@ function Pagination({
     }
   };
 
+  useEffect(()=>{
+    setTotalPages(Math.ceil(filtered.length / displayCount));
+  }, [filtered])
+
   return (
     <>
       <div className="pagination flex items-center justify-between px-5 md:px-12 mb-[100px] md:mb-0 ">
@@ -54,8 +58,8 @@ function Pagination({
           />
         </div>
         <div className="page-right flex items-center gap-2">
+          {/* ----------prev button ------- */}
           <button onClick={handlePrevRange} disabled={startPage === 1}>
-            {/* <img src="/arrow-left.png" alt="Previous Range" className="px-4 py-3 bg-white" /> */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -70,6 +74,8 @@ function Pagination({
               />
             </svg>
           </button>
+
+          {/* ----------page buttons ------- */}
           <div className="flex">
             {Array.from(
               { length: Math.min(maxVisiblePages, totalPages - startPage + 1) },
@@ -99,11 +105,12 @@ function Pagination({
               </button>
             )}
           </div>
+
+          {/* ----------next button ------- */}
           <button
             onClick={handleNextRange}
             disabled={startPage + maxVisiblePages > totalPages}
           >
-            {/* <img src="/arrow-right.png" alt="Next Range" className="px-4 py-3 bg-white" /> */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"

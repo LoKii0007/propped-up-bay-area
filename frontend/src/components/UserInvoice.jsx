@@ -57,6 +57,15 @@ function UserInvoice() {
     <>
       {invoiceDetails ? (
         <div className="invoice-page flex flex-col mx-0 px-0 gap-6 items-center my-3">
+          <div className="inpage-bottom max-w-[790px] flex justify-end w-full sticky top-0 bg-white p-2 shadow-[0px_2px_2px_rgba(0,0,0,0.1)]">
+            <button
+              disabled={loading}
+              className="py-2 px-5 border-[1px] border-[#00B087] text-[#00B087] rounded-lg"
+              onClick={() => handlesave(invoiceDetails.type)}
+            >
+              Download Invoice
+            </button>
+          </div>
           <div className="inpage-top w-full ">
             {invoiceDetails?.type === "openHouse" && (
               <OpenHouseInvoice data={invoiceDetails} />
@@ -64,15 +73,6 @@ function UserInvoice() {
             {invoiceDetails?.type === "postOrder" && (
               <PostOrderInvoice data={invoiceDetails} />
             )}
-          </div>
-          <div className="inpage-bottom max-w-[790px] flex justify-end w-full">
-            <button
-              disabled={loading}
-              className="py-2 px-5 border-[1px] border-[#00B087] text-[#00B087] rounded-lg"
-              onClick={() => handlesave(invoiceDetails.type)}
-            >
-              Downlaod Invoice
-            </button>
           </div>
         </div>
       ) : (

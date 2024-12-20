@@ -19,7 +19,7 @@ const frontendUrl = process.env.FRONTEND_URL;
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 
 //? ----------------------------------------
-//? stripe one time payment for openHouse
+//? stripe one time payment withput tax for openHouse
 //? ----------------------------------------
 const stripeCustomPayment = async (req, res) => {
   try {
@@ -56,6 +56,7 @@ const stripeCustomPayment = async (req, res) => {
     const amountInCents = Math.round(data.total * 100);
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
+      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
@@ -66,6 +67,86 @@ const stripeCustomPayment = async (req, res) => {
             unit_amount: amountInCents, // Use the custom amount
           },
           quantity: 1,
+        },
+      ],
+      invoice_creation: {
+        enabled: true,
+      },
+      metadata: {
+        orderId: JSON.stringify(data._id),
+      },
+      mode: "payment",
+      success_url: `${frontendUrl}/order/openHouse/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontendUrl}/order/openHouse/payment?canceled=true`,
+    });
+
+    if (!session) {
+      res.status(400).json({
+        msg: "Failed to create checkout session",
+        error: error.message,
+      });
+    }
+
+    res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      msg: "Failed to create checkout session",
+      error: error.message,
+    });
+  }
+};
+
+//? ----------------------------------------
+//? stripe one time payment with tax for openHouse
+//? ----------------------------------------
+const stripeCustomPaymentWithTax = async (req, res) => {
+  try {
+    const { data } = req.body;
+
+    // Validate the total to ensure it is a number and greater than zero
+    if (typeof data.total !== "number" || data.total <= 0) {
+      return res.status(400).json({ message: "Invalid custom amount" });
+    }
+
+    if (!verifyOpenHouseTotal(data)) {
+      return res.status(400).json({
+        msg: "Prices may have been updated. Please refresh the page and try again.",
+      });
+    }
+
+    let customer;
+    const existingCustomers = await stripe.customers.list({
+      email: data.email,
+      limit: 1, // Limit to one result for efficiency
+    });
+
+    if (existingCustomers.data.length > 0) {
+      customer = existingCustomers.data[0]; // Use the existing customer
+    } else {
+      // Create a new customer if one doesn't exist
+      customer = await stripe.customers.create({
+        email: data.email,
+        name: data.name, // Optional: include the name
+      });
+    }
+
+    // Convert to cents
+    const amountInCents = Math.round(data.total * 100);
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd", // Change to your currency
+            product_data: {
+              name: "open house order", // Optional: provide a product name
+            },
+            unit_amount: amountInCents, // Use the custom amount
+          },
+          quantity: 1,
+          tax_rates: ['txr_1QXfguSBgjrcPEt3DCFhylKZ']
         },
       ],
       invoice_creation: {
@@ -216,6 +297,91 @@ const stripeSubscription = async (req, res) => {
         {
           price: price.priceId,
           quantity: 1,
+        },
+      ],
+      metadata: {
+        orderId: data._id,
+      },
+      subscription_data: {
+        // trial_period_days: 30, // Add 30-day free trial to the subscription,
+        metadata: {
+          orderId: data._id, // Attach orderId to the subscription
+        },
+      },
+      mode: "subscription",
+      success_url: `${frontendUrl}/order/postOrder/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontendUrl}/order/postOrder/payment?canceled=true`,
+    });
+
+    if (!session) {
+      res.status(400).json({
+        msg: "Failed to create checkout session",
+        error: error.message,
+      });
+    }
+    res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.log("error in subscription payment method: ", error.message);
+    res.status(500).json({ msg: "error in subscription API", err: error });
+  }
+};
+
+//? ----------------------------------------
+//? stripe subscription
+//? ----------------------------------------
+const stripeSubscriptionWithTax = async (req, res) => {
+  try {
+    const { data } = req.body;
+
+    if (typeof data.total !== "number" || data.total <= 0) {
+      return res.status(400).json({ message: "Invalid custom amount" });
+    }
+
+    if (!verifyPostOrderTotal(data)) {
+      return res.status(400).json({
+        msg: "Prices may have been updated. Please refresh the page and try again.",
+      });
+    }
+
+    const amountInCents = data.total * 100;
+    const price = await additionalPricesSchema.findOne({
+      name: "subscription",
+    });
+
+    let customer;
+    const existingCustomers = await stripe.customers.list({
+      email: data.email,
+      limit: 1, // Limit to one result for efficiency
+    });
+
+    if (existingCustomers.data.length > 0) {
+      customer = existingCustomers.data[0]; // Use the existing customer
+    } else {
+      // Create a new customer if one doesn't exist
+      customer = await stripe.customers.create({
+        email: data.email,
+        name: data.name, 
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Post order first month fee",
+            },
+            unit_amount: amountInCents, 
+          },
+          quantity: 1,
+          tax_rates: ['txr_1QXfguSBgjrcPEt3DCFhylKZ']
+        },
+        {
+          price: price.priceId,
+          quantity: 1,
+          tax_rates: ['txr_1QXfguSBgjrcPEt3DCFhylKZ']
         },
       ],
       metadata: {
@@ -473,4 +639,6 @@ module.exports = {
   cancelSubscription,
   stipeSubscriptionWebhook,
   createMonthlyProduct,
+  stripeSubscriptionWithTax,
+  stripeCustomPaymentWithTax,
 };

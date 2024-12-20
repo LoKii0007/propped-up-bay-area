@@ -93,7 +93,7 @@ function DraftOrders() {
     setDeleteOrder(order)
   }
 
-  async function handleDelete(order) {
+  async function handleDelete() {
     try {
       setDeleteLoading(true)
       const response = await axios.delete(`${baseUrl}/api/orders/draft-order`, {
@@ -105,12 +105,20 @@ function DraftOrders() {
         toast.error("Error deleting order");
       } else {
         toast.success("Order deleted successfully");
-        setDraftOrders(draftOrders.filter((draft) => draft._id !== order._id));
+        setFilteredOrders((prev) => prev.filter((prev) => prev._id !== deleteOrder._id));
+        setDraftOrders((prev) => prev.filter((prev) => prev._id !== deleteOrder._id));
+        if(deleteOrder.type === 'openHouse') {
+          setOpenHouseDraftCount((prev) => prev - 1)
+        } 
+        else if(deleteOrder.type === 'postOrder') {
+          setPostOrderDraftCount((prev) => prev - 1)
+        }
       }
     } catch (error) {
       console.log("Error in handleDelete", error.message);
     } finally {
       setDeleteLoading(false)
+      setOpen(false)
     }
   }
 
@@ -156,7 +164,7 @@ function DraftOrders() {
         </div>
         <div className="order-bottom pb-[80px] md:pb-0 h-full mx-10 px-2 ">
           <div className="flex items-center w-full">
-            <div className=" text-[#718096] grid grid-cols-2 md:grid-cols-4 gap-2 px-5 w-[80%] items-center ">
+            <div className=" text-[#718096] grid grid-cols-2 md:grid-cols-3 gap-2 px-5 w-[80%] items-center ">
               <RowHeading
                 data={filteredOrders}
                 setFilteredData={setFilteredOrders}
@@ -175,21 +183,20 @@ function DraftOrders() {
                 filterValue={`${activeForm === 'openHouseForm' ? 'firstEventAddress.streetAddress' : 'billingAddress.streetAddress'}`}
                 text="Address"
               />
-              <div>Action</div>
             </div>
+            <div>Action</div>
           </div>
           <div className="draft-bottom flex flex-col w-full text-center ">
             { loading ? <div className="font-semibold w-full">Loading...</div> : filteredOrders.length > 0 ? (
               <>
                 {  filteredOrders?.length > 0 && filteredOrders?.map((order) => (
                   <div className="flex items-center w-full py-5 text-left ">
-                    <button onClick={() => handleOrderClick(order)}  className="grid grid-cols-4 gap-2 px-5 w-[80%] items-center text-left ">
+                    <button onClick={() => handleOrderClick(order)}  className="grid grid-cols-3 gap-2 px-5 w-[80%] items-center text-left ">
                       <div className="overflow-hidden text-ellipsis text-nowrap">{parseDate(order.createdAt)}</div>
                       <div className="overflow-hidden text-ellipsis text-nowrap">{order.email}</div>
                       <div className="overflow-hidden text-ellipsis text-nowrap ">
                         {activeForm === 'openHouseForm' ? order?.firstEventAddress?.streetAddress + ' ' + order?.firstEventAddress?.streetAddress2 + ' ' + order?.firstEventAddress?.city + ' ' + order?.firstEventAddress?.state + ' ' + order?.firstEventAddress?.postalCode : order?.billingAddress?.streetAddress + ' ' + order?.billingAddress?.streetAddress2 + ' ' + order?.billingAddress?.city + ' ' + order?.billingAddress?.state + ' ' + order?.billingAddress?.postalCode}
                       </div>
-                      <div className="overflow-hidden"></div>
                     </button>
                     <button onClick={() => handleDeleteBtn(order)}>Delete</button>
                   </div>

@@ -5,10 +5,6 @@ import html2pdf from "html2pdf.js";
 import toast from "react-hot-toast";
 
 function InvoiceDownload({ invoiceDetails }) {
-  var opt = {
-    margin: 1,
-    filename: "invoice.pdf",
-  };
 
   const [loading, setLoading] = useState(false);
 

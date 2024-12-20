@@ -435,7 +435,7 @@ function Invoices() {
             />
             <RowHeading
               setFilteredData={setFilteredInvoices}
-              filterValue="_id" // filtering basis
+              filterValue="orderNo" // filtering basis
               data={filteredInvoices}
               text="Invoice No."
             />

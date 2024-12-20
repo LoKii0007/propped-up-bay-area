@@ -5,6 +5,7 @@ import { useGlobal } from "../context/GlobalContext";
 import TimePicker from "@/ui/TimePicker";
 import DatePicker from "@/components/ui/DatePicker";
 import { isSameWeek } from "@/helpers/utilities";
+import PaymentModal from "@/components/ui/PaymentModal";
 
 const OpenHouseForm = ({ draft }) => {
   const {
@@ -75,6 +76,8 @@ const OpenHouseForm = ({ draft }) => {
   const [rushFee, setRushFee] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().getHours());
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // ----------------------------------
   // handling inputs
@@ -229,11 +232,20 @@ const OpenHouseForm = ({ draft }) => {
   //? ----------------------------------
   //? form submission
   //?  ---------------------------------
-  async function handleSubmit(e) {
+  async function handleSubmit(e, type) {
     e.preventDefault();
-    setLoading(true);
+    if(type === 'card') {
+      setLoading(true);
+    }else {
+      setLoading2(true)
+    }
     if (!formData.requestedDate) {
       toast.error("Please select a date for the event");
+      setLoading(false);
+      return;
+    }
+    if (!formData.firstEventStartTime || !formData.firstEventEndTime) {
+      toast.error("Please select a time for the event");
       setLoading(false);
       return;
     }
@@ -258,7 +270,7 @@ const OpenHouseForm = ({ draft }) => {
 
       // Step 2: Verifying payment by creating a checkout session
       const payment = await axios.post(
-        `${baseUrl}/api/orders/open-house/create-checkout-session`,
+        `${baseUrl}/api/orders/open-house/create-checkout-session/${type}`,
         { data: res.data.order },
         { withCredentials: true, validateStatus: (status) => status < 500 }
       );
@@ -274,6 +286,7 @@ const OpenHouseForm = ({ draft }) => {
     } catch (error) {
       toast.error("Server Error");
       setLoading(false);
+      setLoading2(false);
     }
   }
 
@@ -281,20 +294,19 @@ const OpenHouseForm = ({ draft }) => {
   //? updating render
   //?  ---------------------------------
   useEffect(() => {
-    // console.log('draft', draft);
   }, [formData, additionalPrices, zones]);
 
   useEffect(() => {
-    // console.log('draft', draft);
-    // console.log('state', initialState);
-
     setFormData(initialState)
   }, [draft]);
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(e)=>{
+          e.preventDefault()
+          setModalOpen(true)
+        } }
         className="open-house-form m-5 px-12 gap-3 flex flex-col space-y-3 "
       >
         {/* Name Section */}
@@ -660,14 +672,18 @@ const OpenHouseForm = ({ draft }) => {
 
           {/* Submit Button */}
           <button
-            disabled={loading}
-            type="submit"
+          type="submit"
+            // onClick={() => setModalOpen(true)}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-full rounded-sm"
           >
-            {loading ? "placing order..." : "Submit"}
+            Select Payment method
           </button>
         </div>
       </form>
+
+      {/* -----------------payment modal -------------- */}
+      <PaymentModal loading={loading} loading2={loading2} open={modalOpen} setOpen={setModalOpen} handleSubmit={handleSubmit} />
+
     </>
   );
 };

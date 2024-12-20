@@ -12,7 +12,7 @@ function ClientDetails({ users, setUsers, totalCount, orders, setOrders }) {
   const { setBreadCrumb, isInfo, setIsInfo, baseUrl } = useGlobal();
   const [userInfo, setUserInfo] = useState(null);
   const [nextLoading, setNextLoading] = useState(false);
-  const [orderPage, setOrderPage] = useState(2);
+  const [orderPage, setOrderPage] = useState(1);
   const limit = 10;
 
   //? ------------------------

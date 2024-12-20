@@ -1,5 +1,5 @@
 const express = require('express')
-const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook, createMonthlyProduct } = require('../controller/paymentServer')
+const { stripeSubscription, stripeCustomPayment, cancelSubscription, stipeSubscriptionWebhook, createMonthlyProduct, stripeCustomPaymentWithTax, stripeSubscriptionWithTax } = require('../controller/paymentServer')
 const {userDetails, updateUserDetails, getAllUsersApi, getUserDetailsApi, getSingleUserDetails, uploadUserImage, sendReminderEmail} = require('../controller/users')
 const { signUp, login, getUserByToken, updatePassword, adminLogin, signOutApi, updateAdminDetails, authUpdate, updateAdminPassword, sendOtp, resetPassword, uploadAdminImage, deleteUser } = require('../controller/auth')
 const { createOpenHouseOrderApi, createPostOrderApi, getOpenHouseOrderApi, getPostOrderApi, updateOrderApi, getAllOrdersApi, getOpenHouseInvoiceApi, getDraftOrdersApi, getPostOrdersAdminApi, deleteDraftOrderApi, updateOpenHouseOrder, updatePostOrder } = require('../controller/orders')
@@ -102,9 +102,10 @@ Routes.post('/api/sheets', addDataToMultipleSheet)
 //? payment route
 //? -----------------------------
 Routes.patch('/api/pricing/edit-subscription-prices', verifyUser, createMonthlyProduct) // edit subscription prices
-Routes.get('/api/payment/check-status', checkPaymentStatus) // check payment status
-Routes.post('/api/orders/open-house/create-checkout-session',verifyUser, stripeCustomPayment) // openHouse order payment
-Routes.post('/api/orders/post-order/subscription-schedule',verifyUser, stripeSubscription)  //postorder subscription
+Routes.post('/api/orders/open-house/create-checkout-session/other',verifyUser, stripeCustomPayment) // openHouse order payment
+Routes.post('/api/orders/open-house/create-checkout-session/card',verifyUser, stripeCustomPaymentWithTax) // openHouse order payment
+Routes.post('/api/orders/post-order/subscription-schedule/card',verifyUser, stripeSubscriptionWithTax)  //postorder subscription
+Routes.post('/api/orders/post-order/subscription-schedule/other',verifyUser, stripeSubscription)  //postorder subscription
 Routes.patch('/api/orders/cancel-subscription', verifyUser, cancelSubscription) // cancel stripe subscription and post removal
 
 module.exports = Routes
