@@ -277,8 +277,9 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                 </button>
 
                  {/* --------------------filter modal-------------  */}
-                <FilterModal open={open} setOpen={setOpen} setStartDate={setStartDate} setEndDate={setEndDate} startDate={startDate} endDate={endDate} handleClearFilter={handleClearFilter} handleOrderStatus={handleOrderStatus} orderStatus={orderStatus} orderType={orderType} handleOrderType={handleOrderType} />
+                <FilterModal handleDateFilter={handleDateFilter} open={open} setOpen={setOpen} setStartDate={setStartDate} setEndDate={setEndDate} startDate={startDate} endDate={endDate} handleClearFilter={handleClearFilter} handleOrderStatus={handleOrderStatus} orderStatus={orderStatus} orderType={orderType} handleOrderType={handleOrderType} />
               </div>
+
               <div className="filter-right items-center justify-end px-6 hidden  md:flex gap-3 w-2/3">
                 <div className="">
                   <OrderTypeDropdown

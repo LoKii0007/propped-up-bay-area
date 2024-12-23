@@ -13,7 +13,7 @@ export default function AdminImageAccordian({ isLoading, imageUrl, handleFileCha
       <AccordionItem value="item-1">
         <AccordionTrigger>
           <div className="flex justify-between px-5 items-center w-full">
-            Uplaod image
+            Upload image
           </div>
         </AccordionTrigger>
         <AccordionContent>

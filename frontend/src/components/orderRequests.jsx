@@ -335,6 +335,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
                 orderStatus={orderStatus}
                 orderType={orderType}
                 handleOrderType={handleOrderType}
+                handleDateFilter={handleDateFilter}
               />
           </div>
 

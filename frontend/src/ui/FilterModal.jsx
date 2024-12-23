@@ -5,10 +5,11 @@ import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 import StartDatePicker from '@/components/ui/StartDatePicker'
 import EndDatePicker from '@/components/ui/EndDatePicker'
 
-export default function FilterModal({ open, setOpen, setStartDate, setEndDate, startDate, endDate, handleClearFilter, handleOrderStatus, orderStatus, orderType, handleOrderType 
+export default function FilterModal({ handleDateFilter, open, setOpen, setStartDate, setEndDate, startDate, endDate, handleClearFilter, handleOrderStatus, orderStatus, orderType, handleOrderType 
 }) {
 
   function handleApply() {
+    handleDateFilter()
     setOpen(false);
   }
 
