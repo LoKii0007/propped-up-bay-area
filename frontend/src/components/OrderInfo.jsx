@@ -6,6 +6,8 @@ import axios from "axios";
 import { useGlobal } from "../context/GlobalContext";
 import toast from "react-hot-toast";
 import ChangeStatusDropdown from "../ui/ChangeStatusDropdown";
+import ImageAccordian from "@/ui/ImageAccordian";
+import AdminImageAccordian from "@/ui/AdminImageAccordian";
 
 function OrderInfo({
   order,
@@ -187,6 +189,15 @@ function OrderInfo({
           >
             {order.type} Details
           </h2>
+
+          {currentUser && (
+            <ImageAccordian imageUrl={imageUrl} currentUser={currentUser} isLoading={isLoading} />  
+          )}
+
+          {(admin?.role === "admin" || admin?.role === "superuser") && (
+            <AdminImageAccordian handleFileChange={handleFileChange} updateImage={updateImage} uploadImage={uploadImage} imageUrl={imageUrl} uploading={uploading} isLoading={isLoading} />
+          )}
+
           <div className="flex flex-col gap-x-10 gap-y-3">
             <p className="text-md grid grid-cols-2  ">
               <span>First Name:</span> {order.firstName}
@@ -347,71 +358,7 @@ function OrderInfo({
               </>
             )}
           </div>
-          {(admin?.role === "admin" || admin?.role === "superuser") && (
-            <>
-              {!isLoading ? (
-                <div className="w-full py-6 flex flex-col gap-5 justify-center items-center ">
-                  {imageUrl ? (
-                    <>
-                      <img width={400} src={imageUrl} alt="" />
-                      <input
-                        type="file"
-                        onChange={handleFileChange}
-                        className=""
-                      />
-                      <button
-                        onClick={() => updateImage()}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                        disabled={uploading}
-                      >
-                        {uploading ? "Uploading..." : "Update Image"}
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <label className="block font-medium text-gray-700 text-center ">
-                        Upload Order Image
-                      </label>
-                      <input
-                        type="file"
-                        onChange={handleFileChange}
-                        className=""
-                      />
-                      <button
-                        onClick={() => uploadImage()}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                        disabled={uploading}
-                      >
-                        {uploading ? "Uploading..." : "Upload Image"}
-                      </button>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <div className="text-center">Loading...</div>
-                </>
-              )}
-            </>
-          )}
 
-          {currentUser && (
-            <>
-              {!isLoading ? (
-                <div className="w-full py-6 flex flex-col gap-5 justify-center items-center ">
-                  {imageUrl ? (
-                    <img width={400} src={imageUrl} alt="image" />
-                  ) : (
-                    "Image not uploaded yet."
-                  )}
-                </div>
-              ) : (
-                <>
-                  <div className="text-center">Loading...</div>
-                </>
-              )}
-            </>
-          )}
         </div>
       </div>
 

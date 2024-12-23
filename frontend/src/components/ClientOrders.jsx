@@ -362,7 +362,7 @@ function ClientOrders({ orders, loadingOrders, setOrders, setPostOrders }) {
                   <RowHeading
                     data={filteredOrders}
                     setFilteredData={setFilteredOrders}
-                    filterValue={"orderdate"}
+                    filterValue={"createdAt"}
                     text="Order Date"
                   />
                   <RowHeading

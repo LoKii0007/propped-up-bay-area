@@ -54,11 +54,11 @@ function PostOrderInvoice({ data }) {
           </div>
           <div className="mb-1 flex gap-8">
             <span className="font-semibold">First payment: </span>$
-            {data.requiredZone.price}
+            {data.total}
           </div>
           <div className="mb-4 flex gap-8">
             <span className="font-semibold">Renewal Fee: </span>$
-            {data.subscrptionFee}
+            {data.subscriptionFee}
           </div>
           <div className="mb-4 flex gap-8 ">
             <h4 className="font-semibold">
@@ -113,7 +113,7 @@ function PostOrderInvoice({ data }) {
           <div className="mb-4">
             <p>
               Post signs is based on zones for first payment and a $
-              {data?.subsriptionFee} monthly recurring fee which will be removed
+              {data?.subscriptionFee} monthly recurring fee which will be removed
               during the post order removal request submission.
             </p>
           </div>
