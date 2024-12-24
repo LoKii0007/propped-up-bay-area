@@ -182,7 +182,7 @@ function ClientDetails({ users, setUsers, totalCount, orders, setOrders }) {
                     >
                       <div className="text-center flex items-center gap-3 overflow-hidden">
                         <img
-                          src="/user.png"
+                          src={user?.img || `/user.png`}
                           alt=""
                           className="w-5 h-5 rounded-full"
                         />
@@ -195,7 +195,7 @@ function ClientDetails({ users, setUsers, totalCount, orders, setOrders }) {
                     </div>
                   ))}
                 {users.length < totalCount &&
-                  currentPage === totalPages && (
+                   (
                     <div className="flex justify-center">
                       <button
                         disabled={nextLoading}

@@ -46,7 +46,7 @@ function Pagination({
 
   return (
     <>
-      <div className="pagination flex items-center justify-between px-5 md:px-12 mb-[100px] md:mb-0 ">
+      <div className="pagination flex items-center justify-between px-5 pt-2 mb-[100px] md:mb-0 sticky bottom-0 bg-white ">
         <div className="page-left">
           <label>Show results: </label>
           <input

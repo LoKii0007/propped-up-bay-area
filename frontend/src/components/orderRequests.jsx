@@ -431,7 +431,7 @@ function OrderRequests({ orders, setOrders, totalOrderCount }) {
 
               {/* ---------------load more button -------------- */}
               {orders.length < totalOrderCount &&
-                currentPage === totalPages && (
+                 (
                   <div className="flex justify-center">
                     {breadcrumb === "Order requests" ? (
                       <button

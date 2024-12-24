@@ -769,44 +769,42 @@ const updateOrderApi = async (req, res) => {
 //? -------get all Orders API
 //? ---------------------------
 const getAllOrdersApi = async (req, res) => {
-  let orders = [];
   try {
     const user = await SuperUser.findById(req.user.userId);
-    if (!user) {
+    if (!user || !['superuser', 'admin'].includes(user.role)) {
       return res.status(401).json({ message: "unauthorized" });
     }
 
-    if (user.role !== "superuser" && user.role !== "admin") {
-      return res.status(401).json({ message: "unauthorized" });
-    }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
 
-    const page = parseInt(req.query.page) || 1; // Get page number
-    const limit = parseInt(req.query.limit) || 20; // Get limit
-    const skip = (page - 1) * limit; // How many orders to skip
+    // Get total counts once per session if needed
+    const totalOpenHouseCount = await openHouseSchema.countDocuments({ paid: true });
+    const totalPostCount = await postOrderSchema.countDocuments({ paid: true });
+    const totalOrderCount = totalOpenHouseCount + totalPostCount;
+    
+    // Fetch limited orders from both collections
+    const [openHouseOrders, postOrders] = await Promise.all([
+      openHouseSchema.find({ paid: true })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      postOrderSchema.find({ paid: true })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+    ]);
 
-    // Calculate total order count (for the first page)
-    let totalOrderCount = 0;
-    if (page === 1) {
-      totalOrderCount = await openHouseSchema.countDocuments({ paid: true });
-      totalOrderCount += await postOrderSchema.countDocuments({ paid: true });
-    }
+    const combinedOrders = [...openHouseOrders, ...postOrders]
+      .sort((a, b) => b.createdAt - a.createdAt);
 
-    // Fetch orders from the first collection
-    let openHouseOrders = await openHouseSchema.find({ paid: true }).skip(skip).limit(limit);
-
-    // If the limit isn't filled, fetch the remaining orders from the second collection
-    let postOrders = await postOrderSchema.find({ paid: true }).skip(skip).limit(limit);
-
-    // Combine the orders
-    orders.push(...openHouseOrders, ...postOrders);
-
-    if (orders.length === 0) {
-      console.log("No orders found");
+    if (combinedOrders.length === 0) {
       return res.status(404).json({ message: "No orders found" });
     }
 
     return res.status(200).json({
-      orders,
+      orders: combinedOrders,
       message: "Orders found.",
       count: totalOrderCount,
     });
@@ -818,6 +816,7 @@ const getAllOrdersApi = async (req, res) => {
     });
   }
 };
+
 
 const getPostOrdersAdminApi = async (req, res) => {
   try {

@@ -55,7 +55,7 @@ function Invoices() {
       } else if (res.status === 200) {
         const allOrders = res.data.orders;
         setOrders(allOrders);
-        setTotalOrderCount(res.data.couunt)
+        setTotalOrderCount(res.data.count)
         setFilteredInvoices(allOrders);
         // setTotalPages(Math.ceil(allOrders.length / displayCount));
         resetPagination(allOrders)
@@ -465,7 +465,7 @@ function Invoices() {
                     </button>
                   </div>
                 ))}
-              {orders.length < totalOrderCount && currentPage === totalPages && (
+              {orders.length < totalOrderCount && (
                 <div className="flex justify-center">
                   {nextLoading ? (
                     "loading..."
